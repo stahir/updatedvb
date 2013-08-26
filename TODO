@@ -3,6 +3,5 @@
 - Parse more descriptors
 - Look into Qcustomplot vs Qwt
 - Add a RF level graph in tuning dialog
-- Look into voltage:B make sure it works for both spectrumscan and blindscan, and blindscan->tuning
 - lower IQ plot cpu usage, maybe make it its own dialog window
 - check over diseqc switching
