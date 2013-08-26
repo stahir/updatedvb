@@ -1,0 +1,54 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2012-07-17T17:21:10
+#
+#-------------------------------------------------
+
+QT  += core gui
+QT  += network
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = updateDVB
+TEMPLATE = app
+
+SOURCES += dvb_settings.cpp
+SOURCES += dvbstream_thread.cpp
+SOURCES += blindscan.cpp
+SOURCES += blindscan_thread.cpp
+SOURCES += blindscan_save.cpp
+SOURCES += tuning_thread.cpp
+SOURCES += tuning.cpp
+SOURCES += dvbtune.cpp
+SOURCES += settings.cpp
+SOURCES += demux_file.cpp
+SOURCES += demux_dvr.cpp
+SOURCES += scan.cpp
+SOURCES += mainwindow.cpp
+SOURCES += main.cpp
+
+HEADERS  += dvb_settings.h
+HEADERS  += dvbstream_thread.h
+HEADERS  += tuning_thread.h
+HEADERS  += blindscan.h
+HEADERS  += blindscan_thread.h
+HEADERS  += blindscan_save.h
+HEADERS  += tuning.h
+HEADERS  += dvbtune.h
+HEADERS  += settings.h
+HEADERS  += demux_file.h
+HEADERS  += demux_dvr.h
+HEADERS  += scan.h
+HEADERS  += mainwindow.h
+
+FORMS    += mainwindow.ui \
+    tuning.ui \
+    settings.ui \
+    demux_file.ui \
+    demux_dvr.ui \
+    blindscan.ui \
+    blindscan_save.ui
+
+INCLUDEPATH += /usr/include/qwt
+INCLUDEPATH += /opt/local/include/qwt
+INCLUDEPATH += /usr/local/qwt-6.1.0-svn/include
+LIBS += -l qwt

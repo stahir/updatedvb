@@ -1,0 +1,20 @@
+# updateDVB
+
+# STV0900 and STV0903 devices support blindscan and spectrum scan. Tested cards are
+# Prof 7301
+# Prof 7500
+# TBS 6925
+
+# Other devices tested for tuning are
+# Genpix Skywalker-1
+
+# If you have other cards and have tested them let me know. Im continuously adding
+# more cards, the more you guys test the less I have to.
+
+# Download and install any dependancies you need
+
+	sudo apt-get install qtcreator libqwt-dev
+
+# To compile and run open the project in qtcreator, edit the updateDVB.pro 
+# file and adjust the INCLUDES to match you path's, then hit the yellow triangle 
+# that says 'Build and Run'
