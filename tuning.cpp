@@ -124,9 +124,6 @@ void tuning::init()
 
 	mytune->start();
 	mytune->thread_function.append("tune");
-	if (mytune->caps & FE_CAN_IQ) {
-		mytune->thread_function.append("iqplot");
-	}	
 	mythread.mytune = mytune;
 }
 
@@ -456,4 +453,17 @@ void tuning::iqdraw(QVector<short int> x, QVector<short int> y)
 		curve[a]->setSamples(xs[a], ys[a]);
 	}
 	ui->qwtPlot->replot();
+}
+
+void tuning::on_pushButton_iqplot_clicked()
+{
+	if (mytune->caps & FE_CAN_IQ) {
+		if (mytune->thread_function.indexOf("iqplot") == -1) {
+			mytune->thread_function.append("iqplot");
+			ui->label_iqplot->setText("On");
+		} else {
+			mytune->thread_function.remove(mytune->thread_function.indexOf("iqplot"));
+			ui->label_iqplot->setText("Off");
+		}
+	}	
 }

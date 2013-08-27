@@ -82,6 +82,8 @@ private slots:
 	void iqdraw(QVector<short int> x, QVector<short int> y);
 	void delete_tuning();
 	
+	void on_pushButton_iqplot_clicked();
+	
 private:
 	QSettings *mysettings;
 	dvb_settings dvbnames;

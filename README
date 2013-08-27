@@ -9,7 +9,8 @@
 # Devices supporting spectrum scan, no blindscan
 # Genpix Skywalker-1
 
-# ATSC devices supporting spectrum scan, blindscan works by having a list of possible ATSC transponders and trying those
+# ATSC devices supporting spectrum scan, blindscan works by having a list of
+# possible ATSC transponders and trying those
 # Hauppauge WinTV-HVR-950Q
 
 # If you have other cards and have tested them let me know. Im continuously adding
