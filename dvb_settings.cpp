@@ -253,6 +253,9 @@ dvb_settings::dvb_settings()
 	ca_name[0x1802] = "Nagravision";
 	ca_name[0x1810] = "Nagravision";
 	ca_name[0x1830] = "Nagravision";
+	ca_name[0x2250] = "Scopus Network Technologies";
+	ca_name[0x2251] = "Scopus Network Technologies";
+	ca_name[0x2252] = "Scopus Network Technologies";
 	ca_name[0x22F0] = "Codicrypt";
 	ca_name[0x2600] = "BISS";
 	ca_name[0x4900] = "China Crypt - Irdeto";

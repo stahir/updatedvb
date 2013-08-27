@@ -37,6 +37,7 @@ public:
 	int parse_pat();
 	int parse_pmt();
 	int parse_sdt();
+	int parse_cat();
 	int parse_psip();
 	int parse_descriptor(int parent);
 

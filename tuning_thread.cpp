@@ -275,6 +275,25 @@ int tuning_thread::parse_pat()
 	return 1;
 }
 
+int tuning_thread::parse_cat()
+{
+	mytune->index = 0;
+	if (mytune->read8() != 0x01) {
+		return -1;
+	}
+
+	int parent, parent_t;
+	tree_create_root_wait(&parent, "CAT pid: 0x01", 0x01);
+
+	int section_length = mytune->read16(0x0FFF) - 4;
+	mytune->index += 5;
+	while (mytune->index < section_length) {
+		parent_t = parent;
+		parse_descriptor(parent_t);
+	}
+	return 1;
+}
+
 void tuning_thread::parsetp()
 {
 	int parent_1 = 0;
@@ -305,6 +324,12 @@ void tuning_thread::parsetp()
 	if (mytune->pids_rate[0x00] && mytune->demux_packet(0x00, 0x00) > 0) {
 		if (!loop) return;
 		parse_pat();
+	}
+
+	if (!loop) return;
+	if (mytune->pids_rate[0x01] && mytune->demux_packet(0x01, 0x01) > 0) {
+		if (!loop) return;
+		parse_cat();
 	}
 
 	if (!loop) return;
