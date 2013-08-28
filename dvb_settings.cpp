@@ -323,6 +323,7 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0xAB]	= "Genre";
 	dvb_descriptortag[0xAD]	= "ATSC Private Information";
 	dvb_descriptortag[0xF0]	= "User Defined";
+	dvb_descriptortag[0xFC]	= "User Defined";
 	dvb_descriptortag[0xFD]	= "User Defined";
 	dvb_descriptortag[0xFE]	= "User Defined";
 }

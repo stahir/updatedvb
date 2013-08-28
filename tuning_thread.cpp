@@ -381,7 +381,7 @@ void tuning_thread::parsetp()
 		}
 
 		if (!loop) return;
-		if (mytune->pids_rate[mypat.pid[i]] && mytune->demux_packet(mypat.pid[i], 0x02, 400) <= 0) {
+		if (mytune->pids_rate[mypat.pid[i]] && mytune->demux_packet(mypat.pid[i], 0x02, 500) <= 0) {
 			continue;
 		}
 		if (!loop) return;

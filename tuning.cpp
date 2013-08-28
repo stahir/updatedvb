@@ -283,7 +283,6 @@ void tuning::tree_create_child(int *parent, QString text, int pid)
 	tree_item.last()->setText(0, text);
 	tree_item.last()->setExpanded(true);
 	tree_item.last()->setTextColor(0, tree_item.at(*parent)->textColor(0));
-	tree_item.at(tree_pid.indexOf(pid))->setTextColor(0, tree_item.at(*parent)->textColor(0));
 	tree_item.at(*parent)->addChild(tree_item.last());
 	tree_item.at(*parent)->setExpanded(true);
 	*parent = tree_item.size() - 1;
