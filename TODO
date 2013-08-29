@@ -3,5 +3,4 @@
 - Parse more descriptors
 - Look into Qcustomplot vs Qwt
 - Add a RF level graph in tuning dialog
-- lower IQ plot cpu usage, maybe make it its own dialog window
 - check over diseqc switching

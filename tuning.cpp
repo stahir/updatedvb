@@ -434,10 +434,12 @@ void tuning::iqdraw(QVector<short int> x, QVector<short int> y)
 {
 	QVector<double> xs[MAX_GRADIANT];
 	QVector<double> ys[MAX_GRADIANT];
-	QVector<double> xys[MAX_GRADIANT];
-	for (int i = 0; i < x.size(); i++) {
-		int xy_tmp	= (((int)x[i]<<8) + (int)y[i])>>2;
-		for (unsigned int a = 0; a < MAX_GRADIANT; a++) {			
+	QVector<unsigned short int> xys[MAX_GRADIANT];
+
+	for (unsigned short int i = 0; i < x.size(); i++) {
+		// x[i] 0xF0 + y[i] 0x0F makes a unique hash, >>2 is simply /2 to make the hash match anything in a 2x2 pixel block vs a 1 for 1 pixel block
+		unsigned short int xy_tmp = (((unsigned short int)x[i]<<8) + (unsigned short int)y[i])>>2;
+		for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {			
 			if (!xys[a].contains(xy_tmp)) {
 				xys[a].append(xy_tmp);
 				xs[a].append(x[i]);
@@ -448,7 +450,7 @@ void tuning::iqdraw(QVector<short int> x, QVector<short int> y)
 		next:
 		continue;
 	}
-	for (unsigned int a = 0; a < MAX_GRADIANT; a++) {
+	for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {
 		curve[a]->setSamples(xs[a], ys[a]);
 	}
 	ui->qwtPlot->replot();
