@@ -81,7 +81,6 @@ private slots:
 	void on_listWidget_itemClicked(QListWidgetItem *item);
 	void iqdraw(QVector<short int> x, QVector<short int> y);
 	void delete_tuning();
-	
 	void on_pushButton_iqplot_clicked();
 	
 private:

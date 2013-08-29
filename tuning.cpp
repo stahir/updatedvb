@@ -434,14 +434,17 @@ void tuning::iqdraw(QVector<short int> x, QVector<short int> y)
 {
 	QVector<double> xs[MAX_GRADIANT];
 	QVector<double> ys[MAX_GRADIANT];
-	QVector<unsigned short int> xys[MAX_GRADIANT];
+	bool xys[MAX_GRADIANT][0xFFFF];
 
+	for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {
+		memset(xys[a], false, 0xFFFF);
+	}
 	for (unsigned short int i = 0; i < x.size(); i++) {
-		// x[i] 0xF0 + y[i] 0x0F makes a unique hash, >>2 is simply /2 to make the hash match anything in a 2x2 pixel block vs a 1 for 1 pixel block
-		unsigned short int xy_tmp = (((unsigned short int)x[i]<<8) + (unsigned short int)y[i])>>2;
+		// x[i] 0xF0 + y[i] 0x0F makes a unique hash, >>1 is simply /2 to make the hash match anything in a 2x2 pixel block vs a 1 for 1 pixel block
+		unsigned short int xy_tmp = (((unsigned char)x[i]<<8) + (unsigned char)y[i])>>1;
 		for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {			
-			if (!xys[a].contains(xy_tmp)) {
-				xys[a].append(xy_tmp);
+			if (!xys[a][xy_tmp]) {
+				xys[a][xy_tmp] = true;
 				xs[a].append(x[i]);
 				ys[a].append(y[i]);
 				goto next;
