@@ -24,6 +24,7 @@ tuning::tuning(QWidget *parent) :
 	ui(new Ui::tuning)
 {
 	ui->setupUi(this);
+	setWindowFlags(Qt::WindowStaysOnTopHint);
 
 	mysettings = new QSettings("UDL", "updateDVB");
 	ui->listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
