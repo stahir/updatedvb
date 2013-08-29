@@ -87,6 +87,9 @@ private:
 	QVector<tuning_options> tune_ops;
 	dvb_settings dvbnames;
 	QVector<dvbtune*> mytuners;
+
+protected:
+	void closeEvent(QCloseEvent *event);	
 };
 
 #endif // MAINWINDOW_H

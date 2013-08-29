@@ -497,7 +497,16 @@ void MainWindow::on_pushButton_gotox_save_clicked()
 	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->lineEdit_gotox->text().toInt());
 }
 
+void MainWindow::closeEvent(QCloseEvent* ce)
+{
+	Q_UNUSED(ce);
+	
+	for(int i = 0; i < tuningdialog.size(); i++) {
+		tuningdialog.at(i)->close();
+	}
+}
+
 void MainWindow::on_actionExit_triggered()
 {
-    exit(0);
+	close();
 }
