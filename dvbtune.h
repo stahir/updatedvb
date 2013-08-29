@@ -47,7 +47,7 @@ using namespace std;
 #define MAX_PES_SIZE (4*1024)
 #define DMXOFF 5
 #define PACKETRETRY 3
-#define PERSISTENCE 10
+#define PERSISTENCE 30
 
 class dvbtune : public QThread
 {
