@@ -1,4 +1,6 @@
 # updateDVB
+# A DVB tuning and analysis tool for Linux
+# Supports spectrum scan, IQ plot, and blindscan on certain model tuners
 
 # Devices support blindscan and spectrum scan.
 # Prof 7301
@@ -23,3 +25,6 @@
 
 # To compile and run open the project in qtcreator
 # hit the yellow triangle that says 'Build and Run'
+
+# Author: Chris Lee <updatelee@gmail.com>
+# URL: https://bitbucket.org/updatelee/updatedvb

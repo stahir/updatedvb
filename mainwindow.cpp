@@ -366,7 +366,7 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged()
 	ui->comboBox_system->clear();
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.size()) {
 		for(int i = 0; i < mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.size(); i++) {
-			ui->comboBox_system->addItem(dvbnames.system[mytuners.at(ui->comboBox_adapter->currentIndex())->delsys[i]]);
+			ui->comboBox_system->addItem(dvbnames.system.at(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.at(i)));
 		}
 	} else { // This should never happen, just in case some driver is seriously messed up
 		ui->comboBox_system->addItem("DVB-S");
