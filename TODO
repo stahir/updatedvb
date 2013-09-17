@@ -3,3 +3,6 @@
 - Parse more descriptors
 - Look into Qcustomplot vs Qwt
 - Add a RF level graph in tuning dialog
+- show signal % / SNR (is this even possible) if unlocked
+- do we need to retune if no tune aquired ? I think we do
+
