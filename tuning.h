@@ -62,7 +62,6 @@ public:
 	bool shutdown;
 
 private slots:
-	void tunefailed();
 	void updatesignal();
 	void updateresults();
 	void stop_demux();

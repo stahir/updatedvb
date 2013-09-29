@@ -116,7 +116,6 @@ void tuning::init()
 	connect(&myProcess, SIGNAL(finished(int)), this, SLOT(stop_demux()));
 	connect(mytune, SIGNAL(updatesignal()), this, SLOT(updatesignal()));
 	connect(mytune, SIGNAL(updateresults()), this, SLOT(updateresults()));
-	connect(mytune, SIGNAL(tunefailed()), this, SLOT(tunefailed()));
 	connect(mytune, SIGNAL(iqdraw(QVector<short int>, QVector<short int>)), this, SLOT(iqdraw(QVector<short int>, QVector<short int>)));
 	connect(&mythread, SIGNAL(list_create(QString, int)), this, SLOT(list_create(QString, int)));
 	connect(&mythread, SIGNAL(tree_create_root(int *, QString, int)), this, SLOT(tree_create_root(int *, QString, int)));
@@ -183,13 +182,15 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 	}
 }
 
-void tuning::tunefailed()
-{
-	ui->label_frequency->setText("Tuning Failed");
-}
-
 void tuning::updatesignal()
 {
+	if (mytune->tp.status & FE_HAS_LOCK) {
+		ui->label_lock->setText("Locked");
+		ui->label_lock->setStyleSheet("QLabel { color : green; }");
+	} else {
+		ui->label_lock->setText("Unlocked");
+		ui->label_lock->setStyleSheet("QLabel { color : red; }");
+	}
 	ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
 	ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
 	ui->label_ber->setText(QString::number(mytune->tp.ber));

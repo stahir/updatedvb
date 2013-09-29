@@ -408,6 +408,7 @@ void dvbtune::check_frontend()
 	tp.rolloff		= p_status.props[6].u.data;
 	tp.pilot		= p_status.props[7].u.data;
 	tp.matype		= p_status.props[8].u.data;
+	tp.status		= status;
 	emit updatesignal();
 }
 
@@ -947,11 +948,8 @@ void dvbtune::run()
 			}
 		}
 		if (thread_function.indexOf("tune") != -1) {
-			if (tune() >= 0) {
-				thread_function.append("check_frontend");
-			} else {
-				emit tunefailed();
-			}
+			tune();
+			thread_function.append("check_frontend");
 			thread_function.remove(thread_function.indexOf("tune"));			
 		}
 		msleep(100);

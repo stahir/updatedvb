@@ -40,6 +40,7 @@ public:
 	float snr;
 	int lvl;
 	int spectrumscan_lvl;
+	int status;
 	
 	tp_info();
 };

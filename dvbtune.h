@@ -55,7 +55,6 @@ class dvbtune : public QThread
 signals:
 	void updatesignal();
 	void updateresults();
-	void tunefailed();
 	void iqdraw(QVector<short int> x, QVector<short int> y);
 	void adapter_status(int adapter, bool is_busy);
 	
