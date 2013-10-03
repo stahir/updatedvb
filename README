@@ -21,10 +21,10 @@
 # Install v4l-updatelee kernel/modules 
 # Then download and install any dependancies you need
 
-	sudo apt-get install qtcreator libqwt-dev
+	sudo apt-get install git build-essential qtcreator libqwt-dev
 
 # To compile and run open the project in qtcreator
-# hit the yellow triangle that says 'Build and Run'
+# hit the green triangle that says 'Build and Run'
 
 # Author: Chris Lee <updatelee@gmail.com>
 # URL: https://bitbucket.org/updatelee/updatedvb
