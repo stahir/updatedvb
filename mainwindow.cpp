@@ -420,10 +420,10 @@ void MainWindow::adapter_status(int adapter, bool is_busy)
 {
 	if (is_busy) {
 		ui->comboBox_adapter->setItemText(adapter, QString("%1 Busy").arg(adapter));
-		ui->comboBox_adapter->setItemData(adapter, Qt::red, Qt::TextColorRole);
+		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::red), Qt::TextColorRole);
 	} else {
 		ui->comboBox_adapter->setItemText(adapter, QString("%1").arg(adapter));
-		ui->comboBox_adapter->setItemData(adapter, Qt::black, Qt::TextColorRole);
+		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::black), Qt::TextColorRole);
 	}
 }
 
