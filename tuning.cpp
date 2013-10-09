@@ -190,6 +190,10 @@ void tuning::updatesignal()
 	} else {
 		ui->label_lock->setText("Unlocked");
 		ui->label_lock->setStyleSheet("QLabel { color : red; }");
+		if (mytune->tp.fec == FEC_AUTO) {
+			ui->label_frequency->setText("");
+			return;
+		}
 	}
 	ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
 	ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
