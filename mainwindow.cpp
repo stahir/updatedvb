@@ -376,7 +376,7 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged()
 	}
 	
 	ui->comboBox_modulation->clear();
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1 || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSCMH) != -1) {
 		ui->comboBox_modulation->addItem("VSB 8");
 		ui->comboBox_modulation->addItem("QAM 64");
 		ui->comboBox_modulation->addItem("QAM 256");

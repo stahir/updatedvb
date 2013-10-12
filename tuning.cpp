@@ -29,6 +29,10 @@ tuning::tuning(QWidget *parent) :
 	mysettings = new QSettings("UDL", "updateDVB");
 	ui->listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	
+	mylayout = new QVBoxLayout(ui->widget);
+	mystatus = new QStatusBar(this);
+	mylayout->addWidget(mystatus);
+	
 	int bc = 180;
 	int gr = bc/MAX_GRADIANT;
 	for (unsigned int i = 0; i < MAX_GRADIANT; i++) {
@@ -125,6 +129,8 @@ void tuning::init()
 	mytune->start();
 	mytune->thread_function.append("tune");
 	mythread.mytune = mytune;
+	
+	mystatus->showMessage("Adapter: " + QString::number(mytune->adapter) + " " + mytune->name, 0);
 }
 
 void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)

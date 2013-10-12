@@ -97,6 +97,8 @@ private:
 	QwtPlotScaleItem *scaleX;
 	QwtPlotScaleItem *scaleY;
 	QwtSymbol *scatter_symbol[MAX_GRADIANT];
+	QStatusBar *mystatus;
+	QVBoxLayout *mylayout;	
 };
 
 #endif // TUNING_H

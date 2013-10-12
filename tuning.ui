@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1365</width>
-    <height>779</height>
+    <height>821</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>10</x>
      <y>10</y>
      <width>1349</width>
-     <height>763</height>
+     <height>786</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
@@ -63,74 +63,6 @@
       </property>
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="3" column="1">
-         <widget class="QLabel" name="label_modulation">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="14" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>BER</string>
-          </property>
-         </widget>
-        </item>
-        <item row="17" column="0">
-         <widget class="QPushButton" name="pushButton_file">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>100</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Save to file</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="1">
-         <widget class="QLabel" name="label_sismis">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Frequency</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="1">
-         <widget class="QLabel" name="label_mis">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>Modulation</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label_system">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
         <item row="15" column="0">
          <widget class="QPushButton" name="pushButton_play">
           <property name="minimumSize">
@@ -156,36 +88,17 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
+        <item row="14" column="0">
+         <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>System</string>
+           <string>BER</string>
           </property>
          </widget>
         </item>
-        <item row="13" column="1">
-         <widget class="QLabel" name="label_signalQ">
+        <item row="4" column="1">
+         <widget class="QLabel" name="label_fec">
           <property name="text">
            <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="label_frequency">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Waiting...</string>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
           </property>
          </widget>
         </item>
@@ -193,6 +106,53 @@
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>Signal Q</string>
+          </property>
+         </widget>
+        </item>
+        <item row="17" column="0">
+         <widget class="QPushButton" name="pushButton_file">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Save to file</string>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="1">
+         <widget class="QLabel" name="label_ber">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Frequency</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0">
+         <widget class="QLabel" name="label_15">
+          <property name="text">
+           <string>CCM/ACM</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="1">
+         <widget class="QLabel" name="label_signalQ">
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </item>
@@ -215,35 +175,43 @@
           </property>
          </widget>
         </item>
-        <item row="14" column="1">
-         <widget class="QLabel" name="label_ber">
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_system">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="19" column="0">
-         <widget class="QPushButton" name="pushButton_stream">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
           <property name="maximumSize">
            <size>
-            <width>100</width>
-            <height>21</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="lineWidth">
+           <number>1</number>
+          </property>
           <property name="text">
-           <string>HTTP Stream</string>
+           <string>System</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="label_modulation">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Modulation</string>
           </property>
          </widget>
         </item>
@@ -278,24 +246,35 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>CCM/ACM</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLabel" name="label_fec">
+        <item row="8" column="1">
+         <widget class="QLabel" name="label_mis">
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_7">
+        <item row="19" column="0">
+         <widget class="QPushButton" name="pushButton_stream">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>21</height>
+           </size>
+          </property>
           <property name="text">
-           <string>FEC</string>
+           <string>HTTP Stream</string>
           </property>
          </widget>
         </item>
@@ -303,6 +282,29 @@
          <widget class="QLabel" name="label_10">
           <property name="text">
            <string>Pilot</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="label_frequency">
+          <property name="minimumSize">
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Waiting...</string>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1">
+         <widget class="QLabel" name="label_sismis">
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </item>
@@ -334,15 +336,15 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
-         <widget class="QLabel" name="label_inversion">
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_7">
           <property name="text">
-           <string/>
+           <string>FEC</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="1">
-         <widget class="QLabel" name="label_tsgs">
+        <item row="5" column="1">
+         <widget class="QLabel" name="label_inversion">
           <property name="text">
            <string/>
           </property>
@@ -352,6 +354,13 @@
          <widget class="QLabel" name="label_13">
           <property name="text">
            <string>TS/GS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QLabel" name="label_tsgs">
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </item>
@@ -369,13 +378,6 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Signal S</string>
-          </property>
-         </widget>
-        </item>
         <item row="6" column="1">
          <widget class="QLabel" name="label_rolloff">
           <property name="text">
@@ -383,10 +385,10 @@
           </property>
          </widget>
         </item>
-        <item row="11" column="0">
-         <widget class="QLabel" name="label_14">
+        <item row="12" column="0">
+         <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>SIS/MIS</string>
+           <string>Signal S</string>
           </property>
          </widget>
         </item>
@@ -400,6 +402,13 @@
           </property>
           <property name="text">
            <string>IQ Plot</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>SIS/MIS</string>
           </property>
          </widget>
         </item>
@@ -553,6 +562,16 @@
      </layout>
     </item>
    </layout>
+  </widget>
+  <widget class="QWidget" name="widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>800</y>
+     <width>1351</width>
+     <height>21</height>
+    </rect>
+   </property>
   </widget>
  </widget>
  <customwidgets>
