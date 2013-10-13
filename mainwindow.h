@@ -76,6 +76,7 @@ private slots:
 private:
 	void getadapters();
 	void reload_settings();
+	void add_comboBox_modulation(QString name);
 	
 	QVector<tuning*> tuningdialog;
     Ui::MainWindow *ui;
