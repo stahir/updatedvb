@@ -323,22 +323,13 @@ void MainWindow::on_pushButton_scan_clicked()
 	blindscandialog.exec();
 }
 
-void MainWindow::on_comboBox_adapter_currentIndexChanged()
+void MainWindow::setup_tuning_options()
 {
-	qDebug() << "on_comboBox_adapter_currentIndexChanged() Adapter:" << ui->comboBox_adapter->currentIndex();
+	qDebug() << "setup_tuning_options() adapter:" << ui->comboBox_adapter->currentText().toInt() << "frontend:" << ui->comboBox_frontend->currentText().toInt();
 	
-	ui->comboBox_frontend->clear();
-	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentText());
-	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
-	QStringList frontend_entries = adapter_dir.entryList();
-	for(QStringList::ConstIterator frontend_entry = frontend_entries.begin(); frontend_entry != frontend_entries.end(); frontend_entry++) {
-		QString frontend_dirname = *frontend_entry;
-		if (frontend_dirname.contains("frontend")) {
-			frontend_dirname.replace("frontend", "");
-			ui->comboBox_frontend->addItem(frontend_dirname);			
-		}
-	}
-	
+	mytuners.at(ui->comboBox_adapter->currentText().toInt())->frontend	= ui->comboBox_frontend->currentText().toInt();
+	mytuners.at(ui->comboBox_adapter->currentText().toInt())->getops();
+
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentIndex()) + "_diseqc_v12").toBool()) {
 		ui->gridLayoutWidget_9->show(); // gridLayoutWidget_9 = gridLayout_gotox
 	} else {
@@ -416,6 +407,36 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged()
 	}
 }
 
+void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
+{
+	if (index < 0) {
+		return;
+	}
+	qDebug() << "on_comboBox_adapter_currentIndexChanged() Adapter:" << ui->comboBox_adapter->currentIndex();
+	
+	ui->comboBox_frontend->clear();
+	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentText());
+	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
+	QStringList frontend_entries = adapter_dir.entryList();
+	for(QStringList::ConstIterator frontend_entry = frontend_entries.begin(); frontend_entry != frontend_entries.end(); frontend_entry++) {
+		QString frontend_dirname = *frontend_entry;
+		if (frontend_dirname.contains("frontend")) {
+			frontend_dirname.replace("frontend", "");
+			ui->comboBox_frontend->addItem(frontend_dirname);
+		}
+	}
+
+	setup_tuning_options();	
+}
+
+void MainWindow::on_comboBox_frontend_currentIndexChanged(int index)
+{
+	if (index < 0) {
+		return;
+	}
+	setup_tuning_options();	
+}
+
 void MainWindow::adapter_status(int adapter, bool is_busy)
 {
 	if (is_busy) {
@@ -439,7 +460,7 @@ void MainWindow::getadapters()
 		mytuners.insert(adapter_dirname.toInt(), new dvbtune);
 		connect(mytuners.last(), SIGNAL(adapter_status(int,bool)), this, SLOT(adapter_status(int,bool)));
 		mytuners.at(adapter_dirname.toInt())->adapter	= adapter_dirname.toInt();
-		mytuners.at(adapter_dirname.toInt())->frontend	= 0;
+		mytuners.at(adapter_dirname.toInt())->frontend	= ui->comboBox_frontend->currentText().toInt();
 		mytuners.at(adapter_dirname.toInt())->tune_ops	= tune_ops[ui->comboBox_lnb->currentIndex()];
 		mytuners.at(adapter_dirname.toInt())->getops();
 
