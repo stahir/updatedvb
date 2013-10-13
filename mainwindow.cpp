@@ -334,6 +334,7 @@ void MainWindow::setup_tuning_options()
 {
 	qDebug() << "setup_tuning_options() adapter:" << ui->comboBox_adapter->currentText().toInt() << "frontend:" << ui->comboBox_frontend->currentText().toInt();
 	
+	mytuners.at(ui->comboBox_adapter->currentText().toInt())->closefd();
 	mytuners.at(ui->comboBox_adapter->currentText().toInt())->frontend	= ui->comboBox_frontend->currentText().toInt();
 	mytuners.at(ui->comboBox_adapter->currentText().toInt())->getops();
 

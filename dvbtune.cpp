@@ -134,6 +134,8 @@ double dvbtune::degree( double number )
 
 void dvbtune::getops()
 {
+	qDebug() << "getops() frontend:" << frontend;
+	
 	openfd();
 	
 	struct dtv_property p[1];
