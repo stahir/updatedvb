@@ -420,7 +420,14 @@ int dvbtune::tune()
 	iq_x.clear();
 	iq_y.clear();
 	openfd();
-	if (tp.system != SYS_ATSC) {
+	if (tp.system != SYS_ATSC &&
+		tp.system != SYS_ATSCMH &&
+		tp.system != SYS_DVBC_ANNEX_A &&
+		tp.system != SYS_DVBC_ANNEX_B &&
+		tp.system != SYS_DVBC_ANNEX_C &&
+		tp.system != SYS_DVBC_ANNEX_AC &&
+		tp.system != SYS_DVBT &&
+		tp.system != SYS_DVBT2) {
 		setup_switch();	
 	}
 
@@ -441,8 +448,15 @@ int dvbtune::tune()
 	p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
 	p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
 
-	if (tp.system == SYS_ATSC) {
-		qDebug() << "ATSC selected";
+	if (tp.system == SYS_ATSC ||
+		tp.system == SYS_ATSCMH ||
+		tp.system == SYS_DVBC_ANNEX_A ||
+		tp.system == SYS_DVBC_ANNEX_B ||
+		tp.system == SYS_DVBC_ANNEX_C ||
+		tp.system == SYS_DVBC_ANNEX_AC ||
+		tp.system == SYS_DVBT ||
+		tp.system == SYS_DVBT2) {
+		qDebug() << "Terestrial selected";
 		atsc myatsc;
 		int fr = tp.frequency;
 		if (fr < myatsc.freq.at(0)) {
@@ -464,6 +478,7 @@ int dvbtune::tune()
 		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
 		qDebug() << "tune() Frequency: " << tp.frequency;
 	} else {
+		qDebug() << "Satellite selected";
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
 		p_tune[i].cmd = DTV_VOLTAGE;		p_tune[i++].u.data = tp.voltage;
 		p_tune[i].cmd = DTV_SYMBOL_RATE;	p_tune[i++].u.data = tp.symbolrate * 1000;

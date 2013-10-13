@@ -126,7 +126,7 @@ void tuning::init()
 	mytune->thread_function.append("tune");
 	mythread.mytune = mytune;
 	
-	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + " : " + mytune->name);
+	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 }
 
 void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
