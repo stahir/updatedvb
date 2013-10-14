@@ -18,7 +18,8 @@
 # If you have other cards and have tested them let me know. Im continuously adding
 # more cards, the more you guys test the less I have to.
 
-# Install v4l-updatelee kernel/modules 
+# Install v4l-updatelee kernel/modules, https://bitbucket.org/updatelee/v4l-updatelee
+#
 # Then download and install any dependancies you need
 
 	sudo apt-get install git build-essential qtcreator libqwt-dev
