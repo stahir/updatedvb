@@ -5,4 +5,4 @@
 - Add a RF level graph in tuning dialog
 - show signal % / SNR (is this even possible) if unlocked
 - do we need to retune if no tune aquired ? I think we do
-
+- add failed tunes to blindscan if params are received
