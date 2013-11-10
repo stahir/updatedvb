@@ -42,7 +42,8 @@ blindscan::blindscan(QWidget *parent) :
 void blindscan::init()
 {
 	mythread.mytune = mytune;
-	connect(mytune, SIGNAL(updateresults()), this, SLOT(updateresults()));
+	mythread.mytune->thread_function.clear();
+	connect(mythread.mytune, SIGNAL(updatesignal()), this, SLOT(updatesignal()), Qt::UniqueConnection);
 	connect(&mythread, SIGNAL(updateprogress(int)), this, SLOT(updateprogress(int)));
 }
 
@@ -119,21 +120,27 @@ int blindscan::tree_create_child(int parent, QString text)
 	return cindex;
 }
 
-void blindscan::updateresults()
+void blindscan::updatesignal()
 {
-	if (mythread.ready) {
+	if (!(mythread.mytune->tp.status & (0xFF ^ FE_TIMEDOUT))) {
+		mythread.ready = true;
 		return;
 	}
-
+	
 	int parent_1;
 
 	mytp_info.append(mythread.mytune->tp);
-
+	
 	QString text;
 	if (mytune->tp.system == SYS_ATSC) {
 		atsc myatsc;
 		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]);
 		parent_1 = tree_create_root(text);
+		if (mytune->tp.status & FE_HAS_LOCK) {
+			ptree[parent_1]->setForeground(0, QBrush(Qt::green));
+		} else {
+			ptree[parent_1]->setForeground(0, QBrush(Qt::red));
+		}
 		text = "System: " + dvbnames.system[mytune->tp.system];
 		tree_create_child(parent_1, text);
 		text = "Modulation: " + dvbnames.modulation[mytune->tp.modulation];
@@ -145,6 +152,11 @@ void blindscan::updateresults()
 	} else {
 		text = QString::number(mytune->tp.frequency) + dvbnames.voltage[mytune->tp.voltage] + QString::number(mytune->tp.symbolrate);
 		parent_1 = tree_create_root(text);
+		if (mytune->tp.status & FE_HAS_LOCK) {
+			ptree[parent_1]->setForeground(0, QBrush(Qt::green));
+		} else {
+			ptree[parent_1]->setForeground(0, QBrush(Qt::red));
+		}
 		text = "FEC: " + dvbnames.fec[mytune->tp.fec];
 		tree_create_child(parent_1, text);
 		text = "System: " + dvbnames.system[mytune->tp.system];

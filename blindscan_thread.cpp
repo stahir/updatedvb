@@ -72,11 +72,9 @@ void blindscan_thread::smartscan()
 		mytune->tp.voltage		= mytune->tp_try.at(i).voltage;
 		mytune->tp.symbolrate	= 1000;
 		ready = false;
-		if ( mytune->tune() > 0) {
-			while (!ready) {
-				msleep(10);
-			}
-			mytune->tp.symbolrate = 1000;
+		mytune->tune();
+		while (!ready) {
+			msleep(10);
 		}
 		emit updateprogress(progress);
 	}
@@ -97,10 +95,11 @@ void blindscan_thread::blindscan()
 	mytune->tp.symbolrate	= 1000;
 	while (mytune->tp.frequency < mytune->tune_ops.f_stop && loop) {
 		ready = false;
-		if ( mytune->tune() > 0) {
-			while (!ready) {
-				msleep(10);
-			}
+		mytune->tune();
+		while (!ready) {
+			msleep(10);
+		}		
+		if ( mytune->tp.status & FE_HAS_LOCK ) {
 			switch(mytune->tp.rolloff) {
 			case 1:
 				rolloff = 1.20;

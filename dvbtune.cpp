@@ -521,21 +521,23 @@ int dvbtune::tune()
 		}
 
 		if (status & FE_TIMEDOUT) {
-			qDebug() << "FE_TIMEDOUT";
+			qDebug() << "Tuning Failed, time:" << t.elapsed() << "status:" << hex << status;
+			check_frontend();
 			return -1;
 		}
 		
 		if (status & FE_HAS_LOCK) {
-			qDebug() << "FE_HAS_LOCK";
+			qDebug() << "Tuning Locked, time:" << t.elapsed() << "status:" << hex << status;
 			check_frontend();
 			emit updateresults();
-			return 1;
+			return 1;	
 		} else {
 			qDebug() << "No Lock...";
 			msleep(200);		
 		}
 	}
-	qDebug() << "Tuning Failed, time:" << t.elapsed();
+	qDebug() << "Tuning Failed, time:" << t.elapsed() << "status:" << hex << status;
+	check_frontend();
 	return -1;
 }
 

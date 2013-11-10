@@ -54,7 +54,7 @@ public:
 	tuning *tuningdialog;
 	
 private slots:
-	void updateresults();
+	void updatesignal();
 	void on_pushButton_tune_clicked();	
 	void on_pushButton_save_clicked();
 	void on_pushButton_expand_clicked();
