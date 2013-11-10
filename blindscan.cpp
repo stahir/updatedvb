@@ -122,6 +122,9 @@ int blindscan::tree_create_child(int parent, QString text)
 
 void blindscan::updatesignal()
 {
+	if (mythread.ready) {
+		return;
+	}
 	if (!(mythread.mytune->tp.status & (0xFF ^ FE_TIMEDOUT))) {
 		mythread.ready = true;
 		return;
