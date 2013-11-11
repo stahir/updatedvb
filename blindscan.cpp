@@ -135,9 +135,28 @@ void blindscan::updatesignal()
 	mytp_info.append(mythread.mytune->tp);
 	
 	QString text;
-	if (mytune->tp.system == SYS_ATSC) {
+	if (mytune->tp.system == SYS_ATSC ||
+		mytune->tp.system == SYS_ATSCMH ||
+		mytune->tp.system == SYS_DVBC_ANNEX_A ||
+		mytune->tp.system == SYS_DVBC_ANNEX_B ||
+		mytune->tp.system == SYS_DVBC_ANNEX_C ||
+		mytune->tp.system == SYS_DVBC_ANNEX_AC ||
+		mytune->tp.system == SYS_DVBT ||
+		mytune->tp.system == SYS_DVBT2) {
+
+		qam myqam;
 		atsc myatsc;
-		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]);
+		switch (mytune->tp.system) {
+		case SYS_ATSC:
+		case SYS_ATSCMH:
+			text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]);
+			break;
+		case SYS_DVBC_ANNEX_B:
+			text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]);
+			break;
+		default:
+			text = QString::number(mytune->tp.frequency/1000) + "mhz";
+		}
 		parent_1 = tree_create_root(text);
 		if (mytune->tp.status & FE_HAS_LOCK) {
 			ptree[parent_1]->setForeground(0, QBrush(Qt::green));

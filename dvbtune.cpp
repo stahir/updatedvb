@@ -457,24 +457,50 @@ int dvbtune::tune()
 		tp.system == SYS_DVBT ||
 		tp.system == SYS_DVBT2) {
 		qDebug() << "Terestrial selected";
-		atsc myatsc;
-		int fr = tp.frequency;
-		if (fr < myatsc.freq.at(0)) {
-			tp.frequency = myatsc.freq.at(0);
-		} else if (fr > myatsc.freq.at(myatsc.freq.size()-1)) {
-			tp.frequency = myatsc.freq.at(myatsc.freq.size()-1);
-		} else {
-			for(int c = 0; c < myatsc.freq.size()-1; c++) {
-				if (fr > myatsc.freq.at(c) && fr < myatsc.freq.at(c+1)) {
-					int middle = (myatsc.freq.at(c) + myatsc.freq.at(c+1))/2;
-					if (fr < middle) {
-						tp.frequency = myatsc.freq.at(c);
-					} else {
-						tp.frequency = myatsc.freq.at(c+1);
+		
+		if (tp.system == SYS_DVBC_ANNEX_B) {
+			qDebug() << "QAM";
+			qam myqam;
+			int fr = tp.frequency;
+			if (fr < myqam.freq.at(0)) {
+				tp.frequency = myqam.freq.at(0);
+			} else if (fr > myqam.freq.at(myqam.freq.size()-1)) {
+				tp.frequency = myqam.freq.at(myqam.freq.size()-1);
+			} else {
+				for(int c = 0; c < myqam.freq.size()-1; c++) {
+					if (fr > myqam.freq.at(c) && fr < myqam.freq.at(c+1)) {
+						int middle = (myqam.freq.at(c) + myqam.freq.at(c+1))/2;
+						if (fr < middle) {
+							tp.frequency = myqam.freq.at(c);
+						} else {
+							tp.frequency = myqam.freq.at(c+1);
+						}
 					}
 				}
 			}
 		}
+		if (tp.system == SYS_ATSC) {
+			qDebug() << "ATSC";
+			atsc myatsc;
+			int fr = tp.frequency;
+			if (fr < myatsc.freq.at(0)) {
+				tp.frequency = myatsc.freq.at(0);
+			} else if (fr > myatsc.freq.at(myatsc.freq.size()-1)) {
+				tp.frequency = myatsc.freq.at(myatsc.freq.size()-1);
+			} else {
+				for(int c = 0; c < myatsc.freq.size()-1; c++) {
+					if (fr > myatsc.freq.at(c) && fr < myatsc.freq.at(c+1)) {
+						int middle = (myatsc.freq.at(c) + myatsc.freq.at(c+1))/2;
+						if (fr < middle) {
+							tp.frequency = myatsc.freq.at(c);
+						} else {
+							tp.frequency = myatsc.freq.at(c+1);
+						}
+					}
+				}
+			}
+		}
+		
 		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
 		qDebug() << "tune() Frequency: " << tp.frequency;
 	} else {
@@ -907,7 +933,14 @@ void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 	t.start();
 	openfd();
 
-	if (tp.system != SYS_ATSC) {
+	if (tp.system != SYS_ATSC &&
+		tp.system != SYS_ATSCMH &&
+		tp.system != SYS_DVBC_ANNEX_A &&
+		tp.system != SYS_DVBC_ANNEX_B &&
+		tp.system != SYS_DVBC_ANNEX_C &&
+		tp.system != SYS_DVBC_ANNEX_AC &&
+		tp.system != SYS_DVBT &&
+		tp.system != SYS_DVBT2) {
 		setup_switch();	
 	}
 	

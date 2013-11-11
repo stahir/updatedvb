@@ -129,4 +129,12 @@ public:
 	QVector<int> ch;
 };
 
+class qam
+{
+public:
+	qam();
+	QVector<int> freq;
+	QVector<int> ch;
+};
+
 #endif // DVB_SETTINGS_H

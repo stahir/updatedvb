@@ -68,7 +68,14 @@ void scan::rescale() {
 
 	tp_info tmp;
 	int slope;
-	if (mytune->tp.system == SYS_ATSC) {
+	if (mytune->tp.system == SYS_ATSC ||
+		mytune->tp.system == SYS_ATSCMH ||
+		mytune->tp.system == SYS_DVBC_ANNEX_A ||
+		mytune->tp.system == SYS_DVBC_ANNEX_B ||
+		mytune->tp.system == SYS_DVBC_ANNEX_C ||
+		mytune->tp.system == SYS_DVBC_ANNEX_AC ||
+		mytune->tp.system == SYS_DVBT ||
+		mytune->tp.system == SYS_DVBT2) {
 		slope = 10 / (step/1000);
 	} else {
 		slope = 10 / step;

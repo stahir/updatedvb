@@ -203,9 +203,28 @@ void tuning::updatesignal()
 	ui->label_system->setText(dvbnames.system[mytune->tp.system]);
 	ui->label_modulation->setText(dvbnames.modulation[mytune->tp.modulation]);
 
-	if (mytune->tp.system == SYS_ATSC) {
+	if (mytune->tp.system == SYS_ATSC ||
+		mytune->tp.system == SYS_ATSCMH ||
+		mytune->tp.system == SYS_DVBC_ANNEX_A ||
+		mytune->tp.system == SYS_DVBC_ANNEX_B ||
+		mytune->tp.system == SYS_DVBC_ANNEX_C ||
+		mytune->tp.system == SYS_DVBC_ANNEX_AC ||
+		mytune->tp.system == SYS_DVBT ||
+		mytune->tp.system == SYS_DVBT2) {
+
+		qam myqam;
 		atsc myatsc;
-		ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));
+		switch (mytune->tp.system) {
+		case SYS_ATSC:
+		case SYS_ATSCMH:
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));			
+			break;
+		case SYS_DVBC_ANNEX_B:
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]));			
+			break;
+		default:
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel ");			
+		}
 	} else {
 		ui->label_frequency->setText(QString::number(mytune->tp.frequency) + dvbnames.voltage[mytune->tp.voltage] + QString::number(mytune->tp.symbolrate));
 		ui->label_fec->setText(dvbnames.fec[mytune->tp.fec]);

@@ -46,6 +46,9 @@ public:
 	bool ready;
 	dvbtune *mytune;
 	unsigned int step;
+	int min, max;
+	QVector<double> x;
+	QVector<double> y;
 
 	scan();
 	~scan();
@@ -53,9 +56,6 @@ public:
 	void sweep();
 	void rescale();
 private:
-	int min, max;
-	QVector<double> x;
-	QVector<double> y;
 	dvb_settings dvbnames;
 
 	void run();
