@@ -473,18 +473,28 @@ void MainWindow::setup_tuning_options()
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1 || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSCMH) != -1) {
 		add_comboBox_modulation("VSB 8");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_A) != -1 || 
-		mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_B) != -1 ||
-		mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_C) != -1 ||
-		mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_AC) != -1 ||
-		mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBT) != -1 ||
-		mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBT2) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_A) != -1) { // DVB-C
 		add_comboBox_modulation("QAM 16");
 		add_comboBox_modulation("QAM 32");
 		add_comboBox_modulation("QAM 64");
 		add_comboBox_modulation("QAM 128");
 		add_comboBox_modulation("QAM 256");
 		add_comboBox_modulation("QAM AUTO");
+	}
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_B) != -1) { // NA Cable
+		add_comboBox_modulation("QAM 64");
+		add_comboBox_modulation("QAM 256");
+	}
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBT) != -1) {
+		add_comboBox_modulation("QPSK");
+		add_comboBox_modulation("QAM 16");
+		add_comboBox_modulation("QAM 64");
+	}
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBT2) != -1) {
+		add_comboBox_modulation("QPSK");
+		add_comboBox_modulation("QAM 16");
+		add_comboBox_modulation("QAM 64");
+		add_comboBox_modulation("QAM 256");
 	}
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DCII) != -1) {
 		add_comboBox_modulation("C QPSK");
