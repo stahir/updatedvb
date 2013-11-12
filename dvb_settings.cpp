@@ -754,3 +754,17 @@ qam::qam()
 	ch.append(158);
 	freq.append(999000);
 }
+
+bool isSatellite(int system)
+{
+	bool ret = false;
+	switch(system) {
+	case SYS_DCII:
+	case SYS_DSS:
+	case SYS_DVBS:
+	case SYS_DVBS2:
+	case SYS_TURBO:
+		ret = true;
+	}
+	return ret;
+}

@@ -137,4 +137,6 @@ public:
 	QVector<int> ch;
 };
 
+bool isSatellite(int system);
+
 #endif // DVB_SETTINGS_H

@@ -448,20 +448,28 @@ int dvbtune::tune()
 	p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
 	p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
 
-	if (tp.system == SYS_ATSC ||
-		tp.system == SYS_ATSCMH ||
-		tp.system == SYS_DVBC_ANNEX_A ||
-		tp.system == SYS_DVBC_ANNEX_B ||
-		tp.system == SYS_DVBC_ANNEX_C ||
-		tp.system == SYS_DVBC_ANNEX_AC ||
-		tp.system == SYS_DVBT ||
-		tp.system == SYS_DVBT2) {
-		qDebug() << "Terestrial selected";
-		
-		if (tp.system == SYS_DVBC_ANNEX_B) {
+	if (isSatellite(tp.system)) {
+		qDebug() << "Satellite selected";
+		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
+		p_tune[i].cmd = DTV_VOLTAGE;		p_tune[i++].u.data = tp.voltage;
+		p_tune[i].cmd = DTV_SYMBOL_RATE;	p_tune[i++].u.data = tp.symbolrate * 1000;
+		p_tune[i].cmd = DTV_TONE;			p_tune[i++].u.data = !tune_ops.tone;
+		p_tune[i].cmd = DTV_INNER_FEC;		p_tune[i++].u.data = tp.fec;
+		p_tune[i].cmd = DTV_INVERSION;		p_tune[i++].u.data = tp.inversion;
+		p_tune[i].cmd = DTV_ROLLOFF;		p_tune[i++].u.data = tp.rolloff;
+		p_tune[i].cmd = DTV_BANDWIDTH_HZ;	p_tune[i++].u.data = 0;
+		p_tune[i].cmd = DTV_PILOT;			p_tune[i++].u.data = tp.pilot;
+		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
+		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
+	} else {
+		int fr;
+		qam myqam;
+		atsc myatsc;
+
+		switch (tp.system) {
+		case SYS_DVBC_ANNEX_B:
 			qDebug() << "QAM";
-			qam myqam;
-			int fr = tp.frequency;
+			fr = tp.frequency;
 			if (fr < myqam.freq.at(0)) {
 				tp.frequency = myqam.freq.at(0);
 			} else if (fr > myqam.freq.at(myqam.freq.size()-1)) {
@@ -478,11 +486,11 @@ int dvbtune::tune()
 					}
 				}
 			}
-		}
-		if (tp.system == SYS_ATSC) {
+			break;
+		case SYS_ATSC:
+		case SYS_ATSCMH:
 			qDebug() << "ATSC";
-			atsc myatsc;
-			int fr = tp.frequency;
+			fr = tp.frequency;
 			if (fr < myatsc.freq.at(0)) {
 				tp.frequency = myatsc.freq.at(0);
 			} else if (fr > myatsc.freq.at(myatsc.freq.size()-1)) {
@@ -499,23 +507,11 @@ int dvbtune::tune()
 					}
 				}
 			}
+			break;
 		}
-		
+
 		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
 		qDebug() << "tune() Frequency: " << tp.frequency;
-	} else {
-		qDebug() << "Satellite selected";
-		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
-		p_tune[i].cmd = DTV_VOLTAGE;		p_tune[i++].u.data = tp.voltage;
-		p_tune[i].cmd = DTV_SYMBOL_RATE;	p_tune[i++].u.data = tp.symbolrate * 1000;
-		p_tune[i].cmd = DTV_TONE;			p_tune[i++].u.data = !tune_ops.tone;
-		p_tune[i].cmd = DTV_INNER_FEC;		p_tune[i++].u.data = tp.fec;
-		p_tune[i].cmd = DTV_INVERSION;		p_tune[i++].u.data = tp.inversion;
-		p_tune[i].cmd = DTV_ROLLOFF;		p_tune[i++].u.data = tp.rolloff;
-		p_tune[i].cmd = DTV_BANDWIDTH_HZ;	p_tune[i++].u.data = 0;
-		p_tune[i].cmd = DTV_PILOT;			p_tune[i++].u.data = tp.pilot;
-		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
-		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
 	}
 	p_tune[i++].cmd = DTV_TUNE;
 	
@@ -697,7 +693,6 @@ QByteArray dvbtune::demux_stream()
 		ready = false;
 		len = read(dvr_fd, buf, buf_size);
 		ready = true;
-		qDebug() << "read()" << len << "bytes";
 	} while (len < 0 && loop);
 
 	return QByteArray(buf, len);
@@ -933,14 +928,7 @@ void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 	t.start();
 	openfd();
 
-	if (tp.system != SYS_ATSC &&
-		tp.system != SYS_ATSCMH &&
-		tp.system != SYS_DVBC_ANNEX_A &&
-		tp.system != SYS_DVBC_ANNEX_B &&
-		tp.system != SYS_DVBC_ANNEX_C &&
-		tp.system != SYS_DVBC_ANNEX_AC &&
-		tp.system != SYS_DVBT &&
-		tp.system != SYS_DVBT2) {
+	if (isSatellite(tp.system)) {
 		setup_switch();	
 	}
 	

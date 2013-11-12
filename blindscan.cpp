@@ -133,19 +133,13 @@ void blindscan::updatesignal()
 	int parent_1;
 
 	mytp_info.append(mythread.mytune->tp);
-	
-	QString text;
-	if (mytune->tp.system == SYS_ATSC ||
-		mytune->tp.system == SYS_ATSCMH ||
-		mytune->tp.system == SYS_DVBC_ANNEX_A ||
-		mytune->tp.system == SYS_DVBC_ANNEX_B ||
-		mytune->tp.system == SYS_DVBC_ANNEX_C ||
-		mytune->tp.system == SYS_DVBC_ANNEX_AC ||
-		mytune->tp.system == SYS_DVBT ||
-		mytune->tp.system == SYS_DVBT2) {
 
-		qam myqam;
-		atsc myatsc;
+	qam myqam;
+	atsc myatsc;
+	QString text;
+	if (isSatellite(mytune->tp.system)) {
+		text = QString::number(mytune->tp.frequency) + dvbnames.voltage[mytune->tp.voltage] + QString::number(mytune->tp.symbolrate);
+	} else {
 		switch (mytune->tp.system) {
 		case SYS_ATSC:
 		case SYS_ATSCMH:
@@ -157,33 +151,21 @@ void blindscan::updatesignal()
 		default:
 			text = QString::number(mytune->tp.frequency/1000) + "mhz";
 		}
-		parent_1 = tree_create_root(text);
-		if (mytune->tp.status & FE_HAS_LOCK) {
-			ptree[parent_1]->setForeground(0, QBrush(Qt::green));
-		} else {
-			ptree[parent_1]->setForeground(0, QBrush(Qt::red));
-		}
-		text = "System: " + dvbnames.system[mytune->tp.system];
-		tree_create_child(parent_1, text);
-		text = "Modulation: " + dvbnames.modulation[mytune->tp.modulation];
-		tree_create_child(parent_1, text);
-		text = "Signal S: " + QString::number(mytune->tp.lvl) + "%";
-		tree_create_child(parent_1, text);
-		text = "Signal Q: " + QString::number(mytune->tp.snr) + "dB";
-		tree_create_child(parent_1, text);
+	}
+
+	parent_1 = tree_create_root(text);
+	if (mytune->tp.status & FE_HAS_LOCK) {
+		ptree[parent_1]->setForeground(0, QBrush(Qt::green));
 	} else {
-		text = QString::number(mytune->tp.frequency) + dvbnames.voltage[mytune->tp.voltage] + QString::number(mytune->tp.symbolrate);
-		parent_1 = tree_create_root(text);
-		if (mytune->tp.status & FE_HAS_LOCK) {
-			ptree[parent_1]->setForeground(0, QBrush(Qt::green));
-		} else {
-			ptree[parent_1]->setForeground(0, QBrush(Qt::red));
-		}
+		ptree[parent_1]->setForeground(0, QBrush(Qt::red));
+	}
+	text = "System: " + dvbnames.system[mytune->tp.system];
+	tree_create_child(parent_1, text);
+	text = "Modulation: " + dvbnames.modulation[mytune->tp.modulation];
+	tree_create_child(parent_1, text);
+
+	if (isSatellite(mytune->tp.system)) {
 		text = "FEC: " + dvbnames.fec[mytune->tp.fec];
-		tree_create_child(parent_1, text);
-		text = "System: " + dvbnames.system[mytune->tp.system];
-		tree_create_child(parent_1, text);
-		text = "Modulation: " + dvbnames.modulation[mytune->tp.modulation];
 		tree_create_child(parent_1, text);
 		text = "Inversion: " + dvbnames.inversion[mytune->tp.inversion];
 		tree_create_child(parent_1, text);
@@ -191,11 +173,12 @@ void blindscan::updatesignal()
 		tree_create_child(parent_1, text);
 		text = "Pilot: " + dvbnames.pilot[mytune->tp.pilot];
 		tree_create_child(parent_1, text);
-		text = "Signal S: " + QString::number(mytune->tp.lvl) + "%";
-		tree_create_child(parent_1, text);
-		text = "Signal Q: " + QString::number(mytune->tp.snr, 'f', 1) + "dB";
-		tree_create_child(parent_1, text);
 	}
+
+	text = "Signal S: " + QString::number(mytune->tp.lvl) + "%";
+	tree_create_child(parent_1, text);
+	text = "Signal Q: " + QString::number(mytune->tp.snr) + "dB";
+	tree_create_child(parent_1, text);
 	mythread.ready = true;
 }
 
