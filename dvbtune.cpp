@@ -688,12 +688,10 @@ QByteArray dvbtune::demux_stream()
 	int buf_size = 188*348;
 	char buf[buf_size];
 
-	do {
-		memset(buf, 0, buf_size);
-		ready = false;
-		len = read(dvr_fd, buf, buf_size);
-		ready = true;
-	} while (len < 0 && loop);
+	memset(buf, 0, buf_size);
+	ready = false;
+	len = read(dvr_fd, buf, buf_size);
+	ready = true;
 
 	return QByteArray(buf, len);
 }

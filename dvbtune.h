@@ -43,7 +43,7 @@
 #include "dvb_settings.h"
 using namespace std;
 
-#define BUFFY (188*1024*10)
+#define BUFFY (188*348*30)
 #define MAX_PES_SIZE (4*1024)
 #define DMXOFF 5
 #define PACKETRETRY 3
