@@ -4,3 +4,4 @@
 - Look into Qcustomplot vs Qwt
 - Add a RF level graph in tuning dialog
 - do we need to retune if no tune aquired ? I think we do
+- split off the IQ plot into its own window, will help for adding andy's changes

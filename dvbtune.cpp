@@ -693,6 +693,10 @@ QByteArray dvbtune::demux_stream()
 	len = read(dvr_fd, buf, buf_size);
 	ready = true;
 
+	if (len != buf_size) {
+		qDebug() << len << buf_size;
+	}
+	
 	return QByteArray(buf, len);
 }
 
