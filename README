@@ -21,8 +21,9 @@
 # Install v4l-updatelee kernel/modules, https://bitbucket.org/updatelee/v4l-updatelee
 #
 # Then download and install any dependancies you need
+# You must use Qt4, you cannot currently use Qt5 because of issues with qwt
 
-	sudo apt-get install git build-essential qtcreator libqwt-dev
+	sudo apt-get install git build-essential libqt4-dev qt4-default qt4-qmake qtcreator libqwt-dev
 
 # To compile and run open the project in qtcreator
 # hit the green triangle that says 'Build and Run'

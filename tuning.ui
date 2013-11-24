@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1365</width>
-    <height>801</height>
+    <width>1230</width>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>1349</width>
-     <height>786</height>
+     <width>1211</width>
+     <height>551</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
@@ -438,28 +438,6 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="0">
-       <widget class="QwtPlot" name="qwtPlot">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>256</width>
-          <height>256</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>100</width>
-          <height>100</height>
-         </size>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
     <item row="0" column="3">
@@ -564,14 +542,6 @@
    </layout>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
  <slots>

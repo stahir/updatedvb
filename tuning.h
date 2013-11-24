@@ -31,19 +31,13 @@
 #include <QProcess>
 #include <QThread>
 #include <QDebug>
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-#include <qwt_symbol.h>
-#include <qwt_plot_scaleitem.h>
-#include <qwt_scale_engine.h>
 #include "demux_file.h"
 #include "demux_dvr.h"
 #include "dvbtune.h"
 #include "dvb_settings.h"
 #include "tuning_thread.h"
 #include "dvbstream_thread.h"
-
-const unsigned int MAX_GRADIANT = 6;
+#include "iqplot.h"
 
 namespace Ui {
 class tuning;
@@ -78,7 +72,6 @@ private slots:
 	void tree_create_child(int *parent, QString text, int pid);
 	void setcolor(int index, QColor color);
 	void on_listWidget_itemClicked(QListWidgetItem *item);
-	void iqdraw(QVector<short int> x, QVector<short int> y);
 	void delete_tuning();
 	void on_pushButton_iqplot_clicked();
 	
@@ -93,10 +86,7 @@ private:
 	QVector<QListWidgetItem *> list_item;
 	tuning_thread mythread;
 	dvbstream_thread mystream;
-	QwtPlotCurve *curve[MAX_GRADIANT];
-	QwtPlotScaleItem *scaleX;
-	QwtPlotScaleItem *scaleY;
-	QwtSymbol *scatter_symbol[MAX_GRADIANT];
+	IQplot *myiqplot;
 };
 
 #endif // TUNING_H
