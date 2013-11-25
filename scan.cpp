@@ -35,6 +35,7 @@ scan::~scan()
 void scan::run()
 {
 	do {
+		mytune->tp_try.clear();		
 		switch(mytune->tune_ops.voltage) {
 		case 0:
 		case 1:
@@ -120,8 +121,6 @@ void scan::sweep()
 	
 	qDebug() << "sweep() - Start:" << mytune->tune_ops.f_start << "Stop:" << mytune->tune_ops.f_stop << "lof:" << mytune->tune_ops.f_lof << "voltage:" << dvbnames.voltage[mytune->tp.voltage];	
 	
-	mytune->tp_try.clear();
-
 	short unsigned int rf_levels_h[65535];
 	struct dvb_fe_spectrum_scan scan;
 
