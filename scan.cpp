@@ -35,7 +35,12 @@ scan::~scan()
 void scan::run()
 {
 	do {
+		while (!ready) {
+			msleep(10);
+		}
+		ready = false;
 		mytune->tp_try.clear();		
+
 		switch(mytune->tune_ops.voltage) {
 		case 0:
 		case 1:
@@ -114,11 +119,6 @@ void scan::rescale() {
 
 void scan::sweep()
 {
-	while (!ready) {
-		msleep(10);
-	}
-	ready = false;
-	
 	qDebug() << "sweep() - Start:" << mytune->tune_ops.f_start << "Stop:" << mytune->tune_ops.f_stop << "lof:" << mytune->tune_ops.f_lof << "voltage:" << dvbnames.voltage[mytune->tp.voltage];	
 	
 	short unsigned int rf_levels_h[65535];
