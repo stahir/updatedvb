@@ -423,12 +423,23 @@ void tuning::on_pushButton_stream_clicked()
 	mystream.start();
 }
 
+void tuning::delete_iqplot()
+{
+	qDebug() << "delete_iqplot()";
+	ui->pushButton_iqplot->show();
+}
+
 void tuning::on_pushButton_iqplot_clicked()
 {
 	qDebug() << "on_pushButton_iqplot_clicked()";
 	myiqplot = new IQplot;
+	
+	connect(myiqplot, SIGNAL(destroyed()), this, SLOT(delete_iqplot()));
+	
 	myiqplot->mytune = mytune;
 	myiqplot->setModal(false);
 	myiqplot->init();
 	myiqplot->show();
+
+	ui->pushButton_iqplot->hide();
 }

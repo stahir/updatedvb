@@ -73,6 +73,7 @@ private slots:
 	void setcolor(int index, QColor color);
 	void on_listWidget_itemClicked(QListWidgetItem *item);
 	void delete_tuning();
+	void delete_iqplot();
 	void on_pushButton_iqplot_clicked();
 	
 private:

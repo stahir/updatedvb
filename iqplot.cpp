@@ -61,7 +61,7 @@ void IQplot::init()
 
 	connect(mytune, SIGNAL(iqdraw(QVector<short int>, QVector<short int>)), this, SLOT(iqdraw(QVector<short int>, QVector<short int>)));
 
-	mytune->start();	
+	mytune->start();
 	on_pushButton_onoff_clicked();
 }
 
