@@ -429,7 +429,7 @@ void tuning_thread::parsetp()
 	}
 	for (int i = 0; i <= 0xFFFF; i++) {
 		if (mytune->pids_rate[i] > 0) {
-			emit list_create(QString("0x%1 - %2 kbit/sec").arg(i,4,16,QChar('0')).arg(mytune->pids_rate[i],5,10,QChar(' ')), i);
+			emit list_create(QString("0x%1 - %2 kbit/s").arg(i,4,16,QChar('0')).arg(mytune->pids_rate[i],5,10,QChar(' ')), i);
 		}
 	}
 

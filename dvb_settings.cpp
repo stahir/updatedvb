@@ -768,3 +768,24 @@ bool isSatellite(int system)
 	}
 	return ret;
 }
+
+bool isATSC(int system)
+{
+	bool ret = false;
+	switch(system) {
+	case SYS_ATSC:
+	case SYS_ATSCMH:
+		ret = true;
+	}
+	return ret;
+}
+
+bool isQAM(int system)
+{
+	bool ret = false;
+	switch(system) {
+	case SYS_DVBC_ANNEX_B:
+		ret = true;
+	}
+	return ret;
+}

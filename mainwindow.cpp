@@ -130,28 +130,28 @@ void MainWindow::reload_settings()
 	qDebug() << "Adapter:" << ui->comboBox_adapter->currentIndex() << "lnb:" << ui->comboBox_lnb->currentIndex() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentIndex()].voltage;
 	switch(tune_ops[ui->comboBox_lnb->currentIndex()].voltage) {
 	case 0:
-		ui->gridLayoutWidget_6->hide(); // gridLayoutWidget_6 = gridLayout_voltage
+		ui->gridWidget_voltage->hide();
 		ui->comboBox_voltage->setCurrentIndex(0);
 		ui->comboBox_voltage->setItemData(0, e, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(1, d, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
 		break;
 	case 1:
-		ui->gridLayoutWidget_6->hide();
+		ui->gridWidget_voltage->hide();
 		ui->comboBox_voltage->setCurrentIndex(1);
 		ui->comboBox_voltage->setItemData(0, d, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(1, e, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
 		break;
 	case 2:
-		ui->gridLayoutWidget_6->hide();
+		ui->gridWidget_voltage->hide();
 		ui->comboBox_voltage->setCurrentIndex(2);
 		ui->comboBox_voltage->setItemData(0, d, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(1, d, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(2, e, Qt::UserRole -1);
 		break;
 	case 3:
-		ui->gridLayoutWidget_6->show();
+		ui->gridWidget_voltage->hide();
 		ui->comboBox_voltage->setCurrentIndex(1);
 		ui->comboBox_voltage->setItemData(0, e, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(1, e, Qt::UserRole -1);
@@ -216,7 +216,7 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 	tuningdialog.last()->mytune->tp.frequency	= (int)pos.x();
 	tuningdialog.last()->mytune->tp.voltage		= ui->comboBox_voltage->currentIndex();
 
-	if (ui->gridLayoutWidget->isVisible()) {
+	if (ui->gridWidget_system->isVisible()) {
 		tuningdialog.last()->mytune->tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
 		tuningdialog.last()->mytune->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
 		tuningdialog.last()->mytune->tp.symbolrate	= ui->lineEdit_symbolrate->text().toInt();
@@ -279,10 +279,8 @@ void MainWindow::on_updateButton_clicked()
 	} else {
 		myscan->step = 1;
 	}
-	if (!isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
-		myscan->step *= 1000;
-	}
 
+	myscan->mytune->tune_ops = tune_ops.at(ui->comboBox_lnb->currentIndex());
 	myscan->mytune->tp.system = dvbnames.system.indexOf(ui->comboBox_system->currentText());
 	myscan->loop	= ui->checkBox_loop->isChecked();
 	myscan->setup();
@@ -317,7 +315,6 @@ void MainWindow::on_pushButton_scan_clicked()
 						if (myqam.freq.at(i) >= myscan->x.at(f) && myqam.freq.at(i) <= myscan->x.at(f+1)) {
 							if (myscan->y.at(f) > myscan->min) {
 								tp.frequency	= myqam.freq.at(i);
-								qDebug() << "tp.freq =" << tp.frequency;
 								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 							}
 							f = myscan->x.size();
@@ -336,7 +333,6 @@ void MainWindow::on_pushButton_scan_clicked()
 						if (myatsc.freq.at(i) >= myscan->x.at(f) && myatsc.freq.at(i) <= myscan->x.at(f+1)) {
 							if (myscan->y.at(f) > myscan->min) {
 								tp.frequency	= myatsc.freq.at(i);
-								qDebug() << "tp.freq =" << tp.frequency;
 								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 							}
 							f = myscan->x.size();
@@ -358,7 +354,6 @@ void MainWindow::on_pushButton_scan_clicked()
 			for (int i = 0; i < myqam.freq.size(); i++) {
 				if (myqam.freq.at(i) >= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start && myqam.freq.at(i) <= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
 					tp.frequency	= myqam.freq.at(i);
-					qDebug() << "tp.freq =" << tp.frequency;
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
 			}
@@ -371,7 +366,6 @@ void MainWindow::on_pushButton_scan_clicked()
 			for (int i = 0; i < myatsc.freq.size(); i++) {
 				if (myatsc.freq.at(i) >= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start && myatsc.freq.at(i) <= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
 					tp.frequency	= myatsc.freq.at(i);
-					qDebug() << "tp.freq =" << tp.frequency;
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
 			}
@@ -404,27 +398,27 @@ void MainWindow::setup_tuning_options()
 	mytuners.at(ui->comboBox_adapter->currentText().toInt())->getops();
 
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentIndex()) + "_diseqc_v12").toBool()) {
-		ui->gridLayoutWidget_9->show(); // gridLayoutWidget_9 = gridLayout_gotox
+		ui->gridWidget_gotox->show();
 	} else {
-		ui->gridLayoutWidget_9->hide();
+		ui->gridWidget_gotox->hide();
 	}
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentIndex()) + "_diseqc_v13").toBool()) {
-		ui->gridLayoutWidget_11->show(); // gridLayoutWidget_11 = gridLayout_usals
+		ui->gridWidget_usals->show();
 	} else {
-		ui->gridLayoutWidget_11->hide();
+		ui->gridWidget_usals->hide();
 	}
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentIndex()) + "_diseqc_v12").toBool() || mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentIndex()) + "_diseqc_v13").toBool()) {
-		ui->gridLayoutWidget_13->show(); // gridLayoutWidget_13 = gridLayout_positioner
+		ui->gridWidget_positioner->show();
 	} else {
-		ui->gridLayoutWidget_13->hide();
+		ui->gridWidget_positioner->hide();
 	}
 	
 	ui->statusBar->showMessage(mytuners.at(ui->comboBox_adapter->currentIndex())->name, 0);
 
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_SPECTRUMSCAN) {
-		ui->gridLayoutWidget_3->show(); // gridLayoutWidget_3 = spectrumscan
+		ui->gridWidget_spectrumscan->show();
 	} else {
-		ui->gridLayoutWidget_3->hide();
+		ui->gridWidget_spectrumscan->hide();
 	}
 
 	ui->comboBox_system->clear();
@@ -484,18 +478,18 @@ void MainWindow::setup_tuning_options()
 	ui->comboBox_fec->addItem("Auto");
 
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_BLINDSEARCH) {
-		ui->gridLayoutWidget->hide();   // gridLayoutWidget   = tuning
-		ui->gridLayoutWidget_2->show(); // gridLayoutWidget_2 = blindscan
-		ui->gridLayoutWidget_7->hide(); // gridLayoutWidget_7 = satellite
+		ui->gridWidget_system->hide();
+		ui->gridWidget_blindscan->show();
+		ui->gridWidget_satellite->hide();
 	} else {
-		ui->gridLayoutWidget->show();
-		ui->gridLayoutWidget_2->hide();
+		ui->gridWidget_system->show();
+		ui->gridWidget_blindscan->hide();
 		
 		if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1) {
-			ui->gridLayoutWidget_2->show();
-			ui->gridLayoutWidget_7->hide();
+			ui->gridWidget_blindscan->show();
+			ui->gridWidget_satellite->hide();
 		} else {
-			ui->gridLayoutWidget_7->show();			
+			ui->gridWidget_satellite->show();
 		}
 	}
 }

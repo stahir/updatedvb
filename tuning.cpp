@@ -32,11 +32,17 @@ tuning::tuning(QWidget *parent) :
 	connect(this, SIGNAL(finished(int)), this, SLOT(delete_tuning()));
 	
 	shutdown = false;
+	myiqplot_open = false;
 }
 
 tuning::~tuning()
 {
 	qDebug() << "~tuning()";
+	
+	if (myiqplot_open) {
+		qDebug() << "delete iqplot dialog";
+		myiqplot->deleteLater();
+	}
 	
 	mystream.loop = false;
 	mystream.quit();
@@ -99,7 +105,6 @@ void tuning::init()
 
 	if (!(mytune->caps & FE_CAN_IQ)) {
 		ui->pushButton_iqplot->hide();
-		ui->label_iqplot->hide();
 	}
 }
 
@@ -196,24 +201,24 @@ void tuning::updatesignal()
 		unsigned int matype = mytune->tp.matype >> 8;
 		switch(mytune->maskbits(matype, 0xC0)) {
 		case 0:
-			ui->label_tsgs->setText("Generic Packetized");
+			ui->label_tsgs->setText("GP");
 			break;
 		case 1:
-			ui->label_tsgs->setText("Generic Continuous");
+			ui->label_tsgs->setText("GS");
 			break;
 		case 2:
 			ui->label_tsgs->setText("Reserved");
 			break;
 		case 3:
-			ui->label_tsgs->setText("Transport Stream");
+			ui->label_tsgs->setText("TS");
 			break;
 		}
 		switch(mytune->maskbits(matype, 0x20)) {
 		case 0:
-			ui->label_sismis->setText("Multiple Input Stream");
+			ui->label_sismis->setText("MIS");
 			break;
 		case 1:
-			ui->label_sismis->setText("Single Input Stream");
+			ui->label_sismis->setText("SIS");
 			break;
 		}
 		switch(mytune->maskbits(matype, 0x10)) {
@@ -427,6 +432,7 @@ void tuning::delete_iqplot()
 {
 	qDebug() << "delete_iqplot()";
 	ui->pushButton_iqplot->show();
+	myiqplot_open = false;
 }
 
 void tuning::on_pushButton_iqplot_clicked()
@@ -442,4 +448,5 @@ void tuning::on_pushButton_iqplot_clicked()
 	myiqplot->show();
 
 	ui->pushButton_iqplot->hide();
+	myiqplot_open = true;
 }

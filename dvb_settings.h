@@ -138,5 +138,7 @@ public:
 };
 
 bool isSatellite(int system);
+bool isATSC(int system);
+bool isQAM(int system);
 
 #endif // DVB_SETTINGS_H

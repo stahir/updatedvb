@@ -14,7 +14,7 @@ IQplot::IQplot(QWidget *parent) :
 	for (unsigned int i = 0; i < MAX_GRADIANT; i++) {
 		scatter_symbol[i] = new QwtSymbol;
 		scatter_symbol[i]->setStyle(QwtSymbol::Rect);
-		scatter_symbol[i]->setSize(1,1);
+		scatter_symbol[i]->setSize(2,2);
 		scatter_symbol[i]->setPen(QColor(bc-(gr*i), bc-(gr*i), bc-(gr*i)));
 	    scatter_symbol[i]->setBrush(QColor(bc-(gr*i), bc-(gr*i), bc-(gr*i)));
 		curve[i] = new QwtPlotCurve("Curve");
@@ -23,18 +23,18 @@ IQplot::IQplot(QWidget *parent) :
 	    curve[i]->setSymbol(scatter_symbol[i]);
 	}
 
-	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, -75, 75);
-	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, -75, 75);
+	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, -128, 128);
+	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, -128, 128);
 	ui->qwtPlot->enableAxis(QwtPlot::xBottom ,0);
 	ui->qwtPlot->enableAxis(QwtPlot::yLeft ,0);
 
 	scaleX = new QwtPlotScaleItem();
 	scaleX->setAlignment(QwtScaleDraw::BottomScale);
-	scaleX->setScaleDiv((new QwtLinearScaleEngine())->divideScale(-75, 75, 10, 5));
+	scaleX->setScaleDiv((new QwtLinearScaleEngine())->divideScale(-128, 128, 10, 5));
 	scaleX->attach(ui->qwtPlot);
 	scaleY = new QwtPlotScaleItem();
 	scaleY->setAlignment(QwtScaleDraw::LeftScale);
-	scaleY->setScaleDiv((new QwtLinearScaleEngine())->divideScale(-75, 75, 10, 5));
+	scaleY->setScaleDiv((new QwtLinearScaleEngine())->divideScale(-128, 128, 10, 5));
 	scaleY->attach(ui->qwtPlot);
 }
 
@@ -73,12 +73,13 @@ void IQplot::delete_iqplot()
 
 void IQplot::iqdraw(QVector<short int> x, QVector<short int> y)
 {
-	qDebug() << "iqdraw()";
-	
 	QVector<double> xs[MAX_GRADIANT];
 	QVector<double> ys[MAX_GRADIANT];
 	bool xys[MAX_GRADIANT][0xFFFF];
 
+	int x_min = 0;
+	int x_max = 0;
+	
 	for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {
 		memset(xys[a], false, 0xFFFF);
 	}
@@ -90,6 +91,12 @@ void IQplot::iqdraw(QVector<short int> x, QVector<short int> y)
 				xys[a][xy_tmp] = true;
 				xs[a].append(x[i]);
 				ys[a].append(y[i]);
+				if (x[i] > x_max) {
+					x_max = x[i];
+				}
+				if (x[i] < x_min) {
+					x_min = x[i];
+				}
 				goto next;
 			}
 		}
@@ -99,6 +106,15 @@ void IQplot::iqdraw(QVector<short int> x, QVector<short int> y)
 	for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {
 		curve[a]->setSamples(xs[a], ys[a]);
 	}
+	if (abs(x_min) > x_max) {
+		x_max = abs(x_min);
+	} else {
+		x_min = x_max * -1;
+	}
+	scaleX->setScaleDiv((new QwtLinearScaleEngine())->divideScale(x_min, x_max, 10, 5));
+	scaleY->setScaleDiv((new QwtLinearScaleEngine())->divideScale(x_min, x_max, 10, 5));
+	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, x_min, x_max);
+	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, x_min, x_max);
 	ui->qwtPlot->replot();
 }
 
@@ -108,7 +124,27 @@ void IQplot::on_pushButton_onoff_clicked()
 		mytune->thread_function.remove(mytune->thread_function.indexOf("iqplot"));
 		ui->pushButton_onoff->setText("Start");
 	} else {
+		erase();
 		mytune->thread_function.append("iqplot");
 		ui->pushButton_onoff->setText("Stop");
 	}
+}
+
+void IQplot::erase()
+{
+	mytune->iq_options = ui->comboBox_mode->currentIndex() << 4 | ui->comboBox_point->currentIndex();
+	mytune->iq_x.clear();
+	mytune->iq_y.clear();
+}
+
+void IQplot::on_comboBox_mode_currentIndexChanged(int index)
+{
+	Q_UNUSED(index);
+	erase();
+}
+
+void IQplot::on_comboBox_point_currentIndexChanged(int index)
+{
+	Q_UNUSED(index);
+	erase();
 }

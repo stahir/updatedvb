@@ -88,6 +88,7 @@ private:
 	tuning_thread mythread;
 	dvbstream_thread mystream;
 	IQplot *myiqplot;
+	bool myiqplot_open;
 };
 
 #endif // TUNING_H

@@ -78,6 +78,7 @@ public:
 	QVector<int> pids_rate;
 	double old_position;
 
+	unsigned char iq_options;
 	QVector<short int> iq_x;
 	QVector<short int> iq_y;	
 	

@@ -24,14 +24,16 @@ public:
 	~IQplot();
 
 	void init();
+	void erase();
 	
 	dvbtune *mytune;
 	
 private slots:
 	void delete_iqplot();
 	void iqdraw(QVector<short int> x, QVector<short int> y);
-	
 	void on_pushButton_onoff_clicked();
+	void on_comboBox_mode_currentIndexChanged(int index);
+	void on_comboBox_point_currentIndexChanged(int index);
 	
 private:
 	QwtPlotCurve *curve[MAX_GRADIANT];

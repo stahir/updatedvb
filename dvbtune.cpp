@@ -27,6 +27,7 @@ dvbtune::dvbtune()
 	frontend_name	= "";
 	ready		= true;
 	loop		= false;
+	iq_options	= 0x00;
 }
 
 dvbtune::~dvbtune()
@@ -946,6 +947,7 @@ void dvbtune::iqplot()
     struct dvb_fe_constellation_sample samples[DTV_MAX_CONSTELLATION_SAMPLES];
     const_samples.num = DTV_MAX_CONSTELLATION_SAMPLES;
     const_samples.samples = samples;
+	const_samples.options = iq_options;
 
 	ready = false;
 	if ((ioctl(frontend_fd, FE_GET_CONSTELLATION_SAMPLES, &const_samples)) == -1) {
