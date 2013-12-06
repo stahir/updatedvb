@@ -37,8 +37,6 @@ settings::settings(QWidget *parent) :
 settings::~settings()
 {
 	qDebug() << "~settings()";
-	
-	save_settings();
 	delete ui;
 }
 
@@ -202,4 +200,9 @@ void settings::on_comboBox_f_lof_currentIndexChanged()
 void settings::on_pushButton_save_clicked()
 {
 	save_settings();
+}
+
+void settings::on_pushButton_cancel_clicked()
+{
+    this->close();
 }

@@ -45,6 +45,7 @@ private slots:
 	void on_comboBox_diseqctype_currentIndexChanged();
 	void on_comboBox_f_lof_currentIndexChanged();
 	void on_pushButton_save_clicked();
+	void on_pushButton_cancel_clicked();
 	
 private:
 	Ui::settings *ui;
