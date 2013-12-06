@@ -5,4 +5,8 @@
 - Add a RF level graph in tuning dialog
 - do we need to retune if no tune aquired ? I think we do
 - blindscan needs to find multiple tp in 10mhz block
+- convert QDialogs into QWidgets
+- num LNB's should be dynamic
+- settings should have [save] and [cancel]
+- non sequential adapters is causing issues, ie adapter0 and adapter4. Fix this
 

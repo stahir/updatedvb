@@ -393,9 +393,9 @@ void MainWindow::setup_tuning_options()
 {
 	qDebug() << "setup_tuning_options() adapter:" << ui->comboBox_adapter->currentText().toInt() << "frontend:" << ui->comboBox_frontend->currentText().toInt();
 	
-	mytuners.at(ui->comboBox_adapter->currentText().toInt())->closefd();
-	mytuners.at(ui->comboBox_adapter->currentText().toInt())->frontend	= ui->comboBox_frontend->currentText().toInt();
-	mytuners.at(ui->comboBox_adapter->currentText().toInt())->getops();
+	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
+	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentText().toInt();
+	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
 
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentIndex()) + "_diseqc_v12").toBool()) {
 		ui->gridWidget_gotox->show();
@@ -544,12 +544,12 @@ void MainWindow::getadapters()
 		QString adapter_dirname = *adapter_entry;
 		adapter_dirname.replace("adapter", "");
 
-		mytuners.insert(adapter_dirname.toInt(), new dvbtune);
+		mytuners.append(new dvbtune);
 		connect(mytuners.last(), SIGNAL(adapter_status(int,bool)), this, SLOT(adapter_status(int,bool)));
-		mytuners.at(adapter_dirname.toInt())->adapter	= adapter_dirname.toInt();
-		mytuners.at(adapter_dirname.toInt())->frontend	= ui->comboBox_frontend->currentText().toInt();
-		mytuners.at(adapter_dirname.toInt())->tune_ops	= tune_ops[ui->comboBox_lnb->currentIndex()];
-		mytuners.at(adapter_dirname.toInt())->getops();
+		mytuners.last()->adapter	= adapter_dirname.toInt();
+		mytuners.last()->frontend	= ui->comboBox_frontend->currentText().toInt();
+		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentIndex()];
+		mytuners.last()->getops();
 
 		ui->comboBox_adapter->addItem(adapter_dirname);
 	}
