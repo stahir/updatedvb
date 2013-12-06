@@ -235,7 +235,7 @@ void tuning::updatesignal()
 		switch (mytune->tp.system) {
 		case SYS_ATSC:
 		case SYS_ATSCMH:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));			
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));			
 			break;
 		case SYS_DVBC_ANNEX_B:
 			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]));			
