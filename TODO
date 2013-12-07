@@ -8,6 +8,4 @@
 -- is there a way to make the stv search incrementally? this zigzag tuning makes sense in tuning, but not blindscan
 -- if no tp found jump 18mhz, if tp found use the SR calculation to determine jump
 - convert QDialogs into QWidgets
-- num LNB's should be dynamic
 - Should we be scanning channels while blindscaning? it would allow us to ident the satellite
-- spectrumscan fast should use ATSC/QAM list, uncheck fast and it should just use 3mhz jumps
