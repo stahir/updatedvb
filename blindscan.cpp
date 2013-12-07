@@ -50,7 +50,7 @@ void blindscan::init()
 blindscan::~blindscan()
 {
 	qDebug() << "~blindscan()";
-	
+
 	mythread.ready	= true;
 	mythread.loop	= false;
 	mythread.quit();
@@ -129,7 +129,7 @@ void blindscan::updatesignal()
 		mythread.ready = true;
 		return;
 	}
-	
+
 	int parent_1;
 
 	mytp_info.append(mythread.mytune->tp);

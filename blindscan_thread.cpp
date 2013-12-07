@@ -25,7 +25,7 @@ blindscan_thread::blindscan_thread()
 
 blindscan_thread::~blindscan_thread()
 {
-	qDebug() << "~blindscan_thread()";	
+	qDebug() << "~blindscan_thread()";
 }
 
 void blindscan_thread::run()
@@ -98,7 +98,7 @@ void blindscan_thread::blindscan()
 		mytune->tune();
 		while (!ready) {
 			msleep(10);
-		}		
+		}
 		if ( mytune->tp.status & FE_HAS_LOCK ) {
 			switch(mytune->tp.rolloff) {
 			case 1:

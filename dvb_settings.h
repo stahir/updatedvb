@@ -23,6 +23,8 @@
 #include <QString>
 #include <linux/dvb/frontend.h>
 
+#define MAX_LNBS 16
+
 class tp_info
 {
 public:

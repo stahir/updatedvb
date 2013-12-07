@@ -56,9 +56,10 @@ private slots:
 	void on_checkBox_loop_stateChanged();
 	void on_actionSettings_triggered();
 	void on_comboBox_lnb_currentIndexChanged();
+	void on_comboBox_adapter_currentIndexChanged(int index);
+	void on_comboBox_frontend_currentIndexChanged(int index);
 	void on_comboBox_voltage_currentIndexChanged();
 	void on_pushButton_scan_clicked();
-	void on_comboBox_adapter_currentIndexChanged(int index);
 	void on_pushButton_usals_go_clicked();
 	void on_lineEdit_usals_returnPressed();
 	void on_pushButton_drive_east_L_clicked();
@@ -70,13 +71,13 @@ private slots:
 	void on_lineEdit_gotox_returnPressed();
 	void on_actionExit_triggered();
 	void adapter_status(int adapter, bool is_busy);
-	void on_comboBox_frontend_currentIndexChanged(int index);
 	void setup_tuning_options();
 	
 private:
 	void getadapters();
 	void reload_settings();
 	void add_comboBox_modulation(QString name);
+
 	
 	QVector<tuning*> tuningdialog;
     Ui::MainWindow *ui;
@@ -86,6 +87,7 @@ private:
 	QVector<QwtPlotMarker*> marker;
 	QwtLegend *legend;
 
+	bool noload;
 	QSettings *mysettings;
 	QVector<tuning_options> tune_ops;
 	dvb_settings dvbnames;

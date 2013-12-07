@@ -23,6 +23,7 @@
 #include <QDialog>
 #include <QSettings>
 #include <iostream>
+#include "dvb_settings.h"
 using namespace std;
 
 namespace Ui {
@@ -43,13 +44,14 @@ private slots:
 	void on_comboBox_lnb_currentIndexChanged();
 	void on_comboBox_adapter_currentIndexChanged();
 	void on_comboBox_diseqctype_currentIndexChanged();
-	void on_comboBox_f_lof_currentIndexChanged();
+	void on_comboBox_type_currentIndexChanged();
 	void on_pushButton_save_clicked();
-	void on_pushButton_cancel_clicked();
+	void on_pushButton_close_clicked();
 	
 private:
 	Ui::settings *ui;
 	QSettings *mysettings;
+	bool noload;
 	bool nosave;
 	int lnb, adp;
 };
