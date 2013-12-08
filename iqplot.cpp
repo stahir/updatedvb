@@ -77,8 +77,7 @@ void IQplot::iqdraw(QVector<short int> x, QVector<short int> y)
 	QVector<double> ys[MAX_GRADIANT];
 	bool xys[MAX_GRADIANT][0xFFFF];
 
-	int x_min = 0;
-	int x_max = 0;
+	int scale = 0;
 	
 	for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {
 		memset(xys[a], false, 0xFFFF);
@@ -91,11 +90,11 @@ void IQplot::iqdraw(QVector<short int> x, QVector<short int> y)
 				xys[a][xy_tmp] = true;
 				xs[a].append(x[i]);
 				ys[a].append(y[i]);
-				if (x[i] > x_max) {
-					x_max = x[i];
+				if (abs(x[i]) > scale) {
+					scale = abs(x[i]);
 				}
-				if (x[i] < x_min) {
-					x_min = x[i];
+				if (abs(y[i]) > scale) {
+					scale = abs(y[i]);
 				}
 				goto next;
 			}
@@ -106,15 +105,10 @@ void IQplot::iqdraw(QVector<short int> x, QVector<short int> y)
 	for (unsigned short int a = 0; a < MAX_GRADIANT; a++) {
 		curve[a]->setSamples(xs[a], ys[a]);
 	}
-	if (abs(x_min) > x_max) {
-		x_max = abs(x_min);
-	} else {
-		x_min = x_max * -1;
-	}
-	scaleX->setScaleDiv((new QwtLinearScaleEngine())->divideScale(x_min, x_max, 10, 5));
-	scaleY->setScaleDiv((new QwtLinearScaleEngine())->divideScale(x_min, x_max, 10, 5));
-	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, x_min, x_max);
-	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, x_min, x_max);
+	scaleX->setScaleDiv((new QwtLinearScaleEngine())->divideScale(scale * -1, scale, 10, 5));
+	scaleY->setScaleDiv((new QwtLinearScaleEngine())->divideScale(scale * -1, scale, 10, 5));
+	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, scale * -1, scale);
+	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, scale * -1, scale);
 	ui->qwtPlot->replot();
 }
 
