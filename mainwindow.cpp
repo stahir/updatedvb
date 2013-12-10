@@ -200,7 +200,6 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 		marker.at(i)->setValue(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency, mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).spectrumscan_lvl);
 		marker.at(i)->attach(ui->qwtPlot);
 	}
-	
 	ui->qwtPlot->replot();
 	
 	myscan->ready = true;

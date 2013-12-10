@@ -75,7 +75,12 @@ void settings::load_settings()
 	ui->lineEdit_f_start->setText(mysettings->value("lnb"+QString::number(lnb)+"_freqstart").toString());
 	ui->lineEdit_f_stop->setText(mysettings->value("lnb"+QString::number(lnb)+"_freqstop").toString());
 
-	ui->lineEdit_play->setText(mysettings->value("cmd_play").toString());
+	if (mysettings->value("cmd_play").toString() != "") {
+		ui->lineEdit_play->setText(mysettings->value("cmd_play").toString());
+	} else {
+		ui->lineEdit_play->setText("/usr/bin/mplayer /dev/dvb/adapter{}/dvr0");
+	}
+
 	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
 
 	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());

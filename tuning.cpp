@@ -359,7 +359,8 @@ void tuning::on_pushButton_ipcleaner_clicked()
 void tuning::on_pushButton_play_clicked()
 {
 	if (myProcess.pid()) {
-		myProcess.terminate();
+		qDebug() << "stopping previous player first...";
+		myProcess.kill();
 		myProcess.waitForFinished();
 	}
 

@@ -53,5 +53,5 @@ FORMS    += mainwindow.ui \
 
 INCLUDEPATH += /usr/include/qwt
 INCLUDEPATH += /opt/local/include/qwt
-INCLUDEPATH += /usr/local/qwt-6.1.0-svn/include
-LIBS += -l qwt
+INCLUDEPATH += /usr/local/qwt-6.1.0/include
+LIBS += -L /usr/local/qwt-6.1.0/lib -l qwt
