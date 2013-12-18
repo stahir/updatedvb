@@ -121,7 +121,7 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 
 	for(int i = 0; i < mytuning.size(); i++) {
 		if (!mytuning.at(i)->shutdown) {
-			mytuning.at(i)->close();
+			mytuning.at(i)->deleteLater();
 		}
 	}
 }

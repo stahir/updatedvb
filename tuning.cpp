@@ -84,6 +84,7 @@ tuning::~tuning()
 void tuning::closeEvent(QCloseEvent *event)
 {
 	Q_UNUSED(event);
+	shutdown = true;
 	this->deleteLater();
 }
 
@@ -177,6 +178,7 @@ void tuning::parsetp_done()
 		ui->pushButton_play->setEnabled(true);
 		ui->pushButton_stream->setEnabled(true);
 	}
+	update_status("Parsing transponder done", 3);
 }
 
 void tuning::updatesignal()
@@ -333,6 +335,8 @@ void tuning::updateresults()
 	mythread.loop	= false;
 	mythread.thread_function.append("parsetp");
 	mythread.start();
+
+	update_status("Parsing transponder...", 0);
 }
 
 void tuning::stop_demux()
@@ -483,5 +487,5 @@ void tuning::on_pushButton_iqplot_clicked()
 
 void tuning::update_status(QString text, int time = 0)
 {
-	mystatusbar->showMessage(text, time);
+	mystatusbar->showMessage(text, time * 1000);
 }
