@@ -78,7 +78,6 @@ tuning::~tuning()
 	delete ui;
 
 	shutdown = true;
-
 	qDebug() << "~tuning() done";
 }
 
@@ -97,6 +96,7 @@ void tuning::init()
 	connect(&mythread, SIGNAL(tree_create_root(int *, QString, int)), this, SLOT(tree_create_root(int *, QString, int)));
 	connect(&mythread, SIGNAL(tree_create_child(int *, QString, int)), this, SLOT(tree_create_child(int *, QString, int)));
 	connect(&mythread, SIGNAL(setcolor(int,QColor)), this, SLOT(setcolor(int,QColor)));
+	connect(&mythread, SIGNAL(parsetp_done()), this, SLOT(parsetp_done()));
 	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 
 	mytune->start();
@@ -105,9 +105,12 @@ void tuning::init()
 
 	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 
-	if (!(mytune->caps & FE_CAN_IQ)) {
-		ui->pushButton_iqplot->setEnabled(false);
-	}
+	ui->pushButton_demux->setEnabled(false);
+	ui->pushButton_file->setEnabled(false);
+	ui->pushButton_ipcleaner->setEnabled(false);
+	ui->pushButton_play->setEnabled(false);
+	ui->pushButton_stream->setEnabled(false);
+	ui->pushButton_iqplot->setEnabled(false);
 }
 
 void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
@@ -165,6 +168,17 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 	}
 }
 
+void tuning::parsetp_done()
+{
+	if (mytune->tp.status & FE_HAS_LOCK) {
+		ui->pushButton_demux->setEnabled(true);
+		ui->pushButton_file->setEnabled(true);
+		ui->pushButton_ipcleaner->setEnabled(true);
+		ui->pushButton_play->setEnabled(true);
+		ui->pushButton_stream->setEnabled(true);
+	}
+}
+
 void tuning::updatesignal()
 {
 	if (mytune->tp.status & FE_HAS_LOCK) {
@@ -178,6 +192,12 @@ void tuning::updatesignal()
 			return;
 		}
 	}
+	if (!(mytune->caps & FE_CAN_IQ)) {
+		ui->pushButton_iqplot->setEnabled(false);
+	} else {
+		ui->pushButton_iqplot->setEnabled(true);
+	}
+
 	ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
 	ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
 	ui->label_ber->setText(QString::number(mytune->tp.ber));

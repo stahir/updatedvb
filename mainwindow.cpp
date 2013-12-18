@@ -234,7 +234,7 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 			mytuning.remove(i);
 		}
 	}
-	
+
 	mytuning.append(new tuning);
 	mytuning.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 	mytuning.last()->mytune->tp.frequency	= (int)pos.x();

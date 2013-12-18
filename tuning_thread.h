@@ -55,6 +55,7 @@ signals:
 	void list_create(QString text, int pid);
 	void tree_create_root(int *parent, QString text, int pid);
 	void tree_create_child(int *parent, QString text, int pid);
+	void parsetp_done();
 
 private:
 	void tree_create_root_wait(int *parent, QString text, int pid);

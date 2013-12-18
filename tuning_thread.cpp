@@ -435,6 +435,7 @@ void tuning_thread::parsetp()
 	}
 
 	mytune->close_dvr();
+	emit parsetp_done();
 	qDebug() << "parsetp() done";
 }
 

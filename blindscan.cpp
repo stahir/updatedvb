@@ -6,6 +6,8 @@ blindscan::blindscan(QWidget *parent) :
 	ui(new Ui::blindscan)
 {
 	ui->setupUi(this);
+	ui->pushButton_save->setEnabled(false);
+	ui->pushButton_tune->setEnabled(false);
 
 	pindex = -1;
 	cindex = -1;
@@ -85,6 +87,8 @@ void blindscan::updateprogress(int i)
 	myprogress->setValue(i);
 	if (myprogress->value() >= myprogress->maximum()) {
 		myprogress->setVisible(false);
+		ui->pushButton_save->setEnabled(true);
+		ui->pushButton_tune->setEnabled(true);
 	}
 }
 

@@ -73,6 +73,7 @@ private slots:
 	void on_listWidget_itemClicked(QListWidgetItem *item);
 	void delete_iqplot();
 	void on_pushButton_iqplot_clicked();
+	void parsetp_done();
 
 private:
 	Ui::tuning *ui;
