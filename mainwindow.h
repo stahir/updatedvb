@@ -55,10 +55,10 @@ private slots:
 	void on_updateButton_clicked();
 	void on_checkBox_loop_stateChanged();
 	void on_actionSettings_triggered();
-	void on_comboBox_lnb_currentIndexChanged();
+	void on_comboBox_lnb_currentIndexChanged(int index);
 	void on_comboBox_adapter_currentIndexChanged(int index);
 	void on_comboBox_frontend_currentIndexChanged(int index);
-	void on_comboBox_voltage_currentIndexChanged();
+	void on_comboBox_voltage_currentIndexChanged(int index);
 	void on_pushButton_scan_clicked();
 	void on_pushButton_usals_go_clicked();
 	void on_lineEdit_usals_returnPressed();
@@ -79,7 +79,7 @@ private:
 	void add_comboBox_modulation(QString name);
 
 	
-	QVector<tuning*> tuningdialog;
+	QVector<tuning*> mytuning;
     Ui::MainWindow *ui;
     scan *myscan;
     QwtPlotPicker *qwt_picker;
@@ -92,6 +92,7 @@ private:
 	QVector<tuning_options> tune_ops;
 	dvb_settings dvbnames;
 	QVector<dvbtune*> mytuners;
+	QVector<blindscan*> myblindscan;
 
 protected:
 	void closeEvent(QCloseEvent *event);	

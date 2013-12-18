@@ -41,6 +41,7 @@ settings::settings(QWidget *parent) :
 settings::~settings()
 {
 	qDebug() << "~settings()";
+	delete mysettings;
 	delete ui;
 }
 
@@ -63,7 +64,7 @@ void settings::load_settings()
 	ui->comboBox_voltage->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_voltage").toInt());
 	
 	ui->comboBox_diseqctype->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_diseqctype").toInt()+1);
-	on_comboBox_diseqctype_currentIndexChanged();
+	on_comboBox_diseqctype_currentIndexChanged(0);
 	ui->comboBox_diseqcport->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_diseqcport").toInt());
 	
 	int t_index = ui->comboBox_type->findText(mysettings->value("lnb"+QString::number(lnb)+"_type").toString());
@@ -119,18 +120,21 @@ void settings::save_settings()
 	adp = ui->comboBox_adapter->currentIndex();
 }
 
-void settings::on_comboBox_lnb_currentIndexChanged()
+void settings::on_comboBox_lnb_currentIndexChanged(int index)
 {
+	Q_UNUSED(index);
 	load_settings();
 }
 
-void settings::on_comboBox_adapter_currentIndexChanged()
+void settings::on_comboBox_adapter_currentIndexChanged(int index)
 {
+	Q_UNUSED(index);
 	load_settings();
 }
 
-void settings::on_comboBox_diseqctype_currentIndexChanged()
+void settings::on_comboBox_diseqctype_currentIndexChanged(int index)
 {
+	Q_UNUSED(index);
 	switch (ui->comboBox_diseqctype->currentIndex()) {
 	case 1:
 		ui->label_diseqcport->show();
@@ -165,8 +169,9 @@ void settings::on_comboBox_diseqctype_currentIndexChanged()
 	}
 }
 
-void settings::on_comboBox_type_currentIndexChanged()
+void settings::on_comboBox_type_currentIndexChanged(int index)
 {
+	Q_UNUSED(index);
 	qDebug() << "on_comboBox_type_currentIndexChanged()" << ui->comboBox_type->currentText();
 	
 	if (ui->comboBox_type->currentText() == "C-Band") {

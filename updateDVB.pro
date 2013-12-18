@@ -12,13 +12,15 @@ TARGET = updateDVB
 TEMPLATE = app
 
 SOURCES += dvb_settings.cpp \
+    tuning.cpp \
+    blindscan.cpp \
     iqplot.cpp
 SOURCES += dvbstream_thread.cpp
-SOURCES += blindscan.cpp
+SOURCES +=
 SOURCES += blindscan_thread.cpp
 SOURCES += blindscan_save.cpp
 SOURCES += tuning_thread.cpp
-SOURCES += tuning.cpp
+SOURCES +=
 SOURCES += dvbtune.cpp
 SOURCES += settings.cpp
 SOURCES += demux_file.cpp
@@ -28,13 +30,15 @@ SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
 HEADERS  += dvb_settings.h \
+    tuning.h \
+    blindscan.h \
     iqplot.h
 HEADERS  += dvbstream_thread.h
 HEADERS  += tuning_thread.h
-HEADERS  += blindscan.h
+HEADERS  +=
 HEADERS  += blindscan_thread.h
 HEADERS  += blindscan_save.h
-HEADERS  += tuning.h
+HEADERS  +=
 HEADERS  += dvbtune.h
 HEADERS  += settings.h
 HEADERS  += demux_file.h
@@ -43,15 +47,17 @@ HEADERS  += scan.h
 HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui \
-    tuning.ui \
     settings.ui \
     demux_file.ui \
     demux_dvr.ui \
-    blindscan.ui \
     blindscan_save.ui \
+    tuning.ui \
+    blindscan.ui \
     iqplot.ui
 
 INCLUDEPATH += /usr/include/qwt
 INCLUDEPATH += /opt/local/include/qwt
 INCLUDEPATH += /usr/local/qwt-6.1.0/include
 LIBS += -L /usr/local/qwt-6.1.0/lib -l qwt
+
+OTHER_FILES +=

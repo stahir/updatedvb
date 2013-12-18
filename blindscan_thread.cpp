@@ -20,7 +20,9 @@
 
 blindscan_thread::blindscan_thread()
 {
-
+	mytune	= NULL;
+	loop	= false;
+	ready	= false;
 }
 
 blindscan_thread::~blindscan_thread()
@@ -62,12 +64,11 @@ void blindscan_thread::smartscan()
 {
 	QTime t;
 	t.start();
-	qDebug() << "smartscan()";
+	qDebug() << "smartscan()" << mytune->tp_try.size() << "tp's";
 
 	float size = mytune->tp_try.size();
-	int progress = 0;
 	for(int i = 0; i < mytune->tp_try.size() && loop; i++) {
-		progress = ((i+1)/size)*100;
+		int progress = ((i+1)/size)*100;
 		mytune->tp.frequency	= mytune->tp_try.at(i).frequency;
 		mytune->tp.voltage		= mytune->tp_try.at(i).voltage;
 		mytune->tp.symbolrate	= 1000;
@@ -90,7 +91,6 @@ void blindscan_thread::blindscan()
 
 	float size = abs(mytune->tune_ops.f_start-mytune->tune_ops.f_stop) - 18;
 	float rolloff;
-	int progress = 0;
 	mytune->tp.frequency	= mytune->tune_ops.f_start;
 	mytune->tp.symbolrate	= 1000;
 	while (mytune->tp.frequency < mytune->tune_ops.f_stop && loop) {
@@ -117,7 +117,7 @@ void blindscan_thread::blindscan()
 		} else {
 			mytune->tp.frequency += 18;
 		}
-		progress = ((mytune->tp.frequency-mytune->tune_ops.f_start)/size)*100;
+		int progress = ((mytune->tp.frequency-mytune->tune_ops.f_start)/size)*100;
 		emit updateprogress(progress);
 	}
 	ready = true;

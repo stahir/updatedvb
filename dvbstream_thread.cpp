@@ -20,12 +20,19 @@
 
 dvbstream_thread::dvbstream_thread()
 {
-	signal(SIGPIPE, SIG_IGN);	
+	signal(SIGPIPE, SIG_IGN);
+	mytune	= NULL;
+	loop	= false;
+	server	= NULL;
+	socket	= NULL;
+	IP		= QHostAddress::Null;
+	port	= 0;
 }
 
 dvbstream_thread::~dvbstream_thread()
 {
 	qDebug() << "~dvbstream_thread()";
+	loop = false;
 	qDebug() << "~dvbstream_thread() done";
 }
 
@@ -48,7 +55,7 @@ void dvbstream_thread::socket_new()
 	while (loop && socket->state() == QAbstractSocket::ConnectedState) {
 		socket->write(mytune->demux_stream());
 		// Fix this, this causes much better performance, but randomly crash's with sigpipe, catch the error and ignore it
-		socket->flush();
+		// socket->flush();
 		socket->waitForBytesWritten(1000);
 	}
 
@@ -57,19 +64,23 @@ void dvbstream_thread::socket_new()
 	server->close();
 	mytune->close_dvr();
 	
-	delete socket;
-	delete server;
+	socket->deleteLater();
+	server->deleteLater();
 }
 
 void dvbstream_thread::socket_close()
 {
 	qDebug() << "socket_close()";
-	loop = false;
+	loop	= false;
+	IP		= QHostAddress::Null;
+	port	= 0;
+
+	emit update_status("", 0);
 }
 
 void dvbstream_thread::run()
 {
-	int port = 1230 + mytune->adapter;
+	port = 1230 + mytune->adapter;
 	
 	server = new QTcpServer();
 	if (server->listen(QHostAddress::Any, port)) {
@@ -78,7 +89,7 @@ void dvbstream_thread::run()
 		qDebug() << "Server could not start";
 		return;
 	}
-
+	IP = server->serverAddress();
 	connect(server, SIGNAL(newConnection()), this, SLOT(socket_new()), Qt::DirectConnection);
 	
 	exec();

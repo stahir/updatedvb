@@ -41,10 +41,10 @@ public:
 	void save_settings();
 	
 private slots:
-	void on_comboBox_lnb_currentIndexChanged();
-	void on_comboBox_adapter_currentIndexChanged();
-	void on_comboBox_diseqctype_currentIndexChanged();
-	void on_comboBox_type_currentIndexChanged();
+	void on_comboBox_lnb_currentIndexChanged(int index);
+	void on_comboBox_adapter_currentIndexChanged(int index);
+	void on_comboBox_diseqctype_currentIndexChanged(int index);
+	void on_comboBox_type_currentIndexChanged(int index);
 	void on_pushButton_save_clicked();
 	void on_pushButton_close_clicked();
 	

@@ -26,17 +26,15 @@ blindscan_save::blindscan_save(QWidget *parent) :
 	ui->setupUi(this);
 	ui->lineEdit_filename->setText(QDir::currentPath() + "/dvb-scan.conf");
 
-	mylayout = new QVBoxLayout(ui->widget);
     mystatus = new QStatusBar;
-    mylayout->addWidget(mystatus);
-	mylayout->setMargin(0);
-	mylayout->setSpacing(0);
+	ui->verticalLayout->addWidget(mystatus);
 }
 
 blindscan_save::~blindscan_save()
 {
 	qDebug() << "~blindscan_save()";
 
+	delete mystatus;
 	delete ui;
 }
 

@@ -20,6 +20,9 @@
 
 tuning_thread::tuning_thread()
 {
+	mytune	= NULL;
+	loop	= false;
+	ready	= false;
 }
 
 tuning_thread::~tuning_thread()
@@ -282,13 +285,13 @@ int tuning_thread::parse_cat()
 		return -1;
 	}
 
-	int parent, parent_t;
+	int parent;
 	tree_create_root_wait(&parent, "CAT pid: 0x01", 0x01);
 
 	int section_length = mytune->read16(0x0FFF) - 4;
 	mytune->index += 5;
 	while (mytune->index < section_length) {
-		parent_t = parent;
+		int parent_t = parent;
 		parse_descriptor(parent_t);
 	}
 	return 1;
@@ -412,16 +415,14 @@ void tuning_thread::parsetp()
 			parse_descriptor(parent_1);
 		}
 
-		int ES_info_length = 0;
-		int pmt_type, pmt_pid;
 		while (mytune->index < section_length) {
-			pmt_type = mytune->read8();
-			pmt_pid = mytune->read16(0x1FFF);
+			int pmt_type = mytune->read8();
+			int pmt_pid = mytune->read16(0x1FFF);
 
 			parent_2 = parent_1;
 			tree_create_child_wait(&parent_2, QString("Stream PID: 0x%1, 0x%2 - %3").arg(pmt_pid,4,16,QChar('0')).arg(pmt_type,2,16,QChar('0')).arg(dvbnames.stream_type[pmt_type]), pmt_pid);
 
-			ES_info_length = mytune->read16(0x0FFF) + mytune->index;
+			int ES_info_length = mytune->read16(0x0FFF) + mytune->index;
 			while (mytune->index < ES_info_length) {
 				parse_descriptor(parent_2);
 			}

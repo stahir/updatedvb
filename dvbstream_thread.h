@@ -31,13 +31,17 @@ public:
 	~dvbstream_thread();
 	void run();
 	
+	QHostAddress IP;
+	int port;
 	dvbtune *mytune;
 	bool loop;
-signals:
-	
+
 public slots:
 	void socket_new();
 	void socket_close();
+
+signals:
+	void update_status(QString text, int time);
 
 private:
 	QTcpServer *server;

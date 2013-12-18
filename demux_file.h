@@ -21,6 +21,7 @@
 
 #include <QDialog>
 #include <QDir>
+#include <QStatusBar>
 #include "dvbtune.h"
 #include <iostream>
 using namespace std;
@@ -36,17 +37,20 @@ class demux_file : public QDialog
 public:
 	explicit demux_file(QWidget *parent = 0);
 	~demux_file();
-	dvbtune *mytune;
 
-protected:
-     void closeEvent(QCloseEvent *event);
+	void init();
+
+	dvbtune *mytune;
 
 private slots:
 	void on_pushButton_start_clicked();
 	void on_pushButton_stop_clicked();
+	void demux_status(int bytes);
 	
 private:
 	Ui::demux_file *ui;
+	QStatusBar *mystatus;
+	unsigned long int bytes_wrote;
 };
 
 #endif // DEMUX_FILE_H

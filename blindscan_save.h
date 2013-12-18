@@ -52,7 +52,6 @@ private:
 	Ui::blindscan_save *ui;
 	dvb_settings dvbnames;
 	QStatusBar *mystatus;
-	QVBoxLayout *mylayout;
 };
 
 #endif // BLINDSCAN_SAVE_H

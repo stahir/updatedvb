@@ -20,30 +20,30 @@
 #include "ui_tuning.h"
 
 tuning::tuning(QWidget *parent) :
-	QDialog(parent),
+	QWidget(parent),
 	ui(new Ui::tuning)
 {
 	ui->setupUi(this);
-	setWindowFlags(Qt::WindowStaysOnTopHint);
+	ui->listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+	mystatusbar = new QStatusBar;
+	mystatusbar->setVisible(true);
+	ui->verticalLayout->addWidget(mystatusbar);
 
 	mysettings = new QSettings("UDL", "updateDVB");
-	ui->listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);	
-		
-	connect(this, SIGNAL(finished(int)), this, SLOT(delete_tuning()));
-	
+
 	shutdown = false;
-	myiqplot_open = false;
+	myiqplot_running = false;
 }
 
 tuning::~tuning()
 {
 	qDebug() << "~tuning()";
-	
-	if (myiqplot_open) {
-		qDebug() << "delete iqplot dialog";
+
+	if (myiqplot_running) {
 		myiqplot->deleteLater();
 	}
-	
+
 	mystream.loop = false;
 	mystream.quit();
 	mystream.wait(1000);
@@ -72,18 +72,19 @@ tuning::~tuning()
 		mytune->loop = false;
 		sleep(1);
 	}
-	
+
+	delete mystatusbar;
 	delete mysettings;
 	delete ui;
 
 	shutdown = true;
-	
+
 	qDebug() << "~tuning() done";
 }
 
-void tuning::delete_tuning()
+void tuning::closeEvent(QCloseEvent *event)
 {
-	qDebug() << "delete_tuning()";
+	Q_UNUSED(event);
 	this->deleteLater();
 }
 
@@ -96,15 +97,16 @@ void tuning::init()
 	connect(&mythread, SIGNAL(tree_create_root(int *, QString, int)), this, SLOT(tree_create_root(int *, QString, int)));
 	connect(&mythread, SIGNAL(tree_create_child(int *, QString, int)), this, SLOT(tree_create_child(int *, QString, int)));
 	connect(&mythread, SIGNAL(setcolor(int,QColor)), this, SLOT(setcolor(int,QColor)));
+	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 
 	mytune->start();
 	mytune->thread_function.append("tune");
 	mythread.mytune = mytune;
-	
+
 	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 
 	if (!(mytune->caps & FE_CAN_IQ)) {
-		ui->pushButton_iqplot->hide();
+		ui->pushButton_iqplot->setEnabled(false);
 	}
 }
 
@@ -112,7 +114,7 @@ void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
 {
 	Q_UNUSED(item);
 	Q_UNUSED(column);
-	
+
 	// If mythread is running, dont click on tree items
 	if (mythread.loop) {
 		return;
@@ -137,12 +139,12 @@ void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
 void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 {
 	Q_UNUSED(item);
-    
+
 	// If mythread is running, dont click on tree items
 	if (mythread.loop) {
 		return;
 	}
-	
+
 	for(int a = 0; a < tree_item.size(); a++) {
 		tree_item.at(a)->setSelected(false);
 	}
@@ -193,11 +195,11 @@ void tuning::updatesignal()
 		} else {
 			ui->label_mis->setText("false");
 		}
-	
+
 		if (!mytune->tp.matype) {
 			return;
 		}
-	
+
 		unsigned int matype = mytune->tp.matype >> 8;
 		switch(mytune->maskbits(matype, 0xC0)) {
 		case 0:
@@ -235,13 +237,13 @@ void tuning::updatesignal()
 		switch (mytune->tp.system) {
 		case SYS_ATSC:
 		case SYS_ATSCMH:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));			
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));
 			break;
 		case SYS_DVBC_ANNEX_B:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]));			
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]));
 			break;
 		default:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel ");			
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, Channel ");
 		}
 	}
 }
@@ -303,7 +305,7 @@ void tuning::updateresults()
 	if (mytune->tp.system == SYS_DSS) {
 		return;
 	}
-	
+
 	mytune->pids.clear();
 	mytune->pids.append(0x2000);
 	mytune->demux_video();
@@ -375,7 +377,7 @@ void tuning::on_pushButton_play_clicked()
 
 void tuning::on_pushButton_demux_clicked()
 {
-	mytune->close_dvr();	
+	mytune->close_dvr();
 	setup_demux();
 
 	demux_dvr demux_dvr_dialog;
@@ -393,6 +395,7 @@ void tuning::on_pushButton_file_clicked()
 	demux_file demux_file_dialog;
 	demux_file_dialog.mytune = mytune;
 	demux_file_dialog.setModal(true);
+	demux_file_dialog.init();
 	demux_file_dialog.exec();
 
 	stop_demux();
@@ -422,32 +425,43 @@ void tuning::on_pushButton_stream_clicked()
 		mystream.loop = false;
 		sleep(1);
 	}
-	
+
 	setup_demux();
-	
+
 	mystream.mytune	= mytune;
 	mystream.start();
+
+	while (!mystream.port) {
+		QThread::msleep(20);
+	}
+
+	qDebug() << mystream.IP.toString() << mystream.port;
+	update_status(QString("Streaming on %1:%2").arg(mystream.IP.toString()).arg(mystream.port), 0);
 }
 
 void tuning::delete_iqplot()
 {
 	qDebug() << "delete_iqplot()";
-	ui->pushButton_iqplot->show();
-	myiqplot_open = false;
+	ui->pushButton_iqplot->setEnabled(true);
+	myiqplot_running = false;
 }
 
 void tuning::on_pushButton_iqplot_clicked()
 {
 	qDebug() << "on_pushButton_iqplot_clicked()";
-	myiqplot = new IQplot;
-	
+	myiqplot = new iqplot;
+
 	connect(myiqplot, SIGNAL(destroyed()), this, SLOT(delete_iqplot()));
-	
+
 	myiqplot->mytune = mytune;
-	myiqplot->setModal(false);
 	myiqplot->init();
 	myiqplot->show();
 
-	ui->pushButton_iqplot->hide();
-	myiqplot_open = true;
+	ui->pushButton_iqplot->setEnabled(false);
+	myiqplot_running = true;
+}
+
+void tuning::update_status(QString text, int time = 0)
+{
+	mystatusbar->showMessage(text, time);
 }

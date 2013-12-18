@@ -1,42 +1,20 @@
-/*
- *	updateDVB, a DVB/ATSC spectrum analyzer, tuning and stream analyzing application.
- *	Copyright (C) 2013  Chris Lee (updatelee@gmail.com)
- *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "blindscan.h"
 #include "ui_blindscan.h"
 
 blindscan::blindscan(QWidget *parent) :
-	QDialog(parent),
+	QWidget(parent),
 	ui(new Ui::blindscan)
 {
 	ui->setupUi(this);
 
 	pindex = -1;
 	cindex = -1;
-	mylayout = new QVBoxLayout(ui->widget);
-	mystatus = new QStatusBar;
-	mystatus->setVisible(false);
-	mylayout->addWidget(mystatus);
 	myprogress = new QProgressBar;
 	myprogress->setMinimum(0);
 	myprogress->setMaximum(100);
-	mylayout->addWidget(myprogress);
-	mylayout->setMargin(0);
-	mylayout->setSpacing(0);
+	myprogress->setVisible(true);
+	ui->verticalLayout->addWidget(myprogress);
+	mytuning_running = false;
 }
 
 void blindscan::init()
@@ -71,7 +49,18 @@ blindscan::~blindscan()
 		sleep(1);
 	}
 
+	if (mytuning_running) {
+		mytuning->deleteLater();
+	}
+
+	delete myprogress;
 	delete ui;
+}
+
+void blindscan::closeEvent(QCloseEvent *event)
+{
+	Q_UNUSED(event);
+	this->deleteLater();
 }
 
 void blindscan::scan()
@@ -96,8 +85,6 @@ void blindscan::updateprogress(int i)
 	myprogress->setValue(i);
 	if (myprogress->value() >= myprogress->maximum()) {
 		myprogress->setVisible(false);
-		mystatus->setVisible(true);
-		mystatus->showMessage("Done.", 4000);
 	}
 }
 
@@ -184,6 +171,14 @@ void blindscan::updatesignal()
 
 void blindscan::on_pushButton_tune_clicked()
 {
+	if (mythread.loop == true) {
+		qDebug() << "Not done scanning yet";
+		return;
+	}
+	if (mytuning_running) {
+		qDebug() << "Already tuned";
+		return;
+	}
 	int i = -1;
 	for(int a = 0; a <= pindex; a++) {
 		if (ptree[a]->isSelected()) {
@@ -194,12 +189,19 @@ void blindscan::on_pushButton_tune_clicked()
 		qDebug() << "No frequency selected";
 		return;
 	}
-	tuningdialog				= new tuning;
-	tuningdialog->mytune		= mytune;
-	tuningdialog->mytune->tp	= mytp_info.at(i);
-	tuningdialog->init();
-	tuningdialog->setModal(true);
-	tuningdialog->exec();
+	mytuning				= new tuning;
+	connect(mytuning, SIGNAL(destroyed()), this, SLOT(mytuning_destroyed()));
+	mytuning_running		= true;
+	mytuning->mytune		= mytune;
+	mytuning->mytune->tp	= mytp_info.at(i);
+	mytuning->init();
+	mytuning->show();
+}
+
+void blindscan::mytuning_destroyed()
+{
+	qDebug() << "mytuning_destroyed()";
+	mytuning_running = false;
 }
 
 void blindscan::on_pushButton_save_clicked()

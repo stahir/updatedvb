@@ -19,18 +19,14 @@
 #ifndef TUNING_H
 #define TUNING_H
 
-#include <qglobal.h>
-#if QT_VERSION >= 0x050000
-        #include <QtWidgets>
-#else
-        #include <QtGui>
-#endif
-
-#include <QDialog>
+#include <QWidget>
 #include <QtCore>
 #include <QProcess>
 #include <QThread>
 #include <QDebug>
+#include <QTreeWidget>
+#include <QListWidget>
+#include <QStatusBar>
 #include "demux_file.h"
 #include "demux_dvr.h"
 #include "dvbtune.h"
@@ -43,7 +39,7 @@ namespace Ui {
 class tuning;
 }
 
-class tuning : public QDialog
+class tuning : public QWidget
 {
 	Q_OBJECT
 public:
@@ -54,6 +50,9 @@ public:
 	void setup_demux();
 	dvbtune *mytune;
 	bool shutdown;
+
+public slots:
+	void update_status(QString text, int time);
 
 private slots:
 	void updatesignal();
@@ -72,14 +71,14 @@ private slots:
 	void tree_create_child(int *parent, QString text, int pid);
 	void setcolor(int index, QColor color);
 	void on_listWidget_itemClicked(QListWidgetItem *item);
-	void delete_tuning();
 	void delete_iqplot();
 	void on_pushButton_iqplot_clicked();
-	
+
 private:
+	Ui::tuning *ui;
+	QStatusBar *mystatusbar;
 	QSettings *mysettings;
 	dvb_settings dvbnames;
-	Ui::tuning *ui;
 	QProcess myProcess;
 	QVector<int> tree_pid;
 	QVector<int> list_pid;
@@ -87,8 +86,11 @@ private:
 	QVector<QListWidgetItem *> list_item;
 	tuning_thread mythread;
 	dvbstream_thread mystream;
-	IQplot *myiqplot;
-	bool myiqplot_open;
+	iqplot *myiqplot;
+	bool myiqplot_running;
+
+protected:
+	void closeEvent(QCloseEvent *event);
 };
 
 #endif // TUNING_H

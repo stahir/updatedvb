@@ -25,6 +25,7 @@ scan::scan()
 	loop	= false;
 	ready	= true;
 	step	= 5;
+	mytune	= NULL;
 }
 
 scan::~scan()
@@ -39,7 +40,7 @@ void scan::run()
 			msleep(10);
 		}
 		ready = false;
-		mytune->tp_try.clear();		
+		mytune->tp_try.clear();
 
 		switch(mytune->tune_ops.voltage) {
 		case 0:
@@ -64,13 +65,21 @@ void scan::rescale() {
 	}
 	QVector<double> ys = y;
 	qSort(ys);
-	if (min == -1 || min > ys[ys.size() * 0.05]) {
-		min = ys[ys.size() * 0.05];
+	for (int i = 0; i < y.size(); i++) {
+		if (y.at(i) == 0) {
+			ys.remove(0);
+		}
 	}
-	if (max == -1 || max < ys[ys.size() - 1] * 1.01) {
-		max = ys[ys.size() - 1] * 1.01;
+	min = ys[ys.size() * 0.05];
+	max = ys[ys.size() - 1];
+	int dev = (max - min);
+	min += dev * 0.10;
+	max += dev * 0.05;
+	for (int i = 0; i < y.size(); i++) {
+		if (y.at(i) < min) {
+			y[i] = min;
+		}
 	}
-
 
 	tp_info tmp;
 	int slope;
@@ -79,31 +88,30 @@ void scan::rescale() {
 	} else {
 		slope = 10 / step;
 	}
+
 	unsigned int threshold = (max-min)/8;
 	unsigned int start = 0;
 	unsigned int end = 0;
 	unsigned int tmax = 0;
-	for(int i = 0; i < x.size(); i++) {
-		if (i > slope) {
-			if ( (y.at(i) - y.at(i-slope)) > threshold ) {
-				start = x.at(i-slope);
-				if (!tmax) {
-					tmax = y.at(i);
-				}
-			}
-			if (tmax && y.at(i) > tmax) {
+	for(int i = slope; i < x.size(); i++) {
+		if ( (y.at(i) - y.at(i-slope)) > threshold ) {
+			start = x.at(i-slope);
+			if (!tmax) {
 				tmax = y.at(i);
 			}
-			if ( start && (y.at(i-slope) - y.at(i)) > threshold ) {
-				end = x.at(i);
-				tmp.frequency			= (start + end)/2;
-				tmp.voltage				= mytune->tp.voltage;
-				tmp.spectrumscan_lvl	= tmax;
-				mytune->tp_try.append(tmp);
-				start = 0;
-				end = 0;
-				tmax = 0;
-			}
+		}
+		if (tmax && y.at(i) > tmax) {
+			tmax = y.at(i);
+		}
+		if ( start && (y.at(i-slope) - y.at(i)) > threshold && tmax > (unsigned int)min) {
+			end = x.at(i);
+			tmp.frequency			= (start + end)/2;
+			tmp.voltage				= mytune->tp.voltage;
+			tmp.spectrumscan_lvl	= tmax;
+			mytune->tp_try.append(tmp);
+			start = 0;
+			end = 0;
+			tmax = 0;
 		}
 	}
 
@@ -142,23 +150,16 @@ void scan::sweep_atsc()
 		}
 
 		mytune->spectrum_scan(&scan);
-	
-		int min = 65535;
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			if (rf_levels_h[i] < min) {
-				min = rf_levels_h[i];
-			}	
-		}	
-		
+
 		x.clear();
 		y.clear();
 		for(unsigned int i = 0; i < scan.num_freq; i++) {
 			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) - 3000);
-			y.append(min);
+			y.append(0);
 			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
 			y.append(rf_levels_h[i]);
 			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) + 3000);
-			y.append(min);
+			y.append(0);
 		}
 	} else {
 		step = 3000;
@@ -170,7 +171,7 @@ void scan::sweep_atsc()
 		}
 
 		mytune->spectrum_scan(&scan);
-	
+
 		x.clear();
 		y.clear();
 		for(unsigned int i = 0; i < scan.num_freq; i++) {
@@ -178,6 +179,7 @@ void scan::sweep_atsc()
 			y.append(rf_levels_h[i]);
 		}
 	}
+	free(scan.freq);
 }
 
 void scan::sweep_qam()
@@ -211,23 +213,16 @@ void scan::sweep_qam()
 		}
 	
 		mytune->spectrum_scan(&scan);
-	
-		int min = 65535;
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			if (rf_levels_h[i] < min) {
-				min = rf_levels_h[i];
-			}	
-		}	
-		
+
 		x.clear();
 		y.clear();
 		for(unsigned int i = 0; i < scan.num_freq; i++) {
 			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) - 3000);
-			y.append(min);
+			y.append(0);
 			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
 			y.append(rf_levels_h[i]);
 			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) + 3000);
-			y.append(min);
+			y.append(0);
 		}
 	} else {
 		step = 3000;
@@ -239,7 +234,7 @@ void scan::sweep_qam()
 		}
 
 		mytune->spectrum_scan(&scan);
-	
+
 		x.clear();
 		y.clear();
 		for(unsigned int i = 0; i < scan.num_freq; i++) {
@@ -247,6 +242,7 @@ void scan::sweep_qam()
 			y.append(rf_levels_h[i]);
 		}
 	}
+	free(scan.freq);
 }
 
 void scan::sweep_satellite()
@@ -271,13 +267,14 @@ void scan::sweep_satellite()
 	}
 
 	mytune->spectrum_scan(&scan);
-	
+
 	x.clear();
 	y.clear();
 	for(unsigned int i = 0; i < scan.num_freq; i++) {
 		x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
 		y.append(rf_levels_h[i]);
 	}
+	free(scan.freq);
 }
 
 void scan::sweep()
@@ -300,7 +297,5 @@ void scan::sweep()
 
 void scan::setup()
 {
-	min	= -1;
-	max	= -1;
 	ready = true;
 }

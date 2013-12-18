@@ -29,18 +29,27 @@ tp_info::tp_info()
 	inversion	= INVERSION_AUTO;
 	rolloff		= ROLLOFF_AUTO;
 	pilot		= PILOT_AUTO;
+	matype		= 0;
+	ber			= 0;
+	ucb			= 0;
+	snr			= 0;
+	lvl			= 0;
+	spectrumscan_lvl	= 0;
+	status		= 0;
 }
 
 tuning_options::tuning_options()
 {
-	f_start	= 3700;
-	f_stop	= 4200;
-	f_lof	= -5150;
-	voltage	= SEC_VOLTAGE_18;
-	tone	= SEC_TONE_OFF;
-	mis		= -1;
-	diseqctype = 3;
-	diseqcport = -1;
+	f_start		= 3700;
+	f_stop		= 4200;
+	f_lof		= -5150;
+	voltage		= SEC_VOLTAGE_18;
+	tone		= SEC_TONE_OFF;
+	mis			= -1;
+	diseqctype	= 3;
+	diseqcport	= -1;
+	site_lat	= 0;
+	site_long	= 0;
 }
 
 dvb_settings::dvb_settings()

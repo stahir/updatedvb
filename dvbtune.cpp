@@ -28,6 +28,17 @@ dvbtune::dvbtune()
 	ready		= true;
 	loop		= false;
 	iq_options	= 0x00;
+	adapter		= 0;
+	frontend	= 0;
+	index		= 0;
+	frontend_fd	= 0;
+	dvr_fd		= 0;
+	sct_fd		= 0;
+	out_fd		= 0;
+	old_position	= 0;
+	fmin		= 0;
+	fmax		= 0;
+	fstep		= 0;
 }
 
 dvbtune::~dvbtune()
@@ -105,7 +116,6 @@ void dvbtune::closefd()
 		qDebug() << "waiting till ready to close";
 		msleep(250);
 	}
-	qDebug() << "Closing:" << frontend_name;
 	close(frontend_fd);
 	frontend_name = "";
 }
@@ -114,7 +124,6 @@ void dvbtune::openfd()
 {
 	if (frontend_name == "") {
 		frontend_name = "/dev/dvb/adapter" + QString::number(adapter) + "/frontend" + QString::number(frontend);
-		qDebug() << "Opening:" << frontend_name;
 		frontend_fd = open(frontend_name.toStdString().c_str(), O_RDWR|O_NONBLOCK);
 		if (frontend_fd < 0) {
 			qDebug() << "Failed to open" << frontend_name;
@@ -135,8 +144,6 @@ double dvbtune::degree( double number )
 
 void dvbtune::getops()
 {
-	qDebug() << "getops() frontend:" << frontend;
-	
 	openfd();
 	
 	struct dtv_property p[1];
@@ -581,7 +588,6 @@ void dvbtune::get_bitrate()
 		}
 	}
 	
-	int len;
 	char buf[BUFFY];
 	memset(buf, 0, BUFFY);
 	
@@ -590,7 +596,7 @@ void dvbtune::get_bitrate()
 	while (stime.elapsed() < 2000 && buffer.size() < BUFFY && loop) {
 		msleep(100);
 		ready = false;
-		len = read(dvr_fd, buf, BUFFY);
+		int len = read(dvr_fd, buf, BUFFY);
 		ready = true;
 		if (len < 0) {
 			qDebug() << "get_bitrate() read() failed";
@@ -721,16 +727,17 @@ void dvbtune::demux_file()
 		}
 	}
 
-	int len;
 	int buf_size = 188*348;
 	char buf[buf_size];
 
 	do {
 		memset(buf, 0, buf_size);
 		ready = false;
-		len = read(dvr_fd, buf, buf_size);
-		write(out_fd, buf, len);
+		int len = read(dvr_fd, buf, buf_size);
+		ssize_t wlen = write(out_fd, buf, len);
 		ready = true;
+		emit demux_status(len);
+		Q_UNUSED(wlen);
 	} while (thread_function.indexOf("demux_file") != -1);
 }
 
@@ -934,7 +941,7 @@ void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 	if (isSatellite(tp.system)) {
 		setup_switch();	
 	}
-	
+
 	if (ioctl(frontend_fd, FE_GET_SPECTRUM_SCAN, scan) != 0) {
 		qDebug() << "Error! FE_GET_SPECTRUM_SCAN";
     }

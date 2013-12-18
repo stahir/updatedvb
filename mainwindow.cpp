@@ -103,8 +103,9 @@ MainWindow::~MainWindow()
 
 	for(int i = 0; i < marker.size(); i++) {
 		marker.at(i)->detach();
-//		delete marker.at(i);
 	}
+
+	delete mysettings;
 
 	delete qwt_picker;
 	delete legend;
@@ -112,6 +113,17 @@ MainWindow::~MainWindow()
 	ui->qwtPlot->deleteLater();
 	
 	delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent* ce)
+{
+	Q_UNUSED(ce);
+
+	for(int i = 0; i < mytuning.size(); i++) {
+		if (!mytuning.at(i)->shutdown) {
+			mytuning.at(i)->close();
+		}
+	}
 }
 
 void MainWindow::reload_settings()
@@ -217,32 +229,31 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 		return;
 	}
 	
-	for (int i = 0; i < tuningdialog.size(); i++) {
-		if (tuningdialog.at(i)->shutdown) {
-			tuningdialog.remove(i);
+	for (int i = 0; i < mytuning.size(); i++) {
+		if (mytuning.at(i)->shutdown) {
+			mytuning.remove(i);
 		}
 	}
 	
-	tuningdialog.append(new tuning);
-	tuningdialog.last()->setModal(false);
-	tuningdialog.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());		
-	tuningdialog.last()->mytune->tp.frequency	= (int)pos.x();
-	tuningdialog.last()->mytune->tp.voltage		= ui->comboBox_voltage->currentIndex();
+	mytuning.append(new tuning);
+	mytuning.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
+	mytuning.last()->mytune->tp.frequency	= (int)pos.x();
+	mytuning.last()->mytune->tp.voltage		= ui->comboBox_voltage->currentIndex();
 
 	if (ui->gridWidget_system->isVisible()) {
-		tuningdialog.last()->mytune->tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
-		tuningdialog.last()->mytune->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
-		tuningdialog.last()->mytune->tp.symbolrate	= ui->lineEdit_symbolrate->text().toInt();
-		tuningdialog.last()->mytune->tp.fec			= dvbnames.fec.indexOf(ui->comboBox_fec->currentText());
+		mytuning.last()->mytune->tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
+		mytuning.last()->mytune->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
+		mytuning.last()->mytune->tp.symbolrate	= ui->lineEdit_symbolrate->text().toInt();
+		mytuning.last()->mytune->tp.fec			= dvbnames.fec.indexOf(ui->comboBox_fec->currentText());
 	} else {
-		tuningdialog.last()->mytune->tp.modulation	= QPSK;
-		tuningdialog.last()->mytune->tp.system		= SYS_DVBS;
-		tuningdialog.last()->mytune->tp.symbolrate	= 1000;
-		tuningdialog.last()->mytune->tp.fec			= FEC_AUTO;
+		mytuning.last()->mytune->tp.modulation	= QPSK;
+		mytuning.last()->mytune->tp.system		= SYS_DVBS;
+		mytuning.last()->mytune->tp.symbolrate	= 1000;
+		mytuning.last()->mytune->tp.fec			= FEC_AUTO;
 	}
 	
-	tuningdialog.last()->init();
-	tuningdialog.last()->show();
+	mytuning.last()->init();
+	mytuning.last()->show();
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -267,19 +278,20 @@ void MainWindow::on_actionSettings_triggered()
 	reload_settings();
 }
 
-void MainWindow::on_comboBox_lnb_currentIndexChanged()
+void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
 {
+	Q_UNUSED(index);
 	if (noload) {
 		return;
 	}
-	qDebug() << "on_comboBox_lnb_currentIndexChanged()";
 	
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentText().toInt()];
 	reload_settings();
 }
 
-void MainWindow::on_comboBox_voltage_currentIndexChanged()
+void MainWindow::on_comboBox_voltage_currentIndexChanged(int index)
 {
+	Q_UNUSED(index);
 	switch(ui->comboBox_voltage->currentIndex())
 	{
 	case 0:
@@ -319,35 +331,46 @@ void MainWindow::on_updateButton_clicked()
 
 void MainWindow::on_pushButton_scan_clicked()
 {
-	blindscan blindscandialog;
-	blindscandialog.mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
-	blindscandialog.init();
-
-	if (isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
-		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= SYS_DVBS;
-		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= QPSK;
-	} else {
-		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
-		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
-	}
+	myblindscan.append(new blindscan);
+	myblindscan.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
+	myblindscan.last()->init();
+	myblindscan.last()->show();
 
 	qam myqam;
 	atsc myatsc;
+
 	tp_info tp;
+	if (ui->gridWidget_system->isVisible()) {
+		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
+		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
+		tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
+		tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
+	} else {
+		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= SYS_DVBS;
+		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= QPSK;
+		tp.system		= SYS_DVBS;
+		tp.modulation	= QPSK;
+	}
+
 	if (ui->checkBox_smart->isChecked() && mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size()) {
 		switch (dvbnames.system.indexOf(ui->comboBox_system->currentText())) {
 		case SYS_DVBC_ANNEX_B:
 			qDebug() << "QAM";
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 0; i < myqam.freq.size(); i++) {
-				if (myqam.freq.at(i) >= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start && myqam.freq.at(i) <= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
-					for (int f = 0; f < myscan->x.size()-1; f++) {
-						if (myqam.freq.at(i) >= myscan->x.at(f) && myqam.freq.at(i) <= myscan->x.at(f+1)) {
-							if (myscan->y.at(f) > myscan->min) {
-								tp.frequency	= myqam.freq.at(i);
+			for (int i = 1; i < myscan->x.size(); i++) {
+				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start || myscan->x.at(i) > mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
+					continue;
+				}
+				if (myqam.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
+					tp.frequency = myscan->x.at(i);
+					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
+				} else { // Long search
+					for (int ai = 0; ai < myqam.freq.size(); ai++) {
+						if (abs(myqam.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
+							if (tp.frequency != myqam.freq.at(ai)) {
+								tp.frequency = myqam.freq.at(ai);
 								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 							}
-							f = myscan->x.size();
 						}
 					}
 				}
@@ -357,26 +380,28 @@ void MainWindow::on_pushButton_scan_clicked()
 		case SYS_ATSCMH:
 			qDebug() << "ATSC";
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 0; i < myatsc.freq.size(); i++) {
-				if (myatsc.freq.at(i) >= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start && myatsc.freq.at(i) <= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
-					for (int f = 0; f < myscan->x.size()-1; f++) {
-						if (myatsc.freq.at(i) >= myscan->x.at(f) && myatsc.freq.at(i) <= myscan->x.at(f+1)) {
-							if (myscan->y.at(f) > myscan->min) {
-								tp.frequency	= myatsc.freq.at(i);
+			for (int i = 1; i < myscan->x.size(); i++) {
+				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start || myscan->x.at(i) > mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
+					continue;
+				}
+				if (myatsc.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
+					tp.frequency = myscan->x.at(i);
+					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
+				} else { // Long search
+					for (int ai = 0; ai < myatsc.freq.size(); ai++) {
+						if (abs(myatsc.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
+							if (tp.frequency != myatsc.freq.at(ai)) {
+								tp.frequency = myatsc.freq.at(ai);
 								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 							}
-							f = myscan->x.size();
 						}
 					}
 				}
 			}
 			break;
 		}
-		blindscandialog.smartscan();
+		myblindscan.last()->smartscan();
 	} else {
-		qam myqam;
-		atsc myatsc;
-		tp_info tp;
 		switch (dvbnames.system.indexOf(ui->comboBox_system->currentText())) {
 		case SYS_DVBC_ANNEX_B:
 			qDebug() << "QAM";
@@ -387,7 +412,7 @@ void MainWindow::on_pushButton_scan_clicked()
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
 			}
-			blindscandialog.smartscan();
+			myblindscan.last()->smartscan();
 			break;
 		case SYS_ATSC:
 		case SYS_ATSCMH:
@@ -399,17 +424,13 @@ void MainWindow::on_pushButton_scan_clicked()
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
 			}
-			blindscandialog.smartscan();
+			myblindscan.last()->smartscan();
 			break;
 		default:
-			blindscandialog.scan();
+			myblindscan.last()->scan();
 			break;
 		}
 	}
-
-	blindscandialog.init();
-	blindscandialog.setModal(true);
-	blindscandialog.exec();
 }
 
 void MainWindow::add_comboBox_modulation(QString name)
@@ -421,8 +442,6 @@ void MainWindow::add_comboBox_modulation(QString name)
 
 void MainWindow::setup_tuning_options()
 {
-	qDebug() << "setup_tuning_options() adapter:" << ui->comboBox_adapter->currentText().toInt() << "frontend:" << ui->comboBox_frontend->currentText().toInt();
-	
 	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentText().toInt();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
@@ -529,7 +548,6 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 	if (index < 0) {
 		return;
 	}
-	qDebug() << "on_comboBox_adapter_currentIndexChanged() Adapter:" << ui->comboBox_adapter->currentIndex();
 	
 	ui->comboBox_frontend->clear();
 	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentText());
@@ -635,16 +653,8 @@ void MainWindow::on_pushButton_gotox_save_clicked()
 	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->lineEdit_gotox->text().toInt());
 }
 
-void MainWindow::closeEvent(QCloseEvent* ce)
-{
-	Q_UNUSED(ce);
-	
-	for(int i = 0; i < tuningdialog.size(); i++) {
-		tuningdialog.at(i)->close();
-	}
-}
-
 void MainWindow::on_actionExit_triggered()
 {
+	qDebug() << "on_actionExit_triggered()";
 	close();
 }

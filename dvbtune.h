@@ -57,6 +57,7 @@ signals:
 	void updateresults();
 	void iqdraw(QVector<short int> x, QVector<short int> y);
 	void adapter_status(int adapter, bool is_busy);
+	void demux_status(int bytes);
 	
 public:
 	dvbtune();
@@ -112,7 +113,7 @@ public:
 	void run();
 	bool loop;
 	bool ready;
-	
+
 	QVector<int> delsys;
 	u_int64_t caps;
 	QString name;
