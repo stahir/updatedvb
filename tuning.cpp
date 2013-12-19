@@ -44,6 +44,7 @@ tuning::~tuning()
 		myiqplot->deleteLater();
 	}
 
+	mystream.socket_close();
 	mystream_thread.quit();
 	mystream_thread.wait(1000);
 	while (mystream_thread.isRunning()) {
