@@ -44,12 +44,10 @@ tuning::~tuning()
 		myiqplot->deleteLater();
 	}
 
-	mystream.loop = false;
-	mystream.quit();
-	mystream.wait(1000);
-	while (mystream.isRunning()) {
+	mystream_thread.quit();
+	mystream_thread.wait(1000);
+	while (mystream_thread.isRunning()) {
 		qDebug() << "mystream.isRunning()";
-		mystream.loop = false;
 		sleep(1);
 	}
 
@@ -78,7 +76,6 @@ tuning::~tuning()
 	delete ui;
 
 	shutdown = true;
-	qDebug() << "~tuning() done";
 }
 
 void tuning::closeEvent(QCloseEvent *event)
@@ -99,10 +96,15 @@ void tuning::init()
 	connect(&mythread, SIGNAL(setcolor(int,QColor)), this, SLOT(setcolor(int,QColor)));
 	connect(&mythread, SIGNAL(parsetp_done()), this, SLOT(parsetp_done()));
 	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
+	connect(this, SIGNAL(setup_server()), &mystream, SLOT(setup_server()));
 
 	mytune->start();
 	mytune->thread_function.append("tune");
 	mythread.mytune = mytune;
+
+	mystream.mytune	= mytune;
+	mystream.moveToThread(&mystream_thread);
+	mystream_thread.start();
 
 	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 
@@ -441,26 +443,12 @@ void tuning::on_pushButton_unexpand_clicked()
 
 void tuning::on_pushButton_stream_clicked()
 {
-	mystream.loop = false;
-	mystream.quit();
-	mystream.wait(1000);
-	while (mystream.isRunning()) {
-		qDebug() << "mystream.isRunning()";
-		mystream.loop = false;
-		sleep(1);
+	if (mystream.port) {
+		mystream.socket_close();
+	} else {
+		setup_demux();
+		emit setup_server();
 	}
-
-	setup_demux();
-
-	mystream.mytune	= mytune;
-	mystream.start();
-
-	while (!mystream.port) {
-		QThread::msleep(20);
-	}
-
-	qDebug() << mystream.IP.toString() << mystream.port;
-	update_status(QString("Streaming on %1:%2").arg(mystream.IP.toString()).arg(mystream.port), 0);
 }
 
 void tuning::delete_iqplot()

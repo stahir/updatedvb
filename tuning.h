@@ -27,6 +27,7 @@
 #include <QTreeWidget>
 #include <QListWidget>
 #include <QStatusBar>
+#include <QThread>
 #include "demux_file.h"
 #include "demux_dvr.h"
 #include "dvbtune.h"
@@ -50,6 +51,9 @@ public:
 	void setup_demux();
 	dvbtune *mytune;
 	bool shutdown;
+
+signals:
+	void setup_server();
 
 public slots:
 	void update_status(QString text, int time);
@@ -87,6 +91,7 @@ private:
 	QVector<QListWidgetItem *> list_item;
 	tuning_thread mythread;
 	dvbstream_thread mystream;
+	QThread mystream_thread;
 	iqplot *myiqplot;
 	bool myiqplot_running;
 

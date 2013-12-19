@@ -20,25 +20,26 @@
 #define DVBSTREAM_THREAD_H
 
 #include <QThread>
+#include <QNetworkInterface>
 #include "dvbtune.h"
 #include <signal.h>
 
-class dvbstream_thread : public QThread
+class dvbstream_thread : public QObject
 {
 	Q_OBJECT
 public:
 	dvbstream_thread();
 	~dvbstream_thread();
-	void run();
-	
+	void stream();
+
+	dvbtune *mytune;
 	QHostAddress IP;
 	int port;
-	dvbtune *mytune;
-	bool loop;
 
 public slots:
 	void socket_new();
 	void socket_close();
+	void setup_server();
 
 signals:
 	void update_status(QString text, int time);
@@ -46,6 +47,8 @@ signals:
 private:
 	QTcpServer *server;
 	QTcpSocket *socket;
+	bool socket_connected;
+	bool server_connected;
 };
 
 #endif // DVBSTREAM_THREAD_H

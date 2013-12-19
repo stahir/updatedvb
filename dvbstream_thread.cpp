@@ -22,75 +22,86 @@ dvbstream_thread::dvbstream_thread()
 {
 	signal(SIGPIPE, SIG_IGN);
 	mytune	= NULL;
-	loop	= false;
 	server	= NULL;
 	socket	= NULL;
 	IP		= QHostAddress::Null;
 	port	= 0;
+	socket_connected = false;
+	server_connected = false;
 }
 
 dvbstream_thread::~dvbstream_thread()
 {
 	qDebug() << "~dvbstream_thread()";
-	loop = false;
-	qDebug() << "~dvbstream_thread() done";
+	socket_close();
 }
 
 void dvbstream_thread::socket_new()
 {
-	qDebug() << "socket_new()";
+	if (!port) {
+		return;
+	}
 	socket = server->nextPendingConnection();
 	socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+	socket_connected = true;
 	connect(socket, SIGNAL(disconnected()), this, SLOT(socket_close()), Qt::DirectConnection);
-	
-	msleep(100);
+	stream();
+}
 
+void dvbstream_thread::socket_close()
+{
+	if (socket_connected) {
+		socket_connected = false;
+		socket->close();
+		socket->deleteLater();
+	}
+	if (server_connected) {
+		server_connected = false;
+		server->close();
+		server->deleteLater();
+	}
+	mytune->close_dvr();
+
+	IP		= QHostAddress::Null;
+	port	= 0;
+	emit update_status("", 0);
+}
+
+void dvbstream_thread::setup_server()
+{
+	QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+	for (int i = 0; i < ipAddressesList.size(); ++i) {
+		if (ipAddressesList.at(i) != QHostAddress::LocalHost && ipAddressesList.at(i).toIPv4Address()) {
+			IP = ipAddressesList.at(i);
+			break;
+		}
+	}
+	if (IP.isNull()) {
+		IP = QHostAddress(QHostAddress::LocalHost);
+	}
+	port = 1230 + mytune->adapter;
+	server = new QTcpServer();
+	if (!server->listen(QHostAddress::Any, port)) {
+		qDebug() << "Server could not start";
+		return;
+	}
+	server_connected = true;
+	connect(server, SIGNAL(newConnection()), this, SLOT(socket_new()), Qt::DirectConnection);
+	emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), 0);
+}
+
+void dvbstream_thread::stream()
+{
 	QTextStream resultStream(socket);
 	resultStream << "HTTP/1.0 200 Ok\r\n";
 	resultStream << "Content-Type: video/MP2T\r\n";
 	resultStream << "\r\n";
 	resultStream.flush();
 
-	loop = true;
-	while (loop && socket->state() == QAbstractSocket::ConnectedState) {
+	while (socket_connected && socket->state() == QAbstractSocket::ConnectedState) {
 		socket->write(mytune->demux_stream());
 		// Fix this, this causes much better performance, but randomly crash's with sigpipe, catch the error and ignore it
 		// socket->flush();
 		socket->waitForBytesWritten(1000);
 	}
-
-	qDebug() << "All Done.";
-	socket->close();
-	server->close();
-	mytune->close_dvr();
-	
-	socket->deleteLater();
-	server->deleteLater();
-}
-
-void dvbstream_thread::socket_close()
-{
-	qDebug() << "socket_close()";
-	loop	= false;
-	IP		= QHostAddress::Null;
-	port	= 0;
-
-	emit update_status("", 0);
-}
-
-void dvbstream_thread::run()
-{
-	port = 1230 + mytune->adapter;
-	
-	server = new QTcpServer();
-	if (server->listen(QHostAddress::Any, port)) {
-		qDebug() << "Server started on port:" << port;
-	} else {
-		qDebug() << "Server could not start";
-		return;
-	}
-	IP = server->serverAddress();
-	connect(server, SIGNAL(newConnection()), this, SLOT(socket_new()), Qt::DirectConnection);
-	
-	exec();
 }
