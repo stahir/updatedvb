@@ -11,16 +11,14 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = updateDVB
 TEMPLATE = app
 
-SOURCES += dvb_settings.cpp \
-    tuning.cpp \
-    blindscan.cpp \
-    iqplot.cpp
+SOURCES += dvb_settings.cpp
+SOURCES += tuning.cpp
+SOURCES += blindscan.cpp
+SOURCES += iqplot.cpp
 SOURCES += dvbstream_thread.cpp
-SOURCES +=
 SOURCES += blindscan_thread.cpp
 SOURCES += blindscan_save.cpp
 SOURCES += tuning_thread.cpp
-SOURCES +=
 SOURCES += dvbtune.cpp
 SOURCES += settings.cpp
 SOURCES += demux_file.cpp
@@ -29,16 +27,14 @@ SOURCES += scan.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
-HEADERS  += dvb_settings.h \
-    tuning.h \
-    blindscan.h \
-    iqplot.h
+HEADERS  += dvb_settings.h
+HEADERS  += tuning.h
+HEADERS  += blindscan.h
+HEADERS  += iqplot.h
 HEADERS  += dvbstream_thread.h
 HEADERS  += tuning_thread.h
-HEADERS  +=
 HEADERS  += blindscan_thread.h
 HEADERS  += blindscan_save.h
-HEADERS  +=
 HEADERS  += dvbtune.h
 HEADERS  += settings.h
 HEADERS  += demux_file.h
@@ -56,8 +52,8 @@ FORMS    += mainwindow.ui \
     iqplot.ui
 
 INCLUDEPATH += /usr/include/qwt
-INCLUDEPATH += /opt/local/include/qwt
-INCLUDEPATH += /usr/local/qwt-6.1.0/include
-LIBS += -L /usr/local/qwt-6.1.0/lib -l qwt
+LIBS += -Wl,-rpath,/usr/lib -L /usr/lib -l:libqwt.so.6.0.0
+#INCLUDEPATH += /usr/local/qwt-6.1.0/include
+#LIBS += -Wl,-rpath,/usr/local/qwt-6.1.0/lib -L /usr/local/qwt-6.1.0/lib -l:libqwt.so.6.1.0
 
 OTHER_FILES +=

@@ -72,8 +72,8 @@ tuning::~tuning()
 		sleep(1);
 	}
 
-	delete mystatusbar;
 	delete mysettings;
+	delete mystatusbar;
 	delete ui;
 
 	shutdown = true;
@@ -476,5 +476,7 @@ void tuning::on_pushButton_iqplot_clicked()
 
 void tuning::update_status(QString text, int time = 0)
 {
-	mystatusbar->showMessage(text, time * 1000);
+	if (!shutdown) {
+		mystatusbar->showMessage(text, time * 1000);
+	}
 }
