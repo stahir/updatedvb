@@ -28,6 +28,7 @@
 #include <QListWidget>
 #include <QStatusBar>
 #include <QThread>
+#include <QKeyEvent>
 #include "demux_file.h"
 #include "demux_dvr.h"
 #include "dvbtune.h"
@@ -97,6 +98,7 @@ private:
 
 protected:
 	void closeEvent(QCloseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // TUNING_H

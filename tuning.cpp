@@ -480,3 +480,10 @@ void tuning::update_status(QString text, int time = 0)
 		mystatusbar->showMessage(text, time * 1000);
 	}
 }
+
+void tuning::keyPressEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key_Escape) {
+		this->close();
+	}
+}
