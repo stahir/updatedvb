@@ -60,6 +60,7 @@ public:
 	void rescale();
 private:
 	dvb_settings dvbnames;
+	int f_start, f_stop;
 
 	void run();
 };

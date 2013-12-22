@@ -26,6 +26,8 @@ scan::scan()
 	ready	= true;
 	step	= 5;
 	mytune	= NULL;
+	f_start	= 0;
+	f_stop	= 0;
 }
 
 scan::~scan()
@@ -60,7 +62,7 @@ void scan::run()
 }
 
 void scan::rescale() {
-	if (!x.size()) {
+	if (x.size() <= 1 || y.size() <= 1) {
 		return;
 	}
 	QVector<double> ys = y;
@@ -122,19 +124,9 @@ void scan::sweep_atsc()
 {
 	short unsigned int rf_levels_h[65535];
 	struct dvb_fe_spectrum_scan scan;
-	int f_start, f_stop;
-	
-	if (abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof)) < abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof))) {
-		f_start	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
-		f_stop	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
-	} else {
-		f_start	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
-		f_stop	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
-	}
-	
+
 	QVector<unsigned long int> freq;
 	atsc myatsc;
-	
 	if (step != 1) {
 		for (int i = 0; i < myatsc.freq.size(); i++) {
 			if (myatsc.freq.at(i) >= f_start && myatsc.freq.at(i) <= f_stop) {
@@ -186,15 +178,6 @@ void scan::sweep_qam()
 {
 	short unsigned int rf_levels_h[65535];
 	struct dvb_fe_spectrum_scan scan;
-	int f_start, f_stop;
-	
-	if (abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof)) < abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof))) {
-		f_start	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
-		f_stop	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
-	} else {
-		f_start	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
-		f_stop	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
-	}
 	
 	QVector<unsigned long int> freq;
 	qam myqam;
@@ -249,16 +232,7 @@ void scan::sweep_satellite()
 {
 	short unsigned int rf_levels_h[65535];
 	struct dvb_fe_spectrum_scan scan;
-	int f_start, f_stop;
-	
-	if (abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof)) < abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof))) {
-		f_start	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
-		f_stop	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
-	} else {
-		f_start	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
-		f_stop	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
-	}
-	
+
 	scan.rf_level	= rf_levels_h;
 	scan.num_freq	= ((f_stop - f_start) / step) + 1;
 	scan.freq		= (__u32*) malloc(scan.num_freq * sizeof(__u32));
@@ -280,7 +254,31 @@ void scan::sweep_satellite()
 void scan::sweep()
 {
 	qDebug() << "sweep() - Start:" << mytune->tune_ops.f_start << "Stop:" << mytune->tune_ops.f_stop << "lof:" << mytune->tune_ops.f_lof << "voltage:" << dvbnames.voltage[mytune->tp.voltage];	
-	
+
+	if (abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof)) < abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof))) {
+		f_start	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
+		f_stop	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
+	} else {
+		f_start	= abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof));
+		f_stop	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
+	}
+
+	if (f_start < mytune->fmin/1000) {
+		f_start = mytune->fmin/1000;
+	}
+	if (f_start > mytune->fmax/1000) {
+		f_start = mytune->fmax/1000;
+	}
+	if (f_stop < mytune->fmin/1000) {
+		f_stop = mytune->fmin/1000;
+	}
+	if (f_stop > mytune->fmax/1000) {
+		f_stop = mytune->fmax/1000;
+	}
+	if (!abs(f_stop-f_start)) {
+		return;
+	}
+
 	if (isSatellite(mytune->tp.system)) {
 		sweep_satellite();
 	}
