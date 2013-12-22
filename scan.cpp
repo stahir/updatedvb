@@ -279,6 +279,7 @@ void scan::sweep()
 		return;
 	}
 
+	emit update_status("Scanning...", 0);
 	if (isSatellite(mytune->tp.system)) {
 		sweep_satellite();
 	}
@@ -289,8 +290,9 @@ void scan::sweep()
 	if (isQAM(mytune->tp.system)) {
 		sweep_qam();
 	}
-
+	emit update_status("Scanning...", -1);
 	rescale();
+	emit update_status("Done", 1);
 }
 
 void scan::setup()

@@ -41,6 +41,8 @@ class scan : public QThread
     Q_OBJECT
 signals:
 	void signaldraw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
+	void update_status(QString text, int time);
+
 public:
 	bool loop;
 	bool ready;

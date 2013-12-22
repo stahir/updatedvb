@@ -51,6 +51,7 @@ public:
 public slots:
 	void qwtPlot_selected(QPointF pos);
 	void qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
+	void update_status(QString text, int time = -1);
 
 private slots:
 	void on_updateButton_clicked();
@@ -75,25 +76,26 @@ private slots:
 	void setup_tuning_options();
 	
 private:
-	void getadapters();
-	void reload_settings();
-	void add_comboBox_modulation(QString name);
-
-	
+	Ui::MainWindow *ui;
 	QVector<tuning*> mytuning;
-    Ui::MainWindow *ui;
     scan *myscan;
     QwtPlotPicker *qwt_picker;
 	QVector<QwtPlotCurve*> curve;
 	QVector<QwtPlotMarker*> marker;
 	QwtLegend *legend;
-
-	bool noload;
 	QSettings *mysettings;
 	QVector<tuning_options> tune_ops;
 	dvb_settings dvbnames;
 	QVector<dvbtune*> mytuners;
 	QVector<blindscan*> myblindscan;
+	bool noload;
+	QVector<QString> mystatus;
+	QSignalMapper status_mapper;
+	QTimer *status_timer;
+
+	void getadapters();
+	void reload_settings();
+	void add_comboBox_modulation(QString name);
 
 protected:
 	void closeEvent(QCloseEvent *event);	

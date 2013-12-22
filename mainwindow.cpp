@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	mysettings	= new QSettings("UDL", "updateDVB");
 	myscan		= new scan;
 	connect(myscan, SIGNAL(signaldraw(QVector<double>, QVector<double>, int, int, int)), this, SLOT(qwt_draw(QVector<double>, QVector<double>, int, int, int)));
+	connect(myscan, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 
 	noload = true;
 	ui->comboBox_lnb->clear();
@@ -63,6 +64,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->comboBox_lnb->setCurrentIndex(0);
 	noload = false;
 	
+	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
+
 	reload_settings();
 	getadapters();
 	reload_settings();
@@ -440,6 +443,28 @@ void MainWindow::add_comboBox_modulation(QString name)
 	}
 }
 
+void MainWindow::update_status(QString text, int time)
+{
+	if (time == -1) {
+		if (mystatus.indexOf(text) != -1) {
+			mystatus.remove(mystatus.indexOf(text));
+		}
+	}
+	if (time == 0) {
+		mystatus.append(text);
+	}
+	if (time > 0) {
+		status_timer = new QTimer;
+		status_timer->setSingleShot(true);
+		connect(status_timer, SIGNAL(timeout()), &status_mapper, SLOT(map()));
+		status_mapper.setMapping(status_timer, text);
+		status_timer->start(time*1000);
+		mystatus.append(text);
+	}
+
+	ui->statusBar->showMessage(mystatus.last(), 0);
+}
+
 void MainWindow::setup_tuning_options()
 {
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentText().toInt()];
@@ -463,7 +488,7 @@ void MainWindow::setup_tuning_options()
 		ui->gridWidget_positioner->hide();
 	}
 	
-	ui->statusBar->showMessage(mytuners.at(ui->comboBox_adapter->currentIndex())->name, 0);
+	update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, 0);
 
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_SPECTRUMSCAN) {
 		ui->gridWidget_spectrumscan->show();
