@@ -24,6 +24,7 @@
 #include <QSettings>
 #include <QString>
 #include <QDir>
+#include <QTimer>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>

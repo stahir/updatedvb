@@ -442,6 +442,7 @@ void MainWindow::add_comboBox_modulation(QString name)
 
 void MainWindow::setup_tuning_options()
 {
+	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentText().toInt()];
 	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentText().toInt();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();

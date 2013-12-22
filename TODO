@@ -7,9 +7,6 @@
 - blindscan needs to find multiple tp in 10mhz block
 -- is there a way to make the stv search incrementally? this zigzag tuning makes sense in tuning, but not blindscan
 -- if no tp found jump 18mhz, if tp found use the SR calculation to determine jump
-- convert QDialogs into QWidgets
 - Should we be scanning channels while blindscaning? it would allow us to ident the satellite
 - I really should use status bar's instead of qdebug to point out things
-- look for more of these anyoying connect() warnings and fix them
-- use valgrind to find more mem leaks
-
+-- make a statusbar que, use QVector/QTimer
