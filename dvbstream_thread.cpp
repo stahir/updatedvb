@@ -45,6 +45,7 @@ void dvbstream_thread::socket_new()
 	socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 	socket_connected = true;
 	connect(socket, SIGNAL(disconnected()), this, SLOT(socket_close()), Qt::DirectConnection);
+	emit update_status(QString("Streaming to %1").arg(socket->peerAddress().toString()), 0);
 	stream();
 }
 
@@ -64,7 +65,7 @@ void dvbstream_thread::socket_close()
 
 	IP		= QHostAddress::Null;
 	port	= 0;
-	emit update_status("", 0);
+	emit update_status("Disconnected", 1);
 }
 
 void dvbstream_thread::setup_server()
@@ -99,9 +100,12 @@ void dvbstream_thread::stream()
 	resultStream.flush();
 
 	while (socket_connected && socket->state() == QAbstractSocket::ConnectedState) {
-		socket->write(mytune->demux_stream());
+		qint64 len = socket->write(mytune->demux_stream());
 		// Fix this, this causes much better performance, but randomly crash's with sigpipe, catch the error and ignore it
-		// socket->flush();
-		socket->waitForBytesWritten(1000);
+		//socket->flush();
+		socket->waitForBytesWritten(2000);
+		if (len != TCP_BUFSIZE) {
+			qDebug() << "TCP write() issue:" << len << "of" << TCP_BUFSIZE;
+		}
 	}
 }

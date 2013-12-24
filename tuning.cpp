@@ -99,6 +99,7 @@ void tuning::init()
 	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 	connect(this, SIGNAL(setup_server()), &mystream, SLOT(setup_server()));
 
+	update_status("Tuning...", 0);
 	mytune->start();
 	mytune->thread_function.append("tune");
 	mythread.mytune = mytune;
@@ -194,6 +195,7 @@ void tuning::updatesignal()
 		ui->label_lock->setStyleSheet("QLabel { color : red; }");
 		if (isSatellite(mytune->tp.system) && mytune->tp.fec == FEC_AUTO) {
 			ui->label_frequency->setText("");
+			update_status("Tuning failed, no lock", 0);
 			return;
 		}
 	}

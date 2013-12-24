@@ -532,14 +532,6 @@ int dvbtune::tune()
 		return -1;
 	}
 
-	// wait for zero status indicating start of tunning
-	/*
-	struct dvb_frontend_event ev;
-	do {
-		ioctl(frontend_fd, FE_GET_EVENT, &ev);
-	} while(ev.status != 0);
-	*/
-
 	// Keep trying for upto 2 second
 	QTime t;
 	t.start();
@@ -692,16 +684,18 @@ QByteArray dvbtune::demux_stream()
 	}
 
 	int len;
-	int buf_size = 188*348;
-	char buf[buf_size];
+	char buf[TCP_BUFSIZE];
 
-	memset(buf, 0, buf_size);
+	memset(buf, 0, TCP_BUFSIZE);
 	ready = false;
-	len = read(dvr_fd, buf, buf_size);
+	len = read(dvr_fd, buf, TCP_BUFSIZE);
 	ready = true;
 
-	if (len != buf_size) {
-		qDebug() << len << buf_size;
+	if (len == -1) {
+		return QByteArray();
+	}
+	if (len != TCP_BUFSIZE) {
+		qDebug() << "dvr read issue:" << len << "of" << TCP_BUFSIZE;
 	}
 	
 	return QByteArray(buf, len);
