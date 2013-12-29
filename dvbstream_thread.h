@@ -40,6 +40,7 @@ public slots:
 	void socket_new();
 	void socket_close();
 	void setup_server();
+	void read_data();
 
 signals:
 	void update_status(QString text, int time);

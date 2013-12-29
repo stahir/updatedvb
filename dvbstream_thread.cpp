@@ -45,8 +45,20 @@ void dvbstream_thread::socket_new()
 	socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 	socket_connected = true;
 	connect(socket, SIGNAL(disconnected()), this, SLOT(socket_close()), Qt::DirectConnection);
+	connect(socket, SIGNAL(readyRead()), this, SLOT(read_data()), Qt::DirectConnection);
 	emit update_status(QString("Streaming to %1").arg(socket->peerAddress().toString()), 0);
 	stream();
+}
+
+void dvbstream_thread::read_data()
+{
+	QString line;
+	while (socket->bytesAvailable()) {
+		line = socket->readLine();
+		if (line.section(" ", 0, 0) == "User-Agent:") {
+			emit update_status(QString("Streaming to %1 @ %2").arg(line.section(" ", 1, 1)).arg(socket->peerAddress().toString()), 0);
+		}
+	}
 }
 
 void dvbstream_thread::socket_close()
