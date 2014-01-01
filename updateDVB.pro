@@ -57,3 +57,8 @@ LIBS += -Wl,-rpath,/usr/lib -L /usr/lib -l:libqwt.so.6.0.0
 #LIBS += -Wl,-rpath,/usr/local/qwt-6.1.0/lib -L /usr/local/qwt-6.1.0/lib -l:libqwt.so.6.1.0
 
 OTHER_FILES +=
+
+TARGET.path = /usr/local/bin
+TARGET.files = updateDVB
+TARGET.extra = ln -sf /usr/local/bin/updateDVB ~/Desktop/updateDVB
+INSTALLS += TARGET
