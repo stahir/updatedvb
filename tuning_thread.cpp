@@ -369,7 +369,12 @@ void tuning_thread::parsetp()
 	}
 
 	for(int i = 0; i < mypat.number.size(); i++) {
-		tree_create_root_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2").arg(mypat.pid[i],4,16,QChar('0')).arg(mypat.number[i]), mypat.pid[i]);
+		QString sdt_name = "";
+		if (mysdt.sid.indexOf(mypat.number[i]) != -1 && mysdt.sname[mysdt.sid.indexOf(mypat.number[i])] != "") {
+			sdt_name += mysdt.sname[mysdt.sid.indexOf(mypat.number[i])];
+		}
+
+		tree_create_root_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2 %3").arg(mypat.pid[i],4,16,QChar('0')).arg(mypat.number[i],4,10,QChar(' ')).arg(sdt_name), mypat.pid[i]);
 		emit setcolor(parent_1, QColor(Qt::green).darker(300));
 
 		if (mytune->tp.system == SYS_DCII) {
@@ -388,19 +393,6 @@ void tuning_thread::parsetp()
 			continue;
 		}
 		if (!loop) return;
-
-		if (mysdt.sid.indexOf(mypat.number[i]) != -1) {
-			parent_2 = parent_1;
-			tree_create_child_wait(&parent_2, "SDT");
-			if (mysdt.sname[mysdt.sid.indexOf(mypat.number[i])] != "") {
-				parent_t = parent_2;
-				tree_create_child_wait(&parent_t, QString("Service Name: %1").arg(mysdt.sname[mysdt.sid.indexOf(mypat.number[i])]));
-			}
-			if (mysdt.pname[mysdt.sid.indexOf(mypat.number[i])] != "") {
-				parent_t = parent_2;
-				tree_create_child_wait(&parent_t, QString("Provider Name: %1").arg(mysdt.pname[mysdt.sid.indexOf(mypat.number[i])]));
-			}
-		}
 
 		mytune->index += 1;
 		int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
