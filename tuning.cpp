@@ -34,7 +34,7 @@ tuning::tuning(QWidget *parent) :
 
 	shutdown = false;
 	myiqplot_running = false;
-	parsetp_completed = false;
+	parsetp_started = false;
 
 	ui->treeWidget->setColumnCount(1);
 	ui->treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -111,6 +111,7 @@ void tuning::init()
 	mystream.mytune	= mytune;
 	mystream.moveToThread(&mystream_thread);
 	mystream_thread.start();
+	unlock_t.start();
 
 	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 
@@ -185,17 +186,16 @@ void tuning::parsetp_done()
 	ui->pushButton_ipcleaner->setEnabled(true);
 	ui->pushButton_play->setEnabled(true);
 	ui->pushButton_stream->setEnabled(true);
-	parsetp_completed = true;
 	update_status("Parsing transponder done", 3);
 }
 
 void tuning::updatesignal()
 {
-	static QTime unlock_t;
 	if (mytune->tp.status & FE_HAS_LOCK) {
-		if (!parsetp_completed && unlock_t.elapsed() > 3000) {
+		if (parsetp_started) {
+			unlock_t.restart();
+		} else if (unlock_t.elapsed() > 5000) {
 			updateresults();
-			qDebug() << "was unlocked, now locked";
 		}
 		ui->label_lock->setText("Locked");
 		ui->label_lock->setStyleSheet("QLabel { color : green; }");
@@ -344,6 +344,7 @@ void tuning::updateresults()
 	mytune->pids.append(0x2000);
 	mytune->demux_video();
 
+	parsetp_started = true;
 	mythread.loop	= false;
 	mythread.thread_function.append("parsetp");
 	mythread.start();
