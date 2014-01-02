@@ -133,12 +133,15 @@ void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
 		list_item.at(a)->setSelected(false);
 	}
 
-	int pid;
 	for(int a = 0; a < tree_item.size(); a++) {
 		if (tree_item.at(a)->isSelected()) {
-			pid = tree_pid.at(a);
-			if (pid < 0)
+			for (int i = 0; i < tree_item.at(a)->childCount(); i++) {
+				tree_item.at(a)->child(i)->setSelected(true);
+			}
+			if (tree_pid.at(a) < 0) {
+				tree_item.at(a)->setSelected(false);
 				continue;
+			}
 			list_item.at(list_pid.indexOf(tree_pid.at(a)))->setSelected(true);
 		}
 	}
@@ -157,11 +160,9 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 		tree_item.at(a)->setSelected(false);
 	}
 
-	int pid;
 	for (int a = 0; a < list_item.size(); a++) {
 		if (list_item.at(a)->isSelected()) {
-			pid = list_pid.at(a);
-			if (pid < 0)
+			if (list_pid.at(a) < 0)
 				continue;
 			int i = 0;
 			while (tree_pid.indexOf(list_pid.at(a), i) != -1) {
