@@ -95,6 +95,7 @@ private:
 	QThread mystream_thread;
 	iqplot *myiqplot;
 	bool myiqplot_running;
+	bool parsetp_completed;
 
 protected:
 	void closeEvent(QCloseEvent *event);

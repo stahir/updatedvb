@@ -34,6 +34,10 @@ tuning::tuning(QWidget *parent) :
 
 	shutdown = false;
 	myiqplot_running = false;
+	parsetp_completed = false;
+
+	ui->treeWidget->setColumnCount(1);
+	ui->treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 }
 
 tuning::~tuning()
@@ -176,27 +180,32 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 
 void tuning::parsetp_done()
 {
-	if (mytune->tp.status & FE_HAS_LOCK) {
-		ui->pushButton_demux->setEnabled(true);
-		ui->pushButton_file->setEnabled(true);
-		ui->pushButton_ipcleaner->setEnabled(true);
-		ui->pushButton_play->setEnabled(true);
-		ui->pushButton_stream->setEnabled(true);
-	}
+	ui->pushButton_demux->setEnabled(true);
+	ui->pushButton_file->setEnabled(true);
+	ui->pushButton_ipcleaner->setEnabled(true);
+	ui->pushButton_play->setEnabled(true);
+	ui->pushButton_stream->setEnabled(true);
+	parsetp_completed = true;
 	update_status("Parsing transponder done", 3);
 }
 
 void tuning::updatesignal()
 {
+	static QTime unlock_t;
 	if (mytune->tp.status & FE_HAS_LOCK) {
+		if (!parsetp_completed && unlock_t.elapsed() > 3000) {
+			updateresults();
+			qDebug() << "was unlocked, now locked";
+		}
 		ui->label_lock->setText("Locked");
 		ui->label_lock->setStyleSheet("QLabel { color : green; }");
 	} else {
+		unlock_t.restart();
+		update_status("Tuning failed, no lock", 0);
 		ui->label_lock->setText("Unlocked");
 		ui->label_lock->setStyleSheet("QLabel { color : red; }");
 		if (isSatellite(mytune->tp.system) && mytune->tp.fec == FEC_AUTO) {
 			ui->label_frequency->setText("");
-			update_status("Tuning failed, no lock", 0);
 			return;
 		}
 	}
@@ -327,9 +336,6 @@ void tuning::setcolor(int index, QColor color)
 
 void tuning::updateresults()
 {
-	ui->treeWidget->setColumnCount(1);
-	ui->treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
 	if (mytune->tp.system == SYS_DSS) {
 		return;
 	}
