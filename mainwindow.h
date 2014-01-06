@@ -101,4 +101,15 @@ protected:
 	void closeEvent(QCloseEvent *event);	
 };
 
+
+class PlotPicker : public QwtPlotPicker
+{
+	public:
+	PlotPicker(int xAxis, int yAxis, RubberBand rubberBand, DisplayMode trackerMode, QwtPlotCanvas* canvas);
+
+	private:
+	QwtText trackerText( const QPoint & ) const;
+	QwtText trackerTextF( const QPointF & ) const;
+};
+
 #endif // MAINWINDOW_H

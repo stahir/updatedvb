@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->qwtPlot->setAxisTitle(QwtPlot::xBottom, "Frequency");
 	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
 
-	qwt_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, ui->qwtPlot->canvas());
+	qwt_picker = new PlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, ui->qwtPlot->canvas());
 	qwt_picker->setStateMachine(new QwtPickerDragPointMachine());
 	qwt_picker->setRubberBandPen(QColor(Qt::darkMagenta));
 	qwt_picker->setRubberBand(QwtPicker::CrossRubberBand);
@@ -684,3 +684,20 @@ void MainWindow::on_actionExit_triggered()
 	qDebug() << "on_actionExit_triggered()";
 	close();
 }
+
+PlotPicker::PlotPicker(int xAxis, int yAxis, RubberBand rubberBand, DisplayMode trackerMode, QwtPlotCanvas* canvas) : QwtPlotPicker(xAxis, yAxis, rubberBand, trackerMode, canvas)
+{
+	setTrackerPen(QColor(Qt::yellow));
+}
+
+QwtText PlotPicker::trackerText( const QPoint &pos ) const
+{
+	return trackerTextF( invTransform( pos ) );
+}
+
+QwtText PlotPicker::trackerTextF(const QPointF &pos) const
+{
+	QwtText text(QString("%L1").arg(pos.x(), 0, 'f', 0) + " - " + QString("%L1").arg(pos.y(), 0, 'f', 0));
+	return text;
+}
+
