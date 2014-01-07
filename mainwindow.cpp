@@ -211,6 +211,7 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 		marker.append(new QwtPlotMarker);
 		marker.at(i)->setSymbol(sym);
 		marker.at(i)->setLabel(QwtText(QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency)));
+		marker.at(i)->setLabelOrientation(Qt::Vertical);
 		marker.at(i)->setLabelAlignment(Qt::AlignTop);
 		marker.at(i)->setValue(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency, mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).spectrumscan_lvl);
 		marker.at(i)->attach(ui->qwtPlot);
@@ -684,20 +685,3 @@ void MainWindow::on_actionExit_triggered()
 	qDebug() << "on_actionExit_triggered()";
 	close();
 }
-
-PlotPicker::PlotPicker(int xAxis, int yAxis, RubberBand rubberBand, DisplayMode trackerMode, QwtPlotCanvas* canvas) : QwtPlotPicker(xAxis, yAxis, rubberBand, trackerMode, canvas)
-{
-	setTrackerPen(QColor(Qt::yellow));
-}
-
-QwtText PlotPicker::trackerText( const QPoint &pos ) const
-{
-	return trackerTextF( invTransform( pos ) );
-}
-
-QwtText PlotPicker::trackerTextF(const QPointF &pos) const
-{
-	QwtText text(QString("%L1").arg(pos.x(), 0, 'f', 0) + " - " + QString("%L1").arg(pos.y(), 0, 'f', 0));
-	return text;
-}
-

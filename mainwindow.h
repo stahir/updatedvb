@@ -41,6 +41,26 @@ namespace Ui {
     class MainWindow;
 }
 
+class PlotPicker : public QwtPlotPicker
+{
+public:
+	PlotPicker(int xAxis, int yAxis, RubberBand rubberBand, DisplayMode trackerMode, QwtPlotCanvas* canvas) : QwtPlotPicker(xAxis, yAxis, rubberBand, trackerMode, canvas)
+	{
+	}
+
+private:
+	QwtText trackerText( const QPoint &pos ) const
+	{
+		return trackerTextF( invTransform( pos ) );
+	}
+
+	QwtText trackerTextF(const QPointF &pos) const
+	{
+		QwtText text(QString("%L1").arg(pos.x(), 0, 'f', 0) + " - " + QString("%L1").arg(pos.y(), 0, 'f', 0));
+		return text;
+	}
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -79,7 +99,7 @@ private:
 	Ui::MainWindow *ui;
 	QVector<tuning*> mytuning;
     scan *myscan;
-    QwtPlotPicker *qwt_picker;
+	PlotPicker *qwt_picker;
 	QVector<QwtPlotCurve*> curve;
 	QVector<QwtPlotMarker*> marker;
 	QwtLegend *legend;
@@ -99,17 +119,6 @@ private:
 
 protected:
 	void closeEvent(QCloseEvent *event);	
-};
-
-
-class PlotPicker : public QwtPlotPicker
-{
-	public:
-	PlotPicker(int xAxis, int yAxis, RubberBand rubberBand, DisplayMode trackerMode, QwtPlotCanvas* canvas);
-
-	private:
-	QwtText trackerText( const QPoint & ) const;
-	QwtText trackerTextF( const QPointF & ) const;
 };
 
 #endif // MAINWINDOW_H

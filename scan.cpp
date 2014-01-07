@@ -76,7 +76,7 @@ void scan::rescale() {
 	max = ys[ys.size() - 1];
 	int dev = (max - min);
 	min += dev * 0.10;
-	max += dev * 0.05;
+	max += dev * 0.10;
 	for (int i = 0; i < y.size(); i++) {
 		if (y.at(i) < min) {
 			y[i] = min;
