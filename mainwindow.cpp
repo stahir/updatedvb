@@ -356,13 +356,38 @@ void MainWindow::on_pushButton_scan_clicked()
 		tp.modulation	= QPSK;
 	}
 
+	int f_start, f_stop;
+	if (abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start - abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_lof)) < abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop - abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_lof))) {
+		f_start	= abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start - abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_lof));
+		f_stop	= abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop - abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_lof));
+	} else {
+		f_start	= abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop - abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_lof));
+		f_stop	= abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start - abs(mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_lof));
+	}
+
+	if (f_start < mytuners.at(ui->comboBox_adapter->currentIndex())->fmin/1000) {
+		f_start = mytuners.at(ui->comboBox_adapter->currentIndex())->fmin/1000;
+	}
+	if (f_start > mytuners.at(ui->comboBox_adapter->currentIndex())->fmax/1000) {
+		f_start = mytuners.at(ui->comboBox_adapter->currentIndex())->fmax/1000;
+	}
+	if (f_stop < mytuners.at(ui->comboBox_adapter->currentIndex())->fmin/1000) {
+		f_stop = mytuners.at(ui->comboBox_adapter->currentIndex())->fmin/1000;
+	}
+	if (f_stop > mytuners.at(ui->comboBox_adapter->currentIndex())->fmax/1000) {
+		f_stop = mytuners.at(ui->comboBox_adapter->currentIndex())->fmax/1000;
+	}
+	if (!abs(f_stop-f_start)) {
+		return;
+	}
+
 	if (ui->checkBox_smart->isChecked() && mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size()) {
 		switch (dvbnames.system.indexOf(ui->comboBox_system->currentText())) {
 		case SYS_DVBC_ANNEX_B:
 			qDebug() << "QAM";
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
 			for (int i = 1; i < myscan->x.size(); i++) {
-				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start || myscan->x.at(i) > mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
+				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < f_start || myscan->x.at(i) > f_stop) {
 					continue;
 				}
 				if (myqam.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
@@ -385,7 +410,7 @@ void MainWindow::on_pushButton_scan_clicked()
 			qDebug() << "ATSC";
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
 			for (int i = 1; i < myscan->x.size(); i++) {
-				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start || myscan->x.at(i) > mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
+				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < f_start || myscan->x.at(i) > f_stop) {
 					continue;
 				}
 				if (myatsc.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
@@ -411,7 +436,7 @@ void MainWindow::on_pushButton_scan_clicked()
 			qDebug() << "QAM";
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
 			for (int i = 0; i < myqam.freq.size(); i++) {
-				if (myqam.freq.at(i) >= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start && myqam.freq.at(i) <= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
+				if (myqam.freq.at(i) >= f_start && myqam.freq.at(i) <= f_stop) {
 					tp.frequency	= myqam.freq.at(i);
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
@@ -423,7 +448,7 @@ void MainWindow::on_pushButton_scan_clicked()
 			qDebug() << "ATSC";
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
 			for (int i = 0; i < myatsc.freq.size(); i++) {
-				if (myatsc.freq.at(i) >= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_start && myatsc.freq.at(i) <= mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.f_stop) {
+				if (myatsc.freq.at(i) >= f_start && myatsc.freq.at(i) <= f_stop) {
 					tp.frequency	= myatsc.freq.at(i);
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
