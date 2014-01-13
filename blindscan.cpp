@@ -25,6 +25,7 @@ void blindscan::init()
 	mythread.mytune->thread_function.clear();
 	connect(mythread.mytune, SIGNAL(updatesignal()), this, SLOT(updatesignal()), Qt::UniqueConnection);
 	connect(&mythread, SIGNAL(updateprogress(int)), this, SLOT(updateprogress(int)));
+	this->setWindowTitle("Blindscan, Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 }
 
 blindscan::~blindscan()
