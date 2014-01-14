@@ -252,6 +252,7 @@ dvb_settings::dvb_settings()
 	ca_name[0x0D07] = "Cryptoworks";
 	ca_name[0x0D20] = "Cryptoworks";
 	ca_name[0x0E00] = "PowerVu";
+	ca_name[0x0E01] = "PowerVu";
 	ca_name[0x1010] = "Tandberg Television";
 	ca_name[0x1702] = "BetaCrypt 1";
 	ca_name[0x1722] = "BetaCrypt 1";
