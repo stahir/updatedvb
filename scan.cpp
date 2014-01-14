@@ -72,6 +72,9 @@ void scan::rescale() {
 			ys.remove(0);
 		}
 	}
+	if (ys.size() <= 1) {
+		return;
+	}
 	min = ys[ys.size() * 0.05];
 	max = ys[ys.size() - 1];
 	int dev = (max - min);
