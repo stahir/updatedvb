@@ -370,8 +370,10 @@ void tuning_thread::parsetp()
 
 	for(int i = 0; i < mypat.number.size(); i++) {
 		QString sdt_name = "";
-		if (mysdt.sid.indexOf(mypat.number[i]) != -1 && mysdt.sname[mysdt.sid.indexOf(mypat.number[i])] != "") {
-			sdt_name += mysdt.sname[mysdt.sid.indexOf(mypat.number[i])];
+		if (mysdt.sid.indexOf(mypat.number[i]) != -1) {
+			if (mysdt.sname[mysdt.sid.indexOf(mypat.number[i])] != "") {
+				sdt_name += mysdt.sname[mysdt.sid.indexOf(mypat.number[i])];
+			}
 		}
 
 		tree_create_root_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2 %3").arg(mypat.pid[i],4,16,QChar('0')).arg(mypat.number[i],4,10,QChar(' ')).arg(sdt_name), mypat.pid[i]);
