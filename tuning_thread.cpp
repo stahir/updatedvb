@@ -371,8 +371,10 @@ void tuning_thread::parsetp()
 	for(int i = 0; i < mypat.number.size(); i++) {
 		QString sdt_name = "";
 		if (mysdt.sid.indexOf(mypat.number[i]) != -1) {
-			if (mysdt.sname[mysdt.sid.indexOf(mypat.number[i])] != "") {
-				sdt_name += mysdt.sname[mysdt.sid.indexOf(mypat.number[i])];
+			if (mysdt.sid.indexOf(mypat.number[i]) < mysdt.sname.size() && mysdt.sname.at(mysdt.sid.indexOf(mypat.number[i])) != "") {
+				sdt_name += mysdt.sname.at(mysdt.sid.indexOf(mypat.number[i]));
+			} else if (mysdt.sid.indexOf(mypat.number[i]) < mysdt.pname.size() && mysdt.pname.at(mysdt.sid.indexOf(mypat.number[i])) != "") {
+				sdt_name += mysdt.pname.at(mysdt.sid.indexOf(mypat.number[i]));
 			}
 		}
 
