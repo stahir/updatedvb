@@ -215,8 +215,16 @@ void tuning::updatesignal()
 		ui->pushButton_iqplot->setEnabled(true);
 	}
 
-	ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
-	ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
+	if (mytune->tp.lvl_scale == FE_SCALE_DECIBEL) {
+		ui->label_signalS->setText(QString::number(mytune->tp.lvl, 'f', 1) + "dBm");
+	} else {
+		ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
+	}
+	if (mytune->tp.snr_scale == FE_SCALE_DECIBEL) {
+		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
+	} else {
+		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "%");
+	}
 	ui->label_ber->setText(QString::number(mytune->tp.ber));
 	ui->label_system->setText(dvbnames.system[mytune->tp.system]);
 	ui->label_modulation->setText(dvbnames.modulation[mytune->tp.modulation]);

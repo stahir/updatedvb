@@ -356,38 +356,7 @@ void dvbtune::check_frontend()
 		qDebug() << "FE_READ_STATUS failed";
 	}
 
-	if (ioctl(frontend_fd, FE_READ_SIGNAL_STRENGTH, &tp.lvl) == -1) {
-		tp.lvl = 0;
-	} else {
-		tp.lvl = (tp.lvl * 100) / 0xffff;
-		if (tp.lvl < 0) {
-			tp.lvl = 0;
-		}
-	}
-
-	unsigned int snr = 0;
-	if (ioctl(frontend_fd, FE_READ_SNR, &snr) == -1) {
-		tp.snr = 0;
-	} else {
-		if (tp.system == SYS_DVBS || tp.system == SYS_DVBS2 || tp.system == SYS_DSS || tp.system == SYS_DCII) {
-			snr /= 256;
-		}
-		tp.snr = snr/10.0;
-		if (tp.snr < 0) {
-			tp.snr = 0;
-		}
-	}
-
-	tp.ber = 0;
-	if (ioctl(frontend_fd, FE_READ_BER, &tp.ber) == -1) {
-		tp.ber = 0;
-	}
-
-	if (ioctl(frontend_fd, FE_READ_UNCORRECTED_BLOCKS, &tp.ucb) == -1) {
-		tp.ucb = 0;
-	}
-
-	struct dtv_property p[12];
+	struct dtv_property p[13];
 	p[0].cmd = DTV_FREQUENCY;
 	p[1].cmd = DTV_DELIVERY_SYSTEM;
 	p[2].cmd = DTV_SYMBOL_RATE;
@@ -397,9 +366,13 @@ void dvbtune::check_frontend()
 	p[6].cmd = DTV_ROLLOFF;
 	p[7].cmd = DTV_PILOT;
 	p[8].cmd = DTV_MATYPE;
+	p[9].cmd = DTV_STAT_SIGNAL_STRENGTH;
+	p[10].cmd = DTV_STAT_CNR;
+	p[11].cmd = DTV_STAT_POST_ERROR_BIT_COUNT;
+	p[12].cmd = DTV_STAT_PRE_TOTAL_BIT_COUNT;
 
 	struct dtv_properties p_status;
-	p_status.num = 9;
+	p_status.num = 13;
 	p_status.props = p;
 
 	// get the actual parameters from the driver for that channel
@@ -418,6 +391,44 @@ void dvbtune::check_frontend()
 	tp.rolloff		= p_status.props[6].u.data;
 	tp.pilot		= p_status.props[7].u.data;
 	tp.matype		= p_status.props[8].u.data;
+	tp.lvl_scale	= p_status.props[9].u.st.stat[0].scale;
+	if (tp.lvl_scale == FE_SCALE_DECIBEL) {
+		tp.lvl		= p_status.props[9].u.st.stat[0].svalue * 0.0001;
+	} else {
+		int lvl;
+		if (ioctl(frontend_fd, FE_READ_SIGNAL_STRENGTH, &lvl) == -1) {
+			tp.lvl = 0;
+		} else {
+			tp.lvl = (lvl * 100) / 0xffff;
+			if (tp.lvl < 0) {
+				tp.lvl = 0;
+			}
+		}
+	}
+	tp.snr_scale	= p_status.props[10].u.st.stat[0].scale;
+	if (tp.snr_scale == FE_SCALE_DECIBEL) {
+		tp.snr		= p_status.props[10].u.st.stat[0].svalue * 0.0001;
+	} else {
+		unsigned int snr = 0;
+		if (ioctl(frontend_fd, FE_READ_SNR, &snr) == -1) {
+			tp.snr = 0;
+		} else {
+			if (isATSC(tp.system) || isQAM(tp.system)) {
+				tp.snr_scale = FE_SCALE_DECIBEL;
+				tp.snr = snr/10.0;
+			}
+		}
+	}
+	tp.ber_scale	= p_status.props[11].u.st.stat[0].scale;
+	if (p_status.props[11].u.st.stat[0].scale == FE_SCALE_COUNTER && p_status.props[12].u.st.stat[0].scale == FE_SCALE_COUNTER) {
+		tp.ber		= (p_status.props[12].u.st.stat[0].uvalue / (p_status.props[11].u.st.stat[0].uvalue * 1.0)) * 100;
+	} else {
+		tp.ber = 0;
+		if (ioctl(frontend_fd, FE_READ_BER, &tp.ber) == -1) {
+			tp.ber = 0;
+		}
+	}
+
 	tp.status		= status;
 	emit updatesignal();
 }

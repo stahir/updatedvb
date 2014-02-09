@@ -105,11 +105,11 @@ void dvbstream_thread::setup_server()
 
 void dvbstream_thread::stream()
 {
-	QTextStream resultStream(socket);
-	resultStream << "HTTP/1.0 200 Ok\r\n";
-	resultStream << "Content-Type: video/MP2T\r\n";
-	resultStream << "\r\n";
-	resultStream.flush();
+    QTextStream resultStream(socket);
+    resultStream << "HTTP/1.0 200 Ok\r\n";
+    resultStream << "Content-Type: video/MP2T\r\n";
+    resultStream << "\r\n";
+    resultStream.flush();
 
 	while (socket_connected && socket->state() == QAbstractSocket::ConnectedState) {
 		qint64 len = socket->write(mytune->demux_stream());

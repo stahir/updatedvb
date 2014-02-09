@@ -32,6 +32,7 @@
 #include <qwt_symbol.h>
 #include <qwt_picker_machine.h>
 #include <qwt_legend.h>
+#include <qwt_plot_canvas.h>
 #include "dvb_settings.h"
 #include "scan.h"
 #include "settings.h"

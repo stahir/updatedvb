@@ -38,9 +38,13 @@ public:
 	int rolloff;
 	int pilot;
 	int matype;
-	unsigned int ber, ucb;
+	unsigned int ucb;
+	unsigned int ber;
+	unsigned int ber_scale;
 	float snr;
-	int lvl;
+	unsigned int snr_scale;
+	float lvl;
+	unsigned int lvl_scale;
 	int spectrumscan_lvl;
 	int status;
 	

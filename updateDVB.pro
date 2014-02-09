@@ -51,10 +51,8 @@ FORMS    += mainwindow.ui \
     blindscan.ui \
     iqplot.ui
 
-INCLUDEPATH += /usr/include/qwt
-LIBS += -Wl,-rpath,/usr/lib -L /usr/lib -l:libqwt.so.6.0.0
-#INCLUDEPATH += /usr/local/qwt-6.1.0/include
-#LIBS += -Wl,-rpath,/usr/local/qwt-6.1.0/lib -L /usr/local/qwt-6.1.0/lib -l:libqwt.so.6.1.0
+INCLUDEPATH += /usr/local/qwt-6.1.0/include
+LIBS += -Wl,-rpath,/usr/local/qwt-6.1.0/lib -L /usr/local/qwt-6.1.0/lib -l:libqwt.so.6.1.0
 
 OTHER_FILES +=
 

@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->qwtPlot->setAxisTitle(QwtPlot::xBottom, "Frequency");
 	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
 
-	qwt_picker = new PlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, ui->qwtPlot->canvas());
+    qwt_picker = new PlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, qobject_cast<QwtPlotCanvas*>(ui->qwtPlot->canvas()));
 	qwt_picker->setStateMachine(new QwtPickerDragPointMachine());
 	qwt_picker->setRubberBandPen(QColor(Qt::darkMagenta));
 	qwt_picker->setRubberBand(QwtPicker::CrossRubberBand);
