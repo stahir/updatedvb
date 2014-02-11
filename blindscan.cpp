@@ -167,9 +167,17 @@ void blindscan::updatesignal()
 		tree_create_child(parent_1, text);
 	}
 
-	text = "Signal S: " + QString::number(mytune->tp.lvl) + "%";
+	if (mytune->tp.lvl_scale == FE_SCALE_DECIBEL) {
+		text = "Signal S: " + QString::number(mytune->tp.lvl, 'f', 1) + "dBm";
+	} else {
+		text = "Signal S: " + QString::number(mytune->tp.lvl) + "%";
+	}
 	tree_create_child(parent_1, text);
-	text = "Signal Q: " + QString::number(mytune->tp.snr) + "dB";
+	if (mytune->tp.snr_scale == FE_SCALE_DECIBEL) {
+		text = "Signal Q: " + QString::number(mytune->tp.snr, 'f', 1) + "dB";
+	} else {
+		text = "Signal Q: " + QString::number(mytune->tp.snr) + "%";
+	}
 	tree_create_child(parent_1, text);
 	mythread.ready = true;
 }

@@ -369,7 +369,7 @@ void dvbtune::check_frontend()
 	p[9].cmd = DTV_STAT_SIGNAL_STRENGTH;
 	p[10].cmd = DTV_STAT_CNR;
 	p[11].cmd = DTV_STAT_POST_ERROR_BIT_COUNT;
-	p[12].cmd = DTV_STAT_PRE_TOTAL_BIT_COUNT;
+	p[12].cmd = DTV_STAT_POST_TOTAL_BIT_COUNT;
 
 	struct dtv_properties p_status;
 	p_status.num = 13;
