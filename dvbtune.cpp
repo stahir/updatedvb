@@ -421,6 +421,10 @@ void dvbtune::check_frontend()
 	}
 	tp.ber_scale	= p_status.props[11].u.st.stat[0].scale;
 	if (p_status.props[11].u.st.stat[0].scale == FE_SCALE_COUNTER && p_status.props[12].u.st.stat[0].scale == FE_SCALE_COUNTER) {
+		int a, b, c;
+		a = p_status.props[12].u.st.stat[0].uvalue;
+		b = p_status.props[11].u.st.stat[0].uvalue;
+		c = (a / (b * 1.0)) * 100;
 		tp.ber		= (p_status.props[12].u.st.stat[0].uvalue / (p_status.props[11].u.st.stat[0].uvalue * 1.0)) * 100;
 	} else {
 		tp.ber = 0;
