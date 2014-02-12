@@ -53,7 +53,7 @@ FORMS    += mainwindow.ui \
 
 INCLUDEPATH += /usr/local/qwt-6.1.0/include
 INCLUDEPATH += /usr/include/qwt
-LIBS += -Wl,-rpath,/usr/local/qwt-6.1.0/lib -L /usr/local/qwt-6.1.0/lib -l:libqwt.so.6.1.0
+LIBS += -Wl,-rpath,/usr/local/qwt-6.1.0/lib -L /usr/local/qwt-6.1.0/lib -l:libqwt.so
 
 OTHER_FILES +=
 
