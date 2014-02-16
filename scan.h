@@ -48,7 +48,7 @@ public:
 	bool ready;
 	dvbtune *mytune;
 	unsigned int step;
-	int min, max;
+	int min, max, min_old, max_old;
 	QVector<double> x;
 	QVector<double> y;
 

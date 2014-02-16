@@ -43,6 +43,8 @@ void scan::run()
 		}
 		ready = false;
 		mytune->tp_try.clear();
+		min_old = -1;
+		max_old = -1;
 
 		switch(mytune->tune_ops.voltage) {
 		case 0:
@@ -54,6 +56,8 @@ void scan::run()
 		case 3: // Both polarities
 			mytune->tp.voltage = SEC_VOLTAGE_13;
 			sweep();
+			min_old = min;
+			max_old = max;
 			mytune->tp.voltage = SEC_VOLTAGE_18;
 			sweep();
 			break;
@@ -80,6 +84,14 @@ void scan::rescale() {
 	int dev = (max - min);
 	min += dev * 0.10;
 	max += dev * 0.10;
+	if (min_old > 0 && max_old > 0) {
+		if (min_old < min) {
+			min = min_old;
+		}
+		if (max_old > max) {
+			max = max_old;
+		}
+	}
 	for (int i = 0; i < y.size(); i++) {
 		if (y.at(i) < min) {
 			y[i] = min;
@@ -293,8 +305,8 @@ void scan::sweep()
 	if (isQAM(mytune->tp.system)) {
 		sweep_qam();
 	}
-	emit update_status("Scanning...", -1);
 	rescale();
+	emit update_status("Scanning...", -1);
 	emit update_status("Done", 1);
 }
 
