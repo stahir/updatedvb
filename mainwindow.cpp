@@ -180,7 +180,7 @@ void MainWindow::reload_settings()
 		ui->comboBox_voltage->setItemData(2, e, Qt::UserRole -1);
 		break;
 	case 3:
-		ui->gridWidget_voltage->hide();
+		ui->gridWidget_voltage->show();
 		ui->comboBox_voltage->setCurrentIndex(1);
 		ui->comboBox_voltage->setItemData(0, e, Qt::UserRole -1);
 		ui->comboBox_voltage->setItemData(1, e, Qt::UserRole -1);
@@ -201,22 +201,7 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 	curve[cindex]->attach(ui->qwtPlot);
 	curve[cindex]->setSamples(x, y);
 
-	for (int i = 0; i < marker.size(); i++) {
-		marker.at(i)->detach();
-	}
-	marker.clear();
-
-	QwtSymbol *sym = new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::blue), QPen(Qt::blue), QSize(5,5));
-	for (int i = 0; i < mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size(); i++) {
-		marker.append(new QwtPlotMarker);
-		marker.at(i)->setSymbol(sym);
-		marker.at(i)->setLabel(QwtText(QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency)));
-		marker.at(i)->setLabelOrientation(Qt::Vertical);
-		marker.at(i)->setLabelAlignment(Qt::AlignTop);
-		marker.at(i)->setValue(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency, mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).spectrumscan_lvl);
-		marker.at(i)->attach(ui->qwtPlot);
-	}
-	ui->qwtPlot->replot();
+	set_colors();
 	
 	myscan->ready = true;
 }
@@ -293,22 +278,48 @@ void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
 	reload_settings();
 }
 
-void MainWindow::on_comboBox_voltage_currentIndexChanged(int index)
+void MainWindow::set_colors()
 {
-	Q_UNUSED(index);
 	switch(ui->comboBox_voltage->currentIndex())
 	{
 	case 0:
 		curve[0]->setPen(QPen(Qt::black));
 		curve[1]->setPen(QPen(Qt::gray));
-		ui->qwtPlot->replot();
 		break;
 	case 1:
 		curve[0]->setPen(QPen(Qt::gray));
 		curve[1]->setPen(QPen(Qt::black));
-		ui->qwtPlot->replot();
 		break;
 	}
+
+	for (int i = 0; i < marker.size(); i++) {
+		marker.at(i)->detach();
+	}
+	marker.clear();
+
+	for (int i = 0; i < mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size(); i++) {
+		marker.append(new QwtPlotMarker);
+		QwtText text = QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency);
+		if (mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).voltage == ui->comboBox_voltage->currentIndex()) {
+			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::black), QPen(Qt::black), QSize(5,5)));
+			text.setColor(QColor(Qt::black));
+		} else {
+			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::gray), QPen(Qt::gray), QSize(5,5)));
+			text.setColor(QColor(Qt::gray));
+		}
+		marker.at(i)->setLabel(text);
+		marker.at(i)->setLabelOrientation(Qt::Vertical);
+		marker.at(i)->setLabelAlignment(Qt::AlignTop);
+		marker.at(i)->setValue(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency, mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).spectrumscan_lvl);
+		marker.at(i)->attach(ui->qwtPlot);
+	}
+	ui->qwtPlot->replot();
+}
+
+void MainWindow::on_comboBox_voltage_currentIndexChanged(int index)
+{
+	Q_UNUSED(index);
+	set_colors();
 }
 
 void MainWindow::on_checkBox_loop_stateChanged()

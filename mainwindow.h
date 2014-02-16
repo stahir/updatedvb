@@ -117,6 +117,7 @@ private:
 	void getadapters();
 	void reload_settings();
 	void add_comboBox_modulation(QString name);
+	void set_colors();
 
 protected:
 	void closeEvent(QCloseEvent *event);	
