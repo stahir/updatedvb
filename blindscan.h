@@ -59,6 +59,7 @@ private:
 
 protected:
 	void closeEvent(QCloseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // BLINDSCAN_H

@@ -239,3 +239,10 @@ void blindscan::on_pushButton_unexpand_clicked()
 		ptree[a]->setExpanded(false);
 	}
 }
+void blindscan::keyPressEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key_Escape) {
+		this->close();
+	}
+}
+
