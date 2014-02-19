@@ -356,7 +356,7 @@ void dvbtune::check_frontend()
 		qDebug() << "FE_READ_STATUS failed";
 	}
 
-	struct dtv_property p[13];
+	struct dtv_property p[12];
 	p[0].cmd = DTV_FREQUENCY;
 	p[1].cmd = DTV_DELIVERY_SYSTEM;
 	p[2].cmd = DTV_SYMBOL_RATE;
@@ -369,10 +369,9 @@ void dvbtune::check_frontend()
 	p[9].cmd = DTV_STAT_SIGNAL_STRENGTH;
 	p[10].cmd = DTV_STAT_CNR;
 	p[11].cmd = DTV_STAT_POST_ERROR_BIT_COUNT;
-	p[12].cmd = DTV_STAT_POST_TOTAL_BIT_COUNT;
 
 	struct dtv_properties p_status;
-	p_status.num = 13;
+	p_status.num = 12;
 	p_status.props = p;
 
 	// get the actual parameters from the driver for that channel
@@ -420,12 +419,8 @@ void dvbtune::check_frontend()
 		}
 	}
 	tp.ber_scale	= p_status.props[11].u.st.stat[0].scale;
-	if (p_status.props[11].u.st.stat[0].scale == FE_SCALE_COUNTER && p_status.props[12].u.st.stat[0].scale == FE_SCALE_COUNTER) {
-		int a, b, c;
-		a = p_status.props[12].u.st.stat[0].uvalue;
-		b = p_status.props[11].u.st.stat[0].uvalue;
-		c = (a / (b * 1.0)) * 100;
-		tp.ber		= (p_status.props[12].u.st.stat[0].uvalue / (p_status.props[11].u.st.stat[0].uvalue * 1.0)) * 100;
+	if (p_status.props[11].u.st.stat[0].scale == FE_SCALE_COUNTER) {
+		tp.ber		= p_status.props[11].u.st.stat[0].uvalue;
 	} else {
 		tp.ber = 0;
 		if (ioctl(frontend_fd, FE_READ_BER, &tp.ber) == -1) {
