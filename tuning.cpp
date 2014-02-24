@@ -181,11 +181,6 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 
 void tuning::parsetp_done()
 {
-	ui->pushButton_demux->setEnabled(true);
-	ui->pushButton_file->setEnabled(true);
-	ui->pushButton_ipcleaner->setEnabled(true);
-	ui->pushButton_play->setEnabled(true);
-	ui->pushButton_stream->setEnabled(true);
 	update_status("Parsing transponder done", 3);
 }
 
@@ -197,11 +192,21 @@ void tuning::updatesignal()
 		} else if (unlock_t.elapsed() > 5000) {
 			updateresults();
 		}
+		ui->pushButton_demux->setEnabled(true);
+		ui->pushButton_file->setEnabled(true);
+		ui->pushButton_ipcleaner->setEnabled(true);
+		ui->pushButton_play->setEnabled(true);
+		ui->pushButton_stream->setEnabled(true);
 		ui->label_lock->setText("Locked");
 		ui->label_lock->setStyleSheet("QLabel { color : green; }");
 	} else {
 		unlock_t.restart();
 		update_status("Tuning failed, no lock", 0);
+		ui->pushButton_demux->setEnabled(false);
+		ui->pushButton_file->setEnabled(false);
+		ui->pushButton_ipcleaner->setEnabled(false);
+		ui->pushButton_play->setEnabled(false);
+		ui->pushButton_stream->setEnabled(false);
 		ui->label_lock->setText("Unlocked");
 		ui->label_lock->setStyleSheet("QLabel { color : red; }");
 		if (isSatellite(mytune->tp.system) && mytune->tp.fec == FEC_AUTO) {
