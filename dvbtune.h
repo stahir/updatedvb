@@ -69,6 +69,7 @@ public:
 	tp_info				tp;
 	QVector<tp_info>	tp_try;
 	tuning_options		tune_ops;
+	switch_settings		myswitch;
 
 	int index;
 	QByteArray buffer;

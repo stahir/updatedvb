@@ -25,6 +25,17 @@
 
 #define MAX_LNBS 16
 
+class switch_settings
+{
+public:
+	int voltage;
+	int tone;
+	int committed;
+	int uncommitted;
+
+	switch_settings();
+};
+
 class tp_info
 {
 public:

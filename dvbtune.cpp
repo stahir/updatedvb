@@ -191,17 +191,25 @@ void dvbtune::step_motor(int direction, int steps)
 	
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
-	}	
+	}
+	msleep(20);
+
+	if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
+		qDebug() << "FE_SET_TONE ERROR!";
+	}
+	msleep(20);
 }
 
 void dvbtune::usals_drive(double sat_long)
 {
 	openfd();
 
+	myswitch.tone = -1;
 	if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1)
 		perror("FE_SET_TONE ERROR!");
 	msleep(20);
 
+	myswitch.voltage = -1;
 	if (ioctl(frontend_fd, FE_SET_VOLTAGE, SEC_VOLTAGE_18) == -1)
 		perror("FE_SET_VOLTAGE ERROR!");
 	msleep(20);
@@ -245,10 +253,10 @@ void dvbtune::usals_drive(double sat_long)
 			 << diseqc_cmd.msg[4]
 			 << diseqc_cmd.msg[5];
 
-	msleep(1000);
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
+
 	int howlong;
 	if (!old_position) {
 		howlong = 45000;
@@ -271,9 +279,19 @@ void dvbtune::gotox_drive(int position)
 			 << diseqc_cmd.msg[4]
 			 << diseqc_cmd.msg[5];
 	
+	myswitch.tone = -1;
+	if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1)
+		perror("FE_SET_TONE ERROR!");
+	msleep(20);
+
+	myswitch.voltage = -1;
+	if (ioctl(frontend_fd, FE_SET_VOLTAGE, SEC_VOLTAGE_18) == -1)
+		perror("FE_SET_VOLTAGE ERROR!");
+	msleep(20);
+
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
-	}	
+	}
 }
 
 void dvbtune::gotox_save(int position)
@@ -291,7 +309,12 @@ void dvbtune::gotox_save(int position)
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}	
-	
+	msleep(20);
+
+	if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
+		qDebug() << "FE_SET_TONE ERROR!";
+	}
+	msleep(20);
 }
 
 void dvbtune::setup_switch()
@@ -314,17 +337,15 @@ void dvbtune::setup_switch()
 		{ { 0xE0, 0x10, 0x39, 0xF7, 0x00, 0x00 }, 4 }
 	};
 
-	if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
-		qDebug() << "FE_SET_TONE ERROR!";
+	if (myswitch.voltage != tp.voltage) {
+		qDebug() << "Voltage:" << (tp.voltage ? "H" : "V");
+		if (ioctl(frontend_fd, FE_SET_VOLTAGE, tp.voltage) == -1) {
+			qDebug() << "FE_SET_VOLTAGE ERROR!";
+		}
+		servo ? msleep(500) : msleep(20);
 	}
-	msleep(20);
 
-	if (ioctl(frontend_fd, FE_SET_VOLTAGE, tp.voltage) == -1) {
-		qDebug() << "FE_SET_VOLTAGE ERROR!";
-	}
-	servo ? msleep(500) : msleep(20);
-
-	if (tune_ops.uncommitted > 0) {
+	if (myswitch.uncommitted != tune_ops.uncommitted && tune_ops.uncommitted > 0) {
 		qDebug() << "Uncommitted:" << tune_ops.uncommitted;
 		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &uncommitted_switch_cmds[tune_ops.uncommitted-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
@@ -332,7 +353,7 @@ void dvbtune::setup_switch()
 		msleep(20);
 	}
 
-	if (tune_ops.committed > 0) {
+	if (myswitch.committed != tune_ops.committed && tune_ops.committed > 0) {
 		qDebug() << "Committed:" << tune_ops.committed;
 		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &committed_switch_cmds[tune_ops.committed-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
@@ -340,12 +361,18 @@ void dvbtune::setup_switch()
 		msleep(20);
 	}
 
-	if (tune_ops.tone) {
+	if (myswitch.tone != tune_ops.tone) {
+		qDebug() << "Tone:" << (tune_ops.tone ? "on" : "off");
 		if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
 		}
 		msleep(20);
 	}
+
+	myswitch.voltage		= tp.voltage;
+	myswitch.tone			= tune_ops.tone;
+	myswitch.committed		= tune_ops.committed;
+	myswitch.uncommitted	= tune_ops.uncommitted;
 }
 
 void dvbtune::check_frontend()

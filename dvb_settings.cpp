@@ -18,6 +18,14 @@
 
 #include "dvb_settings.h"
 
+switch_settings::switch_settings()
+{
+	voltage		= -1;
+	tone		= -1;
+	committed	= -1;
+	uncommitted	= -1;
+}
+
 tp_info::tp_info()
 {
 	frequency	= 950;
