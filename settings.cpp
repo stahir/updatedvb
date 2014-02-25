@@ -85,7 +85,11 @@ void settings::load_settings()
 	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
 
 	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());
-	ui->lineEdit_long->setText(mysettings->value("site_long").toString());	
+	ui->lineEdit_long->setText(mysettings->value("site_long").toString());
+	on_checkBox_diseqc_v13_clicked();
+
+	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
+	on_checkBox_asc1_clicked();
 }
 
 void settings::save_settings()
@@ -115,6 +119,9 @@ void settings::save_settings()
 
 	mysettings->setValue("site_lat", ui->lineEdit_lat->text());
 	mysettings->setValue("site_long", ui->lineEdit_long->text());
+
+	mysettings->setValue("adapter"+QString::number(adp)+"_asc1", ui->checkBox_asc1->isChecked());
+	mysettings->setValue("adapter"+QString::number(adp)+"_servo", ui->checkBox_servo->isChecked());
 
 	lnb = ui->comboBox_lnb->currentIndex();
 	adp = ui->comboBox_adapter->currentIndex();
@@ -224,4 +231,22 @@ void settings::on_pushButton_save_clicked()
 void settings::on_pushButton_close_clicked()
 {
     this->close();
+}
+
+void settings::on_checkBox_diseqc_v13_clicked()
+{
+	if (ui->checkBox_diseqc_v13->isChecked()) {
+		ui->gridWidget_cords->show();
+	} else {
+		ui->gridWidget_cords->hide();
+	}
+}
+
+void settings::on_checkBox_asc1_clicked()
+{
+	if (ui->checkBox_asc1->isChecked()) {
+		ui->checkBox_servo->setChecked(true);
+	} else {
+		ui->checkBox_servo->setChecked(mysettings->value("adapter"+QString::number(adp)+"_servo").toBool());
+	}
 }

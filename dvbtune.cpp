@@ -322,7 +322,7 @@ void dvbtune::setup_switch()
 	if (ioctl(frontend_fd, FE_SET_VOLTAGE, tp.voltage) == -1) {
 		qDebug() << "FE_SET_VOLTAGE ERROR!";
 	}
-	msleep(20);
+	servo ? msleep(500) : msleep(20);
 
 	if (tune_ops.diseqctype == "1") {
 		qDebug() << "Uncommitted:" << tune_ops.diseqcport;

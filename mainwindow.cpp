@@ -153,7 +153,10 @@ void MainWindow::reload_settings()
 	if (ui->comboBox_adapter->currentIndex() < 0) {
 		return;
 	}
-	
+	for (int i = 0; i < mytuners.size(); i++) {
+		mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(i) + "_servo").toBool();
+	}
+
 	QVariant d(0);
 	QVariant e(1|32);
 	qDebug() << "Adapter:" << ui->comboBox_adapter->currentIndex() << "lnb:" << ui->comboBox_lnb->currentText().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentText().toInt()].voltage;

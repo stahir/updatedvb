@@ -121,6 +121,7 @@ public:
 	int fmin;
 	int fmax;
 	int fstep;
+	bool servo;
 	QVector<QString> thread_function;
 private:
 	double radian(double number);
