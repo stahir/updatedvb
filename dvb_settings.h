@@ -60,8 +60,8 @@ public:
 	int f_lof;
 	int voltage;
 	int tone;
-	QString	diseqctype;
-	int diseqcport;
+	int committed;
+	int uncommitted;
 	double site_lat, site_long;
 	
 	tuning_options();

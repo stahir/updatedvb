@@ -324,17 +324,17 @@ void dvbtune::setup_switch()
 	}
 	servo ? msleep(500) : msleep(20);
 
-	if (tune_ops.diseqctype == "1") {
-		qDebug() << "Uncommitted:" << tune_ops.diseqcport;
-		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &uncommitted_switch_cmds[tune_ops.diseqcport-1]) == -1) {
+	if (tune_ops.uncommitted > 0) {
+		qDebug() << "Uncommitted:" << tune_ops.uncommitted;
+		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &uncommitted_switch_cmds[tune_ops.uncommitted-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 		}
 		msleep(20);
 	}
 
-	if (tune_ops.diseqctype == "0") {
-		qDebug() << "Committed:" << tune_ops.diseqcport;
-		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &committed_switch_cmds[tune_ops.diseqcport-1]) == -1) {
+	if (tune_ops.committed > 0) {
+		qDebug() << "Committed:" << tune_ops.committed;
+		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &committed_switch_cmds[tune_ops.committed-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 		}
 		msleep(20);

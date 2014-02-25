@@ -43,13 +43,10 @@ public:
 private slots:
 	void on_comboBox_lnb_currentIndexChanged(int index);
 	void on_comboBox_adapter_currentIndexChanged(int index);
-	void on_comboBox_diseqctype_currentIndexChanged(int index);
 	void on_comboBox_type_currentIndexChanged(int index);
 	void on_pushButton_save_clicked();
 	void on_pushButton_close_clicked();
-	
 	void on_checkBox_diseqc_v13_clicked();
-
 	void on_checkBox_asc1_clicked();
 
 private:

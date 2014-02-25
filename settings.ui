@@ -47,7 +47,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -64,12 +64,58 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="3" column="1">
-       <widget class="QComboBox" name="comboBox_diseqcport"/>
+       <widget class="QComboBox" name="comboBox_uncommitted">
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>6</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>7</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>8</string>
+         </property>
+        </item>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>DISEQC Type</string>
+         <string>Committed</string>
         </property>
        </widget>
       </item>
@@ -86,7 +132,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="label_diseqcport">
         <property name="text">
-         <string>DISEQC Port</string>
+         <string>Uncommitted</string>
         </property>
        </widget>
       </item>
@@ -105,7 +151,7 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="comboBox_diseqctype">
+       <widget class="QComboBox" name="comboBox_committed">
         <item>
          <property name="text">
           <string>None</string>
@@ -113,17 +159,22 @@
         </item>
         <item>
          <property name="text">
-          <string>v1.0</string>
+          <string>1</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>v1.1</string>
+          <string>2</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string/>
+          <string>3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4</string>
          </property>
         </item>
        </widget>

@@ -63,10 +63,9 @@ void settings::load_settings()
 	ui->checkBox_tone->setChecked(mysettings->value("lnb"+QString::number(lnb)+"_tone").toBool());
 	ui->comboBox_voltage->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_voltage").toInt());
 	
-	ui->comboBox_diseqctype->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_diseqctype").toInt()+1);
-	on_comboBox_diseqctype_currentIndexChanged(0);
-	ui->comboBox_diseqcport->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_diseqcport").toInt());
-	
+	ui->comboBox_committed->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_committed").toInt());
+	ui->comboBox_uncommitted->setCurrentIndex(mysettings->value("lnb"+QString::number(lnb)+"_uncommitted").toInt());
+
 	int t_index = ui->comboBox_type->findText(mysettings->value("lnb"+QString::number(lnb)+"_type").toString());
 	if (t_index >= 0) {
 		ui->comboBox_type->setCurrentIndex(t_index);
@@ -105,8 +104,8 @@ void settings::save_settings()
 	mysettings->setValue("lnb"+QString::number(lnb)+"_tone", ui->checkBox_tone->isChecked());
 	mysettings->setValue("lnb"+QString::number(lnb)+"_voltage", ui->comboBox_voltage->currentIndex());
 
-	mysettings->setValue("lnb"+QString::number(lnb)+"_diseqctype", ui->comboBox_diseqctype->currentIndex()-1);
-	mysettings->setValue("lnb"+QString::number(lnb)+"_diseqcport", ui->comboBox_diseqcport->currentIndex());
+	mysettings->setValue("lnb"+QString::number(lnb)+"_committed", ui->comboBox_committed->currentIndex());
+	mysettings->setValue("lnb"+QString::number(lnb)+"_uncommitted", ui->comboBox_uncommitted->currentIndex());
 	
 	mysettings->setValue("lnb"+QString::number(lnb)+"_type", ui->comboBox_type->currentText());
 
@@ -137,43 +136,6 @@ void settings::on_comboBox_adapter_currentIndexChanged(int index)
 {
 	Q_UNUSED(index);
 	load_settings();
-}
-
-void settings::on_comboBox_diseqctype_currentIndexChanged(int index)
-{
-	Q_UNUSED(index);
-	switch (ui->comboBox_diseqctype->currentIndex()) {
-	case 1:
-		ui->label_diseqcport->show();
-		ui->comboBox_diseqcport->show();
-		ui->comboBox_diseqcport->clear();
-		ui->comboBox_diseqcport->insertItem(0, "");
-		ui->comboBox_diseqcport->insertItem(1, "1");
-		ui->comboBox_diseqcport->insertItem(2, "2");
-		ui->comboBox_diseqcport->insertItem(3, "3");
-		ui->comboBox_diseqcport->insertItem(4, "4");
-		break;
-	case 2:
-		ui->label_diseqcport->show();
-		ui->comboBox_diseqcport->show();
-		ui->comboBox_diseqcport->clear();
-		ui->comboBox_diseqcport->insertItem(0, "");
-		ui->comboBox_diseqcport->insertItem(1, "1");
-		ui->comboBox_diseqcport->insertItem(2, "2");
-		ui->comboBox_diseqcport->insertItem(3, "3");
-		ui->comboBox_diseqcport->insertItem(4, "4");
-		ui->comboBox_diseqcport->insertItem(5, "5");
-		ui->comboBox_diseqcport->insertItem(6, "6");
-		ui->comboBox_diseqcport->insertItem(7, "7");
-		ui->comboBox_diseqcport->insertItem(7, "8");
-		break;
-	case 0:
-	default:
-		ui->label_diseqcport->hide();
-		ui->comboBox_diseqcport->hide();
-		ui->comboBox_diseqcport->clear();
-		break;
-	}
 }
 
 void settings::on_comboBox_type_currentIndexChanged(int index)

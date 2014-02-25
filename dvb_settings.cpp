@@ -46,8 +46,8 @@ tuning_options::tuning_options()
 	voltage		= SEC_VOLTAGE_18;
 	tone		= SEC_TONE_OFF;
 	mis			= -1;
-	diseqctype	= 3;
-	diseqcport	= -1;
+	committed	= 0;
+	uncommitted	= 0;
 	site_lat	= 0;
 	site_long	= 0;
 }

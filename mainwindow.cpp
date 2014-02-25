@@ -143,8 +143,8 @@ void MainWindow::reload_settings()
 		tmp.tone		= mysettings->value("lnb"+QString::number(a)+"_tone").toBool();
 //		tmp.mis			= mysettings->value("lnb"+QString::number(a)+"_mis").toInt();
 		tmp.mis			= -1;
-		tmp.diseqctype	= mysettings->value("lnb"+QString::number(a)+"_diseqctype").toString();
-		tmp.diseqcport	= mysettings->value("lnb"+QString::number(a)+"_diseqcport").toInt();
+		tmp.committed	= mysettings->value("lnb"+QString::number(a)+"_committed").toInt();
+		tmp.uncommitted	= mysettings->value("lnb"+QString::number(a)+"_uncommitted").toInt();
 		tmp.site_lat	= mysettings->value("site_lat").toDouble();
 		tmp.site_long	= mysettings->value("site_long").toDouble();
 		tune_ops.append(tmp);
