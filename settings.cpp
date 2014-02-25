@@ -88,7 +88,6 @@ void settings::load_settings()
 	on_checkBox_diseqc_v13_clicked();
 
 	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
-	on_checkBox_asc1_clicked();
 }
 
 void settings::save_settings()
@@ -201,14 +200,5 @@ void settings::on_checkBox_diseqc_v13_clicked()
 		ui->gridWidget_cords->show();
 	} else {
 		ui->gridWidget_cords->hide();
-	}
-}
-
-void settings::on_checkBox_asc1_clicked()
-{
-	if (ui->checkBox_asc1->isChecked()) {
-		ui->checkBox_servo->setChecked(true);
-	} else {
-		ui->checkBox_servo->setChecked(mysettings->value("adapter"+QString::number(adp)+"_servo").toBool());
 	}
 }
