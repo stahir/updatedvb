@@ -159,7 +159,8 @@ void MainWindow::reload_settings()
 
 	int gotox_i = ui->comboBox_gotox->currentIndex();
 	ui->comboBox_gotox->clear();
-	for (int i = 0; i < 256; i++) {
+	ui->comboBox_gotox->addItem("");
+	for (int i = 1; i < 256; i++) {
 		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentIndex())+"_diseqc_v12_name_"+QString::number(i)).toString();
 		if (text != "") {
 			ui->comboBox_gotox->addItem(text);

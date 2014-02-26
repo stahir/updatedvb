@@ -66,8 +66,8 @@ void settings::load_settings()
 
 	ui->tableWidget_diseqc_v12->setColumnCount(1);
 	ui->tableWidget_diseqc_v12->setRowCount(256);
-	for (int i = 0; i < 256; i++) {
-		ui->tableWidget_diseqc_v12->setItem(i, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
+	for (int i = 1; i < 256; i++) {
+		ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
 	}
 
 	ui->checkBox_enabled->setChecked(mysettings->value("lnb"+QString::number(lnb)+"_enabled").toBool());
@@ -106,8 +106,8 @@ void settings::save_settings()
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12", ui->checkBox_diseqc_v12->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v13", ui->checkBox_diseqc_v13->isChecked());
 	
-	for (int i = 0; i < 256; i++) {
-		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i, 0)->text());
+	for (int i = 1; i < 256; i++) {
+		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i-1, 0)->text());
 	}
 
 	mysettings->setValue("lnb"+QString::number(lnb)+"_enabled", ui->checkBox_enabled->isChecked());
