@@ -56,8 +56,19 @@ void settings::load_settings()
 	lnb = ui->comboBox_lnb->currentIndex();
 	adp = ui->comboBox_adapter->currentIndex();
 
-	ui->checkBox_diseqc_v12->setChecked(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12").toBool());
+	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());
+	ui->lineEdit_long->setText(mysettings->value("site_long").toString());
+
 	ui->checkBox_diseqc_v13->setChecked(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v13").toBool());
+	on_checkBox_diseqc_v13_clicked();
+	ui->checkBox_diseqc_v12->setChecked(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12").toBool());
+	on_checkBox_diseqc_v12_clicked();
+
+	ui->tableWidget_diseqc_v12->setColumnCount(1);
+	ui->tableWidget_diseqc_v12->setRowCount(256);
+	for (int i = 0; i < 256; i++) {
+		ui->tableWidget_diseqc_v12->setItem(i, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
+	}
 
 	ui->checkBox_enabled->setChecked(mysettings->value("lnb"+QString::number(lnb)+"_enabled").toBool());
 	ui->checkBox_tone->setChecked(mysettings->value("lnb"+QString::number(lnb)+"_tone").toBool());
@@ -83,10 +94,6 @@ void settings::load_settings()
 
 	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
 
-	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());
-	ui->lineEdit_long->setText(mysettings->value("site_long").toString());
-	on_checkBox_diseqc_v13_clicked();
-
 	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
 }
 
@@ -99,6 +106,10 @@ void settings::save_settings()
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12", ui->checkBox_diseqc_v12->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v13", ui->checkBox_diseqc_v13->isChecked());
 	
+	for (int i = 0; i < 256; i++) {
+		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i, 0)->text());
+	}
+
 	mysettings->setValue("lnb"+QString::number(lnb)+"_enabled", ui->checkBox_enabled->isChecked());
 	mysettings->setValue("lnb"+QString::number(lnb)+"_tone", ui->checkBox_tone->isChecked());
 	mysettings->setValue("lnb"+QString::number(lnb)+"_voltage", ui->comboBox_voltage->currentIndex());
@@ -200,5 +211,14 @@ void settings::on_checkBox_diseqc_v13_clicked()
 		ui->gridWidget_cords->show();
 	} else {
 		ui->gridWidget_cords->hide();
+	}
+}
+
+void settings::on_checkBox_diseqc_v12_clicked()
+{
+	if (ui->checkBox_diseqc_v12->isChecked()) {
+		ui->tableWidget_diseqc_v12->show();
+	} else {
+		ui->tableWidget_diseqc_v12->hide();
 	}
 }

@@ -157,6 +157,16 @@ void MainWindow::reload_settings()
 		mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(i) + "_servo").toBool();
 	}
 
+	int gotox_i = ui->comboBox_gotox->currentIndex();
+	ui->comboBox_gotox->clear();
+	for (int i = 0; i < 256; i++) {
+		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentIndex())+"_diseqc_v12_name_"+QString::number(i)).toString();
+		if (text != "") {
+			ui->comboBox_gotox->addItem(text);
+		}
+	}
+	ui->comboBox_gotox->setCurrentIndex(gotox_i);
+
 	QVariant d(0);
 	QVariant e(1|32);
 	qDebug() << "Adapter:" << ui->comboBox_adapter->currentIndex() << "lnb:" << ui->comboBox_lnb->currentText().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentText().toInt()].voltage;
@@ -706,7 +716,7 @@ void MainWindow::on_pushButton_drive_west_L_clicked()
 
 void MainWindow::on_pushButton_gotox_go_clicked()
 {
-    mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->lineEdit_gotox->text().toInt());
+	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->comboBox_gotox->currentIndex());
 }
 
 void MainWindow::on_lineEdit_gotox_returnPressed()
@@ -716,7 +726,7 @@ void MainWindow::on_lineEdit_gotox_returnPressed()
 
 void MainWindow::on_pushButton_gotox_save_clicked()
 {
-	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->lineEdit_gotox->text().toInt());
+	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->comboBox_gotox->currentIndex());
 }
 
 void MainWindow::on_actionExit_triggered()
