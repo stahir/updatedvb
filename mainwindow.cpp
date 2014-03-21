@@ -647,6 +647,7 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 		}
 	}
 
+	reload_settings();
 	setup_tuning_options();	
 }
 

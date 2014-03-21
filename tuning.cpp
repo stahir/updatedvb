@@ -184,6 +184,129 @@ void tuning::parsetp_done()
 	update_status("Parsing transponder done", 3);
 }
 
+QString tuning::min_snr()
+{
+	QString snr;
+
+	if (mytune->tp.system == QPSK) {
+		switch (mytune->tp.fec) {
+		case FEC_1_2:
+			snr = "2.7";
+			break;
+		case FEC_2_3:
+			snr = "4.4";
+			break;
+		case FEC_3_4:
+			snr = "5.5";
+			break;
+		case FEC_5_6:
+			snr = "6.5";
+			break;
+		case FEC_7_8:
+			snr = "7.2";
+			break;
+		default:
+			break;
+		}
+	} else {
+		switch (mytune->tp.modulation) {
+		case QPSK:
+			switch (mytune->tp.fec) {
+			case FEC_3_5:
+				snr = "2.2";
+				break;
+			case FEC_3_4:
+				snr = "4.0";
+				break;
+			case FEC_5_6:
+				snr = "5.2";
+				break;
+			case FEC_8_9:
+				snr = "6.2";
+				break;
+			case FEC_9_10:
+				snr = "6.4";
+				break;
+			default:
+				break;
+			}
+			break;
+		case PSK_8:
+			switch (mytune->tp.fec) {
+			case FEC_3_5:
+				snr = "5.5";
+				break;
+			case FEC_2_3:
+				snr = "6.6";
+				break;
+			case FEC_3_4:
+				snr = "7.9";
+				break;
+			case FEC_5_6:
+				snr = "9.4";
+				break;
+			case FEC_8_9:
+				snr = "10.7";
+				break;
+			case FEC_9_10:
+				snr = "11.0";
+				break;
+			default:
+				break;
+			}
+			break;
+		case APSK_16:
+			switch (mytune->tp.fec) {
+			case FEC_2_3:
+				snr = "9.0";
+				break;
+			case FEC_3_4:
+				snr = "10.2";
+				break;
+			case FEC_4_5:
+				snr = "11.0";
+				break;
+			case FEC_5_6:
+				snr = "11.6";
+				break;
+			case FEC_8_9:
+				snr = "12.9";
+				break;
+			case FEC_9_10:
+				snr = "12.1";
+				break;
+			default:
+				break;
+			}
+			break;
+		case APSK_32:
+			switch (mytune->tp.fec) {
+			case FEC_3_4:
+				snr = "14.8";
+				break;
+			case FEC_4_5:
+				snr = "15.7";
+				break;
+			case FEC_5_6:
+				snr = "16.3";
+				break;
+			case FEC_8_9:
+				snr = "17.7";
+				break;
+			case FEC_9_10:
+				snr = "18.1";
+				break;
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	return snr;
+}
+
 void tuning::updatesignal()
 {
 	if (mytune->tp.status & FE_HAS_LOCK) {
@@ -227,6 +350,9 @@ void tuning::updatesignal()
 	}
 	if (mytune->tp.snr_scale == FE_SCALE_DECIBEL) {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
+		if (!(mytune->tp.status & FE_HAS_LOCK) && isSatellite(mytune->tp.system)) {
+			ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB (" + min_snr() + ")");
+		}
 	} else {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "%");
 	}

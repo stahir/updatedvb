@@ -50,6 +50,7 @@ public:
 
 	void init();
 	void setup_demux();
+	QString min_snr();
 	dvbtune *mytune;
 	bool shutdown;
 
