@@ -78,6 +78,7 @@ void settings::load_settings()
 	on_checkBox_diseqc_v12_clicked();
 
 	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
+	ui->checkBox_servo->setChecked(mysettings->value("adapter"+QString::number(adp)+"_servo").toBool());
 
 	ui->tableWidget_diseqc_v12->setColumnCount(1);
 	ui->tableWidget_diseqc_v12->setRowCount(256);
