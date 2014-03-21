@@ -342,7 +342,7 @@ void dvbtune::setup_switch()
 		if (ioctl(frontend_fd, FE_SET_VOLTAGE, tp.voltage) == -1) {
 			qDebug() << "FE_SET_VOLTAGE ERROR!";
 		}
-		servo ? msleep(2000) : msleep(20);
+		servo ? msleep(400) : msleep(20);
 	}
 
 	if (myswitch.uncommitted != tune_ops.uncommitted && tune_ops.uncommitted > 0) {
