@@ -69,6 +69,7 @@ void scan::rescale() {
 	if (x.size() <= 1 || y.size() <= 1) {
 		return;
 	}
+
 	QVector<double> ys = y;
 	qSort(ys);
 	for (int i = 0; i < y.size(); i++) {

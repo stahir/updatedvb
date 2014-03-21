@@ -25,6 +25,16 @@
 
 #define MAX_LNBS 16
 
+#define LGRAY QColor(200,200,200)
+
+struct asc1_data
+{
+	unsigned char	name[17];
+	unsigned int	counter;
+	char			Hdeg;
+	char			Vdeg;
+};
+
 class switch_settings
 {
 public:

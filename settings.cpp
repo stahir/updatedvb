@@ -28,6 +28,19 @@ settings::settings(QWidget *parent) :
 	mysettings = new QSettings("UDL", "updateDVB");
 	
 	noload = true;
+	QVector<int> adaps;
+	QDir dvb_dir("/dev/dvb");
+	dvb_dir.setFilter(QDir::Dirs|QDir::NoDotAndDotDot);
+	QStringList adapter_entries = dvb_dir.entryList();
+	for(QStringList::ConstIterator adapter_entry = adapter_entries.begin(); adapter_entry != adapter_entries.end(); adapter_entry++) {
+		QString adapter_dirname = *adapter_entry;
+		adapter_dirname.replace("adapter", "");
+		adaps.append(adapter_dirname.toInt());
+	}
+	qSort(adaps);
+	for (int i = 0; i < adaps.size(); i++) {
+		ui->comboBox_adapter->addItem(QString::number(adaps.at(i)));
+	}
 	for(int i = 0; i < MAX_LNBS; i++) {
 		ui->comboBox_lnb->insertItem(i, QString::number(i));
 	}
@@ -54,7 +67,7 @@ void settings::load_settings()
 	save_settings();
 	
 	lnb = ui->comboBox_lnb->currentIndex();
-	adp = ui->comboBox_adapter->currentIndex();
+	adp = ui->comboBox_adapter->currentText().toInt();
 
 	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());
 	ui->lineEdit_long->setText(mysettings->value("site_long").toString());
@@ -64,10 +77,20 @@ void settings::load_settings()
 	ui->checkBox_diseqc_v12->setChecked(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12").toBool());
 	on_checkBox_diseqc_v12_clicked();
 
+	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
+
 	ui->tableWidget_diseqc_v12->setColumnCount(1);
 	ui->tableWidget_diseqc_v12->setRowCount(256);
-	for (int i = 1; i < 256; i++) {
-		ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
+
+	if (mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool()) {
+		asc1_data satdata;
+		for (int i = 1; i < 256; i++) {
+			ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
+		}
+	} else {
+		for (int i = 1; i < 256; i++) {
+			ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
+		}
 	}
 
 	ui->checkBox_enabled->setChecked(mysettings->value("lnb"+QString::number(lnb)+"_enabled").toBool());
@@ -93,8 +116,6 @@ void settings::load_settings()
 	}
 
 	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
-
-	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
 }
 
 void settings::save_settings()
@@ -133,7 +154,7 @@ void settings::save_settings()
 	mysettings->setValue("adapter"+QString::number(adp)+"_servo", ui->checkBox_servo->isChecked());
 
 	lnb = ui->comboBox_lnb->currentIndex();
-	adp = ui->comboBox_adapter->currentIndex();
+	adp = ui->comboBox_adapter->currentText().toInt();
 }
 
 void settings::on_comboBox_lnb_currentIndexChanged(int index)

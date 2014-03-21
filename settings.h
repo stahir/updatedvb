@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QDialog>
 #include <QSettings>
+#include <QtSerialPort/QtSerialPort>
 #include <iostream>
 #include "dvb_settings.h"
 using namespace std;

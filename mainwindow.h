@@ -91,7 +91,6 @@ private slots:
 	void on_pushButton_drive_west_L_clicked();
 	void on_pushButton_gotox_go_clicked();
 	void on_pushButton_gotox_save_clicked();
-	void on_lineEdit_gotox_returnPressed();
 	void on_actionExit_triggered();
 	void adapter_status(int adapter, bool is_busy);
 	void setup_tuning_options();
