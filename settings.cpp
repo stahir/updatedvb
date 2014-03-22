@@ -71,6 +71,7 @@ void settings::load_settings()
 
 	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());
 	ui->lineEdit_long->setText(mysettings->value("site_long").toString());
+	ui->lineEdit_asc1_serialport->setText(mysettings->value("asc1_serialport").toString());
 
 	ui->checkBox_diseqc_v13->setChecked(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v13").toBool());
 	on_checkBox_diseqc_v13_clicked();
@@ -117,6 +118,7 @@ void settings::load_settings()
 	}
 
 	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
+	on_checkBox_asc1_clicked();
 }
 
 void settings::save_settings()
@@ -150,6 +152,7 @@ void settings::save_settings()
 
 	mysettings->setValue("site_lat", ui->lineEdit_lat->text());
 	mysettings->setValue("site_long", ui->lineEdit_long->text());
+	mysettings->setValue("asc1_serialport", ui->lineEdit_asc1_serialport->text());
 
 	mysettings->setValue("adapter"+QString::number(adp)+"_asc1", ui->checkBox_asc1->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_servo", ui->checkBox_servo->isChecked());
@@ -243,4 +246,23 @@ void settings::on_checkBox_diseqc_v12_clicked()
 	} else {
 		ui->tableWidget_diseqc_v12->hide();
 	}
+}
+
+void settings::on_checkBox_asc1_clicked()
+{
+	if (ui->checkBox_asc1->isChecked()) {
+		ui->gridWidget_asc1->show();
+	} else {
+		ui->gridWidget_asc1->hide();
+	}
+}
+
+void settings::on_pushButton_asc1_upload_clicked()
+{
+
+}
+
+void settings::on_pushButton_asc1_download_clicked()
+{
+
 }

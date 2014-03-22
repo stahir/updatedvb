@@ -49,8 +49,10 @@ private slots:
 	void on_pushButton_save_clicked();
 	void on_pushButton_close_clicked();
 	void on_checkBox_diseqc_v13_clicked();
-
 	void on_checkBox_diseqc_v12_clicked();
+	void on_checkBox_asc1_clicked();
+	void on_pushButton_asc1_upload_clicked();
+	void on_pushButton_asc1_download_clicked();
 
 private:
 	Ui::settings *ui;
