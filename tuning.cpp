@@ -188,7 +188,7 @@ QString tuning::min_snr()
 {
 	QString snr;
 
-	if (mytune->tp.system == QPSK) {
+	if (mytune->tp.system == SYS_DVBS) {
 		switch (mytune->tp.fec) {
 		case FEC_1_2:
 			snr = "2.7";
@@ -208,7 +208,7 @@ QString tuning::min_snr()
 		default:
 			break;
 		}
-	} else {
+	} else if (mytune->tp.system == SYS_DVBS2) {
 		switch (mytune->tp.modulation) {
 		case QPSK:
 			switch (mytune->tp.fec) {

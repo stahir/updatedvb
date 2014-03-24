@@ -21,6 +21,7 @@
 
 #include <QVector>
 #include <QString>
+#include <QDebug>
 #include <linux/dvb/frontend.h>
 
 #define MAX_LNBS 16
@@ -29,10 +30,10 @@
 
 struct asc1_data
 {
-	unsigned char	name[17];
+	QString			name;
 	unsigned int	counter;
-	char			Hdeg;
-	char			Vdeg;
+	int				Hdeg;
+	int				Vdeg;
 };
 
 class switch_settings

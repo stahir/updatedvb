@@ -47,6 +47,7 @@ settings::settings(QWidget *parent) :
 	noload = false;
 
 	ui->comboBox_lnb->setCurrentIndex(0);
+	ui->progressBar->hide();
 	load_settings();
 	nosave = false;
 }
@@ -78,15 +79,12 @@ void settings::load_settings()
 	ui->checkBox_diseqc_v12->setChecked(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12").toBool());
 	on_checkBox_diseqc_v12_clicked();
 
-	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
 	ui->checkBox_servo->setChecked(mysettings->value("adapter"+QString::number(adp)+"_servo").toBool());
+	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
 
-	ui->tableWidget_diseqc_v12->setColumnCount(1);
-	ui->tableWidget_diseqc_v12->setRowCount(256);
-
+	on_checkBox_asc1_clicked();
 	if (mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool()) {
-		asc1_data satdata;
-		for (int i = 1; i < 256; i++) {
+		for (int i = 1; i < 100; i++) {
 			ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
 		}
 	} else {
@@ -118,7 +116,6 @@ void settings::load_settings()
 	}
 
 	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
-	on_checkBox_asc1_clicked();
 }
 
 void settings::save_settings()
@@ -252,8 +249,15 @@ void settings::on_checkBox_asc1_clicked()
 {
 	if (ui->checkBox_asc1->isChecked()) {
 		ui->gridWidget_asc1->show();
+		ui->tableWidget_diseqc_v12->setColumnCount(4);
+		ui->tableWidget_diseqc_v12->setColumnWidth(0, 175);
+		ui->tableWidget_diseqc_v12->setColumnWidth(1, 50);
+		ui->tableWidget_diseqc_v12->setColumnWidth(2, 50);
+		ui->tableWidget_diseqc_v12->setColumnWidth(3, 50);
 	} else {
 		ui->gridWidget_asc1->hide();
+		ui->tableWidget_diseqc_v12->setColumnCount(1);
+		ui->tableWidget_diseqc_v12->setRowCount(256);
 	}
 }
 
@@ -264,5 +268,67 @@ void settings::on_pushButton_asc1_upload_clicked()
 
 void settings::on_pushButton_asc1_download_clicked()
 {
+	asc1_data mydata;
+	QSerialPort myserial;
+	QByteArray cmd;
+	QByteArray data;
+	QTime t;
+	t.start();
 
+	myserial.setPortName(ui->lineEdit_asc1_serialport->text());
+	myserial.open(QIODevice::ReadWrite);
+	myserial.setBaudRate(QSerialPort::Baud57600);
+	myserial.setDataBits(QSerialPort::Data8);
+	myserial.setParity(QSerialPort::NoParity);
+	myserial.setStopBits(QSerialPort::OneStop);
+	myserial.setFlowControl(QSerialPort::NoFlowControl);
+
+	cmd.clear();
+	cmd.append(0x48);
+	myserial.write(cmd);
+	myserial.waitForBytesWritten(1000);
+
+	data.clear();
+	myserial.waitForReadyRead(1000);
+	data += myserial.readAll();
+
+	ui->progressBar->show();
+	for (int i = 1; i < 100; i++) {
+		QThread::msleep(10);
+
+		cmd.clear();
+		cmd.append(0x49);
+		myserial.write(cmd);
+		myserial.waitForBytesWritten(1000);
+
+		t.restart();
+
+		data.clear();
+		myserial.waitForReadyRead(1000);
+		data += myserial.readAll();
+		while (data.size() < 23 && t.elapsed() < 1000) {
+			myserial.waitForReadyRead(1000);
+			data += myserial.readAll();
+		}
+
+		if (data.size() < 23) {
+			qDebug() << "timeout..." << t.elapsed();
+		}
+
+		mydata.name		= data.mid(2, 16).data();
+		mydata.counter	= (u_int8_t)data.mid(19, 1).at(0) << 8 | (u_int8_t)data.mid(20, 1).at(0);
+		mydata.Hdeg		= (int8_t)data.mid(21, 1).at(0);
+		mydata.Vdeg		= (int8_t)data.mid(22, 1).at(0);
+
+		ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mydata.name));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 1, new QTableWidgetItem(QString::number(mydata.counter)));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 2, new QTableWidgetItem(QString::number(mydata.Hdeg)));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 3, new QTableWidgetItem(QString::number(mydata.Vdeg)));
+
+//		qDebug() << "name:" << mydata.name << "counter:" << mydata.counter << "Hdeg:" << mydata.Hdeg << "Vdeg:" << mydata.Vdeg;
+		ui->progressBar->setValue(i);
+	}
+	ui->progressBar->hide();
+
+	myserial.close();
 }
