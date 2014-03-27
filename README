@@ -23,7 +23,27 @@
 # Then download and install any dependancies you need
 # You must use Qt4, you cannot currently use Qt5 because of issues with qwt
 
-	sudo apt-get install git build-essential libqt4-dev qt4-default qt4-qmake qtcreator libqwt-dev
+	sudo apt-get install git build-essential subversion
+
+# 64bit
+
+	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x64-1.5.0-2-online.run
+	chmod +x qt-opensource-linux-x64-1.5.0-2-online.run
+	sudo ./qt-opensource-linux-x64-1.5.0-2-online.run
+
+# or 32bit
+
+	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x86-1.5.0-2-online.run
+	chmod +x qt-opensource-linux-x86-1.5.0-2-online.run
+	sudo ./qt-opensource-linux-x86-1.5.0-2-online.run
+
+# Then for qwt
+	
+	svn checkout svn://svn.code.sf.net/p/qwt/code/branches/qwt-6.1
+	cd qwt-6.1
+	qmake qwt.pro
+	make
+	sudo make install
 
 # To compile and run open the project in qtcreator
 # hit the green triangle that says 'Build and Run'

@@ -41,9 +41,10 @@ settings::settings(QWidget *parent) :
 	for (int i = 0; i < adaps.size(); i++) {
 		ui->comboBox_adapter->addItem(QString::number(adaps.at(i)));
 	}
-	for(int i = 0; i < MAX_LNBS; i++) {
+	for (int i = 0; i < MAX_LNBS; i++) {
 		ui->comboBox_lnb->insertItem(i, QString::number(i));
 	}
+
 	noload = false;
 
 	ui->comboBox_lnb->setCurrentIndex(0);
@@ -86,6 +87,9 @@ void settings::load_settings()
 	if (mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool()) {
 		for (int i = 1; i < 100; i++) {
 			ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
+			ui->tableWidget_diseqc_v12->setItem(i-1, 1, new QTableWidgetItem(""));
+			ui->tableWidget_diseqc_v12->setItem(i-1, 2, new QTableWidgetItem(""));
+			ui->tableWidget_diseqc_v12->setItem(i-1, 3, new QTableWidgetItem(""));
 		}
 	} else {
 		for (int i = 1; i < 256; i++) {
@@ -263,7 +267,69 @@ void settings::on_checkBox_asc1_clicked()
 
 void settings::on_pushButton_asc1_upload_clicked()
 {
+	asc1_data mydata;
+	QSerialPort myserial;
+	QByteArray cmd;
+	QByteArray data;
+	QTime t;
+	t.start();
 
+	myserial.setPortName(ui->lineEdit_asc1_serialport->text());
+	myserial.open(QIODevice::ReadWrite);
+	myserial.setBaudRate(QSerialPort::Baud57600);
+	myserial.setDataBits(QSerialPort::Data8);
+	myserial.setParity(QSerialPort::NoParity);
+	myserial.setStopBits(QSerialPort::OneStop);
+	myserial.setFlowControl(QSerialPort::NoFlowControl);
+
+	cmd.clear();
+	cmd.append(0x4a);
+	myserial.write(cmd);
+	myserial.waitForBytesWritten(1000);
+
+	ui->progressBar->show();
+	for (int i = 1; i < 100; i++) {
+		if (ui->tableWidget_diseqc_v12->item(i-1, 0)->text() == "" ||
+			ui->tableWidget_diseqc_v12->item(i-1, 1)->text() == "" ||
+			ui->tableWidget_diseqc_v12->item(i-1, 2)->text() == "" ||
+			ui->tableWidget_diseqc_v12->item(i-1, 3)->text() == "") {
+			continue;
+		}
+
+		t.restart();
+		data.clear();
+		myserial.waitForReadyRead(1000);
+		data += myserial.readAll();
+		while (data.at(0) != 0x4b && t.elapsed() < 1000) {
+			QThread::msleep(10);
+			myserial.waitForReadyRead(1000);
+			data += myserial.readAll();
+		}
+		if (data.at(0) != 0x4b) {
+			qDebug() << "timeout...";
+			continue;
+		}
+
+		cmd.clear();
+		cmd.append((char)0x4c);
+		cmd.append((char)i);
+		QString tmp = ui->tableWidget_diseqc_v12->item(i-1, 0)->text();
+		tmp += QString(16, 0x00);
+		tmp.resize(16);
+		cmd.append(tmp);
+		cmd.append((char)0x00);
+		cmd.append((char)(ui->tableWidget_diseqc_v12->item(i-1, 1)->text().toUInt() & 0xff));
+		cmd.append((char)((ui->tableWidget_diseqc_v12->item(i-1, 1)->text().toUInt() >> 8) & 0xff));
+		cmd.append((char)ui->tableWidget_diseqc_v12->item(i-1, 2)->text().toShort());
+		cmd.append((char)ui->tableWidget_diseqc_v12->item(i-1, 3)->text().toShort());
+
+		myserial.write(cmd);
+		myserial.waitForBytesWritten(1000);
+		ui->progressBar->setValue(i);
+	}
+	ui->progressBar->hide();
+
+	myserial.close();
 }
 
 void settings::on_pushButton_asc1_download_clicked()
@@ -313,6 +379,7 @@ void settings::on_pushButton_asc1_download_clicked()
 
 		if (data.size() < 23) {
 			qDebug() << "timeout..." << t.elapsed();
+			continue;
 		}
 
 		mydata.name		= data.mid(2, 16).data();
