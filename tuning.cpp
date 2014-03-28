@@ -188,7 +188,27 @@ QString tuning::min_snr()
 {
 	QString snr;
 
-	if (mytune->tp.system == SYS_DVBS) {
+	switch (mytune->tp.system) {
+	case SYS_ATSC:
+	case SYS_ATSCMH:
+		snr = "15.2";
+		break;
+	case SYS_DVBC_ANNEX_B:
+		switch (mytune->tp.modulation) {
+		case QAM_16:
+			snr = "18.0";
+			break;
+		case QAM_64:
+			snr = "24.0";
+			break;
+		case QAM_256:
+			snr = "30.0";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBS:
 		switch (mytune->tp.fec) {
 		case FEC_1_2:
 			snr = "2.7";
@@ -208,7 +228,8 @@ QString tuning::min_snr()
 		default:
 			break;
 		}
-	} else if (mytune->tp.system == SYS_DVBS2) {
+		break;
+	case SYS_DVBS2:
 		switch (mytune->tp.modulation) {
 		case QPSK:
 			switch (mytune->tp.fec) {
@@ -303,7 +324,11 @@ QString tuning::min_snr()
 		default:
 			break;
 		}
+		break;
+	default:
+		break;
 	}
+
 	return snr;
 }
 
