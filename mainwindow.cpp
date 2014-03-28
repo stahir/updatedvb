@@ -158,21 +158,21 @@ void MainWindow::reload_settings()
 	if (ui->comboBox_adapter->currentData().toInt() < 0) {
 		return;
 	}
-	noload = true;
-	int current_adap = 0;
-	if (ui->comboBox_adapter->currentIndex() >= 0) {
-		current_adap = ui->comboBox_adapter->currentIndex();
-	}
-	ui->comboBox_adapter->clear();
-	for (int i = 0; i < mytuners.size(); i++) {
-		mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
-		ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
-	}
-	ui->comboBox_adapter->setCurrentIndex(current_adap);
 	if (mytuners.size()) {
+		noload = true;
+		int current_adap = 0;
+		if (ui->comboBox_adapter->currentIndex() >= 0) {
+			current_adap = ui->comboBox_adapter->currentIndex();
+		}
+		ui->comboBox_adapter->clear();
+		for (int i = 0; i < mytuners.size(); i++) {
+			mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
+			ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
+		}
+		ui->comboBox_adapter->setCurrentIndex(current_adap);
 		setup_tuning_options();
+		noload = false;
 	}
-	noload = false;
 
 	int gotox_i = ui->comboBox_gotox->currentIndex();
 	ui->comboBox_gotox->clear();
@@ -650,12 +650,12 @@ void MainWindow::setup_tuning_options()
 
 void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 {
-	if (index < 0 || noload) {
+	if (index < 0) {
 		return;
 	}
-	
+
 	ui->comboBox_frontend->clear();
-	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentText());
+	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentData().toString());
 	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
 	QStringList frontend_entries = adapter_dir.entryList();
 	for(QStringList::ConstIterator frontend_entry = frontend_entries.begin(); frontend_entry != frontend_entries.end(); frontend_entry++) {
