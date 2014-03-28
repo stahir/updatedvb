@@ -13,8 +13,6 @@
 - diseqc v1.3 east/west should use v1.3 cmd's, take current pos and add/sub 0.1deg and resend move cmd
 -- This will allow two different motors on the same setup if one motor only receives 1.2 and the other 1.3. I dont know if there is any like this, so... maybe useless ?
 - tuning window at bottom should show hex/text of descriptors, or maybe mouse over with right click to copy
-- update README to reflect Qt 5.2 and Qwt 6.1 req and install
-- add min_cnr for ATSC
 - maybe adapter drop down would be better if it had the adapters names in it too
 - diseqc v1.2 names needs to update when adapters change. different adapters, different names (ie two motors)
 - clear up this TODO :)

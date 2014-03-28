@@ -389,7 +389,7 @@ void settings::on_pushButton_asc1_download_clicked()
 
 	ui->progressBar->show();
 	for (int i = 1; i < 100; i++) {
-		QThread::msleep(10);
+		QThread::msleep(5);
 
 		cmd.clear();
 		cmd.append(0x49);
