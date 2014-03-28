@@ -282,34 +282,32 @@ void settings::on_pushButton_asc1_upload_clicked()
 	myserial.setStopBits(QSerialPort::OneStop);
 	myserial.setFlowControl(QSerialPort::NoFlowControl);
 
+	if (!myserial.isOpen()) {
+		qDebug() << "unable to open";
+		return;
+	}
+
 	cmd.clear();
 	cmd.append(0x4a);
 	myserial.write(cmd);
 	myserial.waitForBytesWritten(1000);
 
-	ui->progressBar->show();
-	for (int i = 1; i < 100; i++) {
-		if (ui->tableWidget_diseqc_v12->item(i-1, 0)->text() == "" ||
-			ui->tableWidget_diseqc_v12->item(i-1, 1)->text() == "" ||
-			ui->tableWidget_diseqc_v12->item(i-1, 2)->text() == "" ||
-			ui->tableWidget_diseqc_v12->item(i-1, 3)->text() == "") {
-			continue;
-		}
-
-		t.restart();
-		data.clear();
+	t.restart();
+	data.clear();
+	myserial.waitForReadyRead(1000);
+	data += myserial.readAll();
+	while (data.size() == 0 || (data.at(0) != 0x4b && t.elapsed() < 1000)) {
+		QThread::msleep(10);
 		myserial.waitForReadyRead(1000);
 		data += myserial.readAll();
-		while (data.at(0) != 0x4b && t.elapsed() < 1000) {
-			QThread::msleep(10);
-			myserial.waitForReadyRead(1000);
-			data += myserial.readAll();
-		}
-		if (data.at(0) != 0x4b) {
-			qDebug() << "timeout...";
-			continue;
-		}
+	}
+	if (data.at(0) != 0x4b) {
+		qDebug() << "timeout...";
+		return;
+	}
 
+	ui->progressBar->show();
+	for (int i = 1; i < 100; i++) {
 		cmd.clear();
 		cmd.append((char)0x4c);
 		cmd.append((char)i);
@@ -324,7 +322,23 @@ void settings::on_pushButton_asc1_upload_clicked()
 		cmd.append((char)ui->tableWidget_diseqc_v12->item(i-1, 3)->text().toShort());
 
 		myserial.write(cmd);
+		myserial.flush();
 		myserial.waitForBytesWritten(1000);
+
+		t.restart();
+		data.clear();
+		myserial.waitForReadyRead(1000);
+		data += myserial.readAll();
+		while (data.size() == 0 || (data.at(0) != 0x4b && t.elapsed() < 1000)) {
+			QThread::msleep(10);
+			myserial.waitForReadyRead(1000);
+			data += myserial.readAll();
+		}
+		if (data.at(0) != 0x4b) {
+			qDebug() << "timeout...";
+			continue;
+		}
+
 		ui->progressBar->setValue(i);
 	}
 	ui->progressBar->hide();
@@ -349,9 +363,15 @@ void settings::on_pushButton_asc1_download_clicked()
 	myserial.setStopBits(QSerialPort::OneStop);
 	myserial.setFlowControl(QSerialPort::NoFlowControl);
 
+	if (!myserial.isOpen()) {
+		qDebug() << "unable to open";
+		return;
+	}
+
 	cmd.clear();
 	cmd.append(0x48);
 	myserial.write(cmd);
+	myserial.flush();
 	myserial.waitForBytesWritten(1000);
 
 	data.clear();
@@ -365,6 +385,7 @@ void settings::on_pushButton_asc1_download_clicked()
 		cmd.clear();
 		cmd.append(0x49);
 		myserial.write(cmd);
+		myserial.flush();
 		myserial.waitForBytesWritten(1000);
 
 		t.restart();
