@@ -85,7 +85,9 @@ void settings::load_settings()
 	if (mysettings->value("adapter"+QString::number(adp)+"_name").toString() != "") {
 		ui->lineEdit_adapter_name->setText(mysettings->value("adapter"+QString::number(adp)+"_name").toString());
 	} else {
-		ui->lineEdit_adapter_name->setText(mytuners.at(ui->comboBox_adapter->currentText().toInt())->name);
+		if (mytuners.size() > ui->comboBox_adapter->currentText().toInt()) {
+			ui->lineEdit_adapter_name->setText(mytuners.at(ui->comboBox_adapter->currentText().toInt())->name);
+		}
 	}
 
 	on_checkBox_asc1_clicked();
