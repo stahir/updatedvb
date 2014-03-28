@@ -243,14 +243,23 @@ void settings::on_checkBox_diseqc_v13_clicked()
 void settings::on_checkBox_diseqc_v12_clicked()
 {
 	if (ui->checkBox_diseqc_v12->isChecked()) {
+		this->resize(436, 405);
 		ui->tableWidget_diseqc_v12->show();
 	} else {
+		this->resize(436, 185);
 		ui->tableWidget_diseqc_v12->hide();
 	}
 }
 
 void settings::on_checkBox_asc1_clicked()
 {
+	if (ui->checkBox_diseqc_v12->isChecked()) {
+		if (ui->checkBox_asc1->isChecked()) {
+			this->resize(436, 465);
+		} else {
+			this->resize(436, 405);
+		}
+	}
 	if (ui->checkBox_asc1->isChecked()) {
 		ui->gridWidget_asc1->show();
 		ui->tableWidget_diseqc_v12->setColumnCount(4);
