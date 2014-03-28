@@ -23,7 +23,7 @@
 # Then download and install any dependancies you need
 # You must use Qt4, you cannot currently use Qt5 because of issues with qwt
 
-	sudo apt-get install git build-essential subversion
+	sudo apt-get install git build-essential subversion libgl1-mesa-dev mesa-common-dev
 
 # 64bit
 
