@@ -246,7 +246,7 @@ void settings::on_checkBox_diseqc_v12_clicked()
 		this->resize(436, 405);
 		ui->tableWidget_diseqc_v12->show();
 	} else {
-		this->resize(436, 185);
+		this->resize(436, 365);
 		ui->tableWidget_diseqc_v12->hide();
 	}
 }
