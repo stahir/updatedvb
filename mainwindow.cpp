@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->comboBox_lnb->clear();
 	for (int a = 0; a < MAX_LNBS; a++) {
 		if (mysettings->value("lnb"+QString::number(a)+"_enabled").toBool()) {
-			ui->comboBox_lnb->insertItem(a, QString::number(a));
+			ui->comboBox_lnb->insertItem(a, QString::number(a) + " " + mysettings->value("lnb"+QString::number(a)+"_name").toString(), a);
 		}
 	}
 	if (ui->comboBox_lnb->currentIndex() < 0) {
@@ -147,6 +147,7 @@ void MainWindow::reload_settings()
 		tmp.uncommitted	= mysettings->value("lnb"+QString::number(a)+"_uncommitted").toInt();
 		tmp.site_lat	= mysettings->value("site_lat").toDouble();
 		tmp.site_long	= mysettings->value("site_long").toDouble();
+		tmp.name		= mysettings->value("name").toString();
 		tune_ops.append(tmp);
 	}
 
@@ -170,8 +171,8 @@ void MainWindow::reload_settings()
 
 	QVariant d(0);
 	QVariant e(1|32);
-	qDebug() << "Adapter:" << ui->comboBox_adapter->currentText().toInt() << "lnb:" << ui->comboBox_lnb->currentText().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentText().toInt()].voltage;
-	switch(tune_ops[ui->comboBox_lnb->currentText().toInt()].voltage) {
+	qDebug() << "Adapter:" << ui->comboBox_adapter->currentText().toInt() << "lnb:" << ui->comboBox_lnb->currentData().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage;
+	switch(tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage) {
 	case 0:
 		ui->gridWidget_voltage->hide();
 		ui->comboBox_voltage->setCurrentIndex(0);
@@ -201,13 +202,13 @@ void MainWindow::reload_settings()
 		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
 		break;
 	}
-	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, tune_ops[ui->comboBox_lnb->currentText().toInt()].f_start, tune_ops[ui->comboBox_lnb->currentText().toInt()].f_stop);
+	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_start, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_stop);
 	ui->qwtPlot->replot();
 }
 
 void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex)
 {
-	int lnb = ui->comboBox_lnb->currentText().toInt();
+	int lnb = ui->comboBox_lnb->currentData().toInt();
 	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, tune_ops[lnb].f_start, tune_ops[lnb].f_stop);
 	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, min, max);
 
@@ -269,7 +270,7 @@ void MainWindow::on_actionSettings_triggered()
 	ui->comboBox_lnb->clear();
 	for (int a = 0; a < MAX_LNBS; a++) {
 		if (mysettings->value("lnb"+QString::number(a)+"_enabled").toBool()) {
-			ui->comboBox_lnb->insertItem(a, QString::number(a));
+			ui->comboBox_lnb->insertItem(a, QString::number(a) + " " + mysettings->value("lnb"+QString::number(a)+"_name").toString(), a);
 		}
 	}
 	if (ui->comboBox_lnb->currentIndex() < 0) {
@@ -288,7 +289,7 @@ void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
 		return;
 	}
 	
-	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentText().toInt()];
+	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
 	reload_settings();
 }
 
@@ -360,7 +361,7 @@ void MainWindow::on_updateButton_clicked()
 		myscan->step = 1;
 	}
 
-	myscan->mytune->tune_ops = tune_ops.at(ui->comboBox_lnb->currentText().toInt());
+	myscan->mytune->tune_ops = tune_ops.at(ui->comboBox_lnb->currentData().toInt());
 	myscan->mytune->tp.system = dvbnames.system.indexOf(ui->comboBox_system->currentText());
 	myscan->loop	= ui->checkBox_loop->isChecked();
 	myscan->setup();
@@ -527,7 +528,7 @@ void MainWindow::update_status(QString text, int time)
 
 void MainWindow::setup_tuning_options()
 {
-	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentText().toInt()];
+	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
 	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentText().toInt();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
@@ -688,7 +689,7 @@ void MainWindow::getadapters()
 		connect(mytuners.last(), SIGNAL(adapter_status(int,bool)), this, SLOT(adapter_status(int,bool)));
 		mytuners.last()->adapter	= adaps.at(i);
 		mytuners.last()->frontend	= ui->comboBox_frontend->currentText().toInt();
-		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentText().toInt()];
+		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentData().toInt()];
 		mytuners.last()->getops();
 		ui->comboBox_adapter->addItem(QString::number(adaps.at(i)));
 	}

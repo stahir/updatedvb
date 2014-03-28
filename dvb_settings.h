@@ -85,6 +85,7 @@ public:
 	int committed;
 	int uncommitted;
 	double site_lat, site_long;
+	QString name;
 	
 	tuning_options();
 };
