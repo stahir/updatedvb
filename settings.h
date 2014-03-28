@@ -28,6 +28,7 @@
 #include <iostream>
 #include <unistd.h>
 #include "dvb_settings.h"
+#include "dvbtune.h"
 using namespace std;
 
 namespace Ui {
@@ -43,7 +44,8 @@ public:
 	~settings();
 	void load_settings();
 	void save_settings();
-	
+	QVector<dvbtune*> mytuners;
+
 private slots:
 	void on_comboBox_lnb_currentIndexChanged(int index);
 	void on_comboBox_adapter_currentIndexChanged(int index);

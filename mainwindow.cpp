@@ -131,6 +131,10 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 
 void MainWindow::reload_settings()
 {	
+	if (noload) {
+		return;
+	}
+
 	mysettings->sync();
 	tune_ops.clear();
 	tuning_options tmp;
@@ -151,18 +155,30 @@ void MainWindow::reload_settings()
 		tune_ops.append(tmp);
 	}
 
-	if (ui->comboBox_adapter->currentText().toInt() < 0) {
+	if (ui->comboBox_adapter->currentData().toInt() < 0) {
 		return;
 	}
-	for (int i = 0; i < mytuners.size(); i++) {
-		mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(i) + "_servo").toBool();
+	noload = true;
+	int current_adap = 0;
+	if (ui->comboBox_adapter->currentIndex() >= 0) {
+		current_adap = ui->comboBox_adapter->currentIndex();
 	}
+	ui->comboBox_adapter->clear();
+	for (int i = 0; i < mytuners.size(); i++) {
+		mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
+		ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
+	}
+	ui->comboBox_adapter->setCurrentIndex(current_adap);
+	if (mytuners.size()) {
+		setup_tuning_options();
+	}
+	noload = false;
 
 	int gotox_i = ui->comboBox_gotox->currentIndex();
 	ui->comboBox_gotox->clear();
 	ui->comboBox_gotox->addItem("");
 	for (int i = 1; i < 256; i++) {
-		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentText().toInt())+"_diseqc_v12_name_"+QString::number(i)).toString();
+		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_diseqc_v12_name_"+QString::number(i)).toString();
 		if (text != "") {
 			ui->comboBox_gotox->addItem(text);
 		}
@@ -171,7 +187,7 @@ void MainWindow::reload_settings()
 
 	QVariant d(0);
 	QVariant e(1|32);
-	qDebug() << "Adapter:" << ui->comboBox_adapter->currentText().toInt() << "lnb:" << ui->comboBox_lnb->currentData().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage;
+	qDebug() << "Adapter:" << ui->comboBox_adapter->currentData().toInt() << "lnb:" << ui->comboBox_lnb->currentData().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage;
 	switch(tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage) {
 	case 0:
 		ui->gridWidget_voltage->hide();
@@ -202,6 +218,7 @@ void MainWindow::reload_settings()
 		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
 		break;
 	}
+
 	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_start, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_stop);
 	ui->qwtPlot->replot();
 }
@@ -263,6 +280,7 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 void MainWindow::on_actionSettings_triggered()
 {
 	settings settings_dialog;
+	settings_dialog.mytuners = mytuners;
 	settings_dialog.setModal(true);
 	settings_dialog.exec();
 
@@ -533,17 +551,17 @@ void MainWindow::setup_tuning_options()
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentText().toInt();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
 
-	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentText().toInt()) + "_diseqc_v12").toBool()) {
+	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_diseqc_v12").toBool()) {
 		ui->gridWidget_gotox->show();
 	} else {
 		ui->gridWidget_gotox->hide();
 	}
-	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentText().toInt()) + "_diseqc_v13").toBool()) {
+	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_diseqc_v13").toBool()) {
 		ui->gridWidget_usals->show();
 	} else {
 		ui->gridWidget_usals->hide();
 	}
-	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentText().toInt()) + "_diseqc_v12").toBool() || mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentText().toInt()) + "_diseqc_v13").toBool()) {
+	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_diseqc_v12").toBool() || mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_diseqc_v13").toBool()) {
 		ui->gridWidget_positioner->show();
 	} else {
 		ui->gridWidget_positioner->hide();
@@ -632,7 +650,7 @@ void MainWindow::setup_tuning_options()
 
 void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 {
-	if (index < 0) {
+	if (index < 0 || noload) {
 		return;
 	}
 	
@@ -649,7 +667,6 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 	}
 
 	reload_settings();
-	setup_tuning_options();	
 }
 
 void MainWindow::on_comboBox_frontend_currentIndexChanged(int index)
@@ -691,7 +708,6 @@ void MainWindow::getadapters()
 		mytuners.last()->frontend	= ui->comboBox_frontend->currentText().toInt();
 		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentData().toInt()];
 		mytuners.last()->getops();
-		ui->comboBox_adapter->addItem(QString::number(adaps.at(i)));
 	}
 
 	if (!mytuners.size()) {
@@ -701,9 +717,9 @@ void MainWindow::getadapters()
 
 void MainWindow::on_pushButton_usals_go_clicked()
 {
-	mytuners.at(ui->comboBox_adapter->currentIndex())->old_position = mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentText().toInt()) + "_usals_position").toDouble();
+	mytuners.at(ui->comboBox_adapter->currentIndex())->old_position = mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_usals_position").toDouble();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->usals_drive(ui->lineEdit_usals->text().toDouble());
-	mysettings->setValue("adapter"+QString::number(ui->comboBox_adapter->currentText().toInt())+"_usals_position", ui->lineEdit_usals->text().toDouble());
+	mysettings->setValue("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_usals_position", ui->lineEdit_usals->text().toDouble());
 }
 
 void MainWindow::on_lineEdit_usals_returnPressed()

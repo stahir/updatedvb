@@ -82,6 +82,11 @@ void settings::load_settings()
 
 	ui->checkBox_servo->setChecked(mysettings->value("adapter"+QString::number(adp)+"_servo").toBool());
 	ui->checkBox_asc1->setChecked(mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool());
+	if (mysettings->value("adapter"+QString::number(adp)+"_name").toString() != "") {
+		ui->lineEdit_adapter_name->setText(mysettings->value("adapter"+QString::number(adp)+"_name").toString());
+	} else {
+		ui->lineEdit_adapter_name->setText(mytuners.at(ui->comboBox_adapter->currentText().toInt())->name);
+	}
 
 	on_checkBox_asc1_clicked();
 	if (mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool()) {
@@ -131,6 +136,7 @@ void settings::save_settings()
 	
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12", ui->checkBox_diseqc_v12->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v13", ui->checkBox_diseqc_v13->isChecked());
+	mysettings->setValue("adapter"+QString::number(adp)+"_name", ui->lineEdit_adapter_name->text());
 	
 	for (int i = 1; i < 256; i++) {
 		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i-1, 0)->text());
@@ -257,7 +263,7 @@ void settings::on_checkBox_asc1_clicked()
 {
 	if (ui->checkBox_diseqc_v12->isChecked()) {
 		if (ui->checkBox_asc1->isChecked()) {
-			this->resize(436, 465);
+			this->resize(436, 470);
 		} else {
 			this->resize(436, 405);
 		}
