@@ -375,8 +375,8 @@ void tuning::updatesignal()
 	}
 	if (mytune->tp.snr_scale == FE_SCALE_DECIBEL) {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
-		if (!(mytune->tp.status & FE_HAS_LOCK) && isSatellite(mytune->tp.system)) {
-			ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB (" + min_snr() + ")");
+		if (isSatellite(mytune->tp.system)) {
+			ui->label_signalQ->setToolTip("min snr: " + min_snr() + "dB");
 		}
 	} else {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "%");
