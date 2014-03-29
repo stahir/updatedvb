@@ -193,6 +193,45 @@ QString tuning::min_snr()
 	case SYS_ATSCMH:
 		snr = "15.2";
 		break;
+	case SYS_DVBT:
+		switch (mytune->tp.modulation) {
+		case QPSK:
+			snr = "14.0";
+			break;
+		case QAM_16:
+			snr = "20.0";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBT2:
+		switch (mytune->tp.modulation) {
+		case QAM_16:
+			snr = "12.3";
+			break;
+		case QAM_64:
+			snr = "17.1";
+			break;
+		case QAM_256:
+			snr = "18.9";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBC_ANNEX_C:
+		switch (mytune->tp.modulation) {
+		case QAM_64:
+			snr = "30.0";
+			break;
+		case QAM_256:
+			snr = "34.0";
+			break;
+		default:
+			break;
+		}
+		break;
 	case SYS_DVBC_ANNEX_B:
 		switch (mytune->tp.modulation) {
 		case QAM_16:
@@ -375,9 +414,7 @@ void tuning::updatesignal()
 	}
 	if (mytune->tp.snr_scale == FE_SCALE_DECIBEL) {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
-		if (isSatellite(mytune->tp.system)) {
-			ui->label_signalQ->setToolTip("min snr: " + min_snr() + "dB");
-		}
+		ui->label_signalQ->setToolTip("min snr: " + min_snr() + "dB");
 	} else {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "%");
 	}

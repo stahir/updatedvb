@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>890</width>
+    <width>900</width>
     <height>560</height>
    </rect>
   </property>
@@ -230,6 +230,9 @@
           </item>
           <item row="13" column="1">
            <widget class="QLabel" name="label_signalQ">
+            <property name="toolTipDuration">
+             <number>999999999</number>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -471,6 +474,9 @@
           </item>
           <item row="12" column="1">
            <widget class="QLabel" name="label_signalS">
+            <property name="toolTipDuration">
+             <number>-1</number>
+            </property>
             <property name="text">
              <string/>
             </property>
