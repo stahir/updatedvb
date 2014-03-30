@@ -91,17 +91,11 @@ void settings::load_settings()
 	}
 
 	on_checkBox_asc1_clicked();
-	if (mysettings->value("adapter"+QString::number(adp)+"_asc1").toBool()) {
-		for (int i = 1; i < 100; i++) {
-			ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
-			ui->tableWidget_diseqc_v12->setItem(i-1, 1, new QTableWidgetItem(""));
-			ui->tableWidget_diseqc_v12->setItem(i-1, 2, new QTableWidgetItem(""));
-			ui->tableWidget_diseqc_v12->setItem(i-1, 3, new QTableWidgetItem(""));
-		}
-	} else {
-		for (int i = 1; i < 256; i++) {
-			ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
-		}
+	for (int i = 1; i < 100; i++) {
+		ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 1, new QTableWidgetItem(""));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 2, new QTableWidgetItem(""));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 3, new QTableWidgetItem(""));
 	}
 
 	ui->lineEdit_lnb_name->setText(mysettings->value("lnb"+QString::number(lnb)+"_name").toString());
