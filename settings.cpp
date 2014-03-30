@@ -134,7 +134,7 @@ void settings::save_settings()
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v13", ui->checkBox_diseqc_v13->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_name", ui->lineEdit_adapter_name->text());
 	
-	for (int i = 1; i < 256; i++) {
+	for (int i = 1; i < 100; i++) {
 		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i-1, 0)->text());
 	}
 
