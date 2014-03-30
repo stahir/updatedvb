@@ -33,17 +33,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	curve.append(new QwtPlotCurve("V"));
 	curve.append(new QwtPlotCurve("H"));
 	curve.append(new QwtPlotCurve("N"));
+	curve.last()->setPen(QPen(GREEN));
 
 	legend = new QwtLegend;
 	ui->qwtPlot->insertLegend(legend, QwtPlot::RightLegend);
 	ui->qwtPlot->setAxisTitle(QwtPlot::xBottom, "Frequency");
 	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
+	ui->qwtPlot->setCanvasBackground(Qt::black);
 
     qwt_picker = new PlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, qobject_cast<QwtPlotCanvas*>(ui->qwtPlot->canvas()));
 	qwt_picker->setStateMachine(new QwtPickerDragPointMachine());
 	qwt_picker->setRubberBandPen(QColor(Qt::darkMagenta));
 	qwt_picker->setRubberBand(QwtPicker::CrossRubberBand);
-	qwt_picker->setTrackerPen(QColor(Qt::black));
+	qwt_picker->setTrackerPen(GREEN);
 	connect(qwt_picker, SIGNAL(selected(QPointF)), this, SLOT(qwtPlot_selected(QPointF)));
 
 	mysettings	= new QSettings("UDL", "updateDVB");
@@ -731,15 +733,15 @@ void MainWindow::set_colors()
 	switch(ui->comboBox_voltage->currentIndex())
 	{
 	case 0:
-		curve[1]->setPen(QPen(LGRAY));
+		curve[1]->setPen(QPen(DGREEN));
 		curve[1]->attach(ui->qwtPlot);
-		curve[0]->setPen(QPen(Qt::black));
+		curve[0]->setPen(QPen(GREEN));
 		curve[0]->attach(ui->qwtPlot);
 		break;
 	case 1:
-		curve[0]->setPen(QPen(LGRAY));
+		curve[0]->setPen(QPen(DGREEN));
 		curve[0]->attach(ui->qwtPlot);
-		curve[1]->setPen(QPen(Qt::black));
+		curve[1]->setPen(QPen(GREEN));
 		curve[1]->attach(ui->qwtPlot);
 		break;
 	}
@@ -753,11 +755,11 @@ void MainWindow::set_colors()
 		marker.append(new QwtPlotMarker);
 		QwtText text = QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency);
 		if (mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).voltage == ui->comboBox_voltage->currentIndex()) {
-			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::black), QPen(Qt::black), QSize(5,5)));
-			text.setColor(QColor(Qt::black));
+			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(GREEN), QPen(GREEN), QSize(5,5)));
+			text.setColor(GREEN);
 		} else {
-			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(LGRAY), QPen(LGRAY), QSize(5,5)));
-			text.setColor(QColor(LGRAY));
+			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(DGREEN), QPen(DGREEN), QSize(5,5)));
+			text.setColor(DGREEN);
 		}
 		marker.at(i)->setLabel(text);
 		marker.at(i)->setLabelOrientation(Qt::Vertical);

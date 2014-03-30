@@ -26,7 +26,8 @@
 
 #define MAX_LNBS 16
 
-#define LGRAY QColor(200,200,200)
+#define DGREEN QColor(0,100,0)
+#define GREEN QColor(0,255,0)
 
 struct asc1_data
 {
