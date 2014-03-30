@@ -129,100 +129,6 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 	}
 }
 
-void MainWindow::reload_settings()
-{	
-	if (noload) {
-		return;
-	}
-
-	mysettings->sync();
-	tune_ops.clear();
-	tuning_options tmp;
-
-	for (int a = 0; a < MAX_LNBS; a++) {
-		tmp.f_lof		= mysettings->value("lnb"+QString::number(a)+"_freqlof").toInt();
-		tmp.f_start		= mysettings->value("lnb"+QString::number(a)+"_freqstart").toInt();
-		tmp.f_stop		= mysettings->value("lnb"+QString::number(a)+"_freqstop").toInt();
-		tmp.voltage		= mysettings->value("lnb"+QString::number(a)+"_voltage").toInt();
-		tmp.tone		= mysettings->value("lnb"+QString::number(a)+"_tone").toBool();
-//		tmp.mis			= mysettings->value("lnb"+QString::number(a)+"_mis").toInt();
-		tmp.mis			= -1;
-		tmp.committed	= mysettings->value("lnb"+QString::number(a)+"_committed").toInt();
-		tmp.uncommitted	= mysettings->value("lnb"+QString::number(a)+"_uncommitted").toInt();
-		tmp.site_lat	= mysettings->value("site_lat").toDouble();
-		tmp.site_long	= mysettings->value("site_long").toDouble();
-		tmp.name		= mysettings->value("name").toString();
-		tune_ops.append(tmp);
-	}
-
-	if (ui->comboBox_adapter->currentData().toInt() < 0) {
-		return;
-	}
-	if (mytuners.size()) {
-		noload = true;
-		int current_adap = 0;
-		if (ui->comboBox_adapter->currentIndex() >= 0) {
-			current_adap = ui->comboBox_adapter->currentIndex();
-		}
-		ui->comboBox_adapter->clear();
-		for (int i = 0; i < mytuners.size(); i++) {
-			mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
-			ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
-		}
-		ui->comboBox_adapter->setCurrentIndex(current_adap);
-		setup_tuning_options();
-		noload = false;
-	}
-
-	int gotox_i = ui->comboBox_gotox->currentIndex();
-	ui->comboBox_gotox->clear();
-	ui->comboBox_gotox->addItem("");
-	for (int i = 1; i < 256; i++) {
-		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_diseqc_v12_name_"+QString::number(i)).toString();
-		if (text != "") {
-			ui->comboBox_gotox->addItem(text);
-		}
-	}
-	ui->comboBox_gotox->setCurrentIndex(gotox_i);
-
-	QVariant d(0);
-	QVariant e(1|32);
-	qDebug() << "Adapter:" << ui->comboBox_adapter->currentData().toInt() << "lnb:" << ui->comboBox_lnb->currentData().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage;
-	switch(tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage) {
-	case 0:
-		ui->gridWidget_voltage->hide();
-		ui->comboBox_voltage->setCurrentIndex(0);
-		ui->comboBox_voltage->setItemData(0, e, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(1, d, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
-		break;
-	case 1:
-		ui->gridWidget_voltage->hide();
-		ui->comboBox_voltage->setCurrentIndex(1);
-		ui->comboBox_voltage->setItemData(0, d, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(1, e, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
-		break;
-	case 2:
-		ui->gridWidget_voltage->hide();
-		ui->comboBox_voltage->setCurrentIndex(2);
-		ui->comboBox_voltage->setItemData(0, d, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(1, d, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(2, e, Qt::UserRole -1);
-		break;
-	case 3:
-		ui->gridWidget_voltage->show();
-		ui->comboBox_voltage->setCurrentIndex(1);
-		ui->comboBox_voltage->setItemData(0, e, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(1, e, Qt::UserRole -1);
-		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
-		break;
-	}
-
-	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_start, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_stop);
-	ui->qwtPlot->replot();
-}
-
 void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex)
 {
 	int lnb = ui->comboBox_lnb->currentData().toInt();
@@ -277,106 +183,36 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 	mytuning.last()->show();
 }
 
-void MainWindow::on_actionSettings_triggered()
+void MainWindow::update_status(QString text, int time)
 {
-	settings settings_dialog;
-	settings_dialog.mytuners = mytuners;
-	settings_dialog.setModal(true);
-	settings_dialog.exec();
-
-	noload = true;
-	ui->comboBox_lnb->clear();
-	for (int a = 0; a < MAX_LNBS; a++) {
-		if (mysettings->value("lnb"+QString::number(a)+"_enabled").toBool()) {
-			ui->comboBox_lnb->insertItem(a, QString::number(a) + " " + mysettings->value("lnb"+QString::number(a)+"_name").toString(), a);
+	if (time == -1) {
+		if (mystatus.indexOf(text) != -1) {
+			mystatus.remove(mystatus.indexOf(text));
 		}
 	}
-	if (ui->comboBox_lnb->currentIndex() < 0) {
-		ui->comboBox_lnb->insertItem(0, "0");
+	if (time == 0) {
+		mystatus.append(text);
 	}
-	ui->comboBox_lnb->setCurrentIndex(0);
-	noload = false;
-	
-	reload_settings();
+	if (time > 0) {
+		status_timer = new QTimer;
+		status_timer->setSingleShot(true);
+		connect(status_timer, SIGNAL(timeout()), &status_mapper, SLOT(map()));
+		status_mapper.setMapping(status_timer, text);
+		status_timer->start(time*1000);
+		mystatus.append(text);
+	}
+
+	ui->statusBar->showMessage(mystatus.last(), 0);
 }
 
-void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
-{
-	Q_UNUSED(index);
-	if (noload) {
-		return;
-	}
-	
-	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
-	reload_settings();
-}
-
-void MainWindow::set_colors()
-{
-	curve.at(0)->detach();
-	curve.at(1)->detach();
-	switch(ui->comboBox_voltage->currentIndex())
-	{
-	case 0:
-		curve[1]->setPen(QPen(LGRAY));
-		curve[1]->attach(ui->qwtPlot);
-		curve[0]->setPen(QPen(Qt::black));
-		curve[0]->attach(ui->qwtPlot);
-		break;
-	case 1:
-		curve[0]->setPen(QPen(LGRAY));
-		curve[0]->attach(ui->qwtPlot);
-		curve[1]->setPen(QPen(Qt::black));
-		curve[1]->attach(ui->qwtPlot);
-		break;
-	}
-
-	for (int i = 0; i < marker.size(); i++) {
-		marker.at(i)->detach();
-	}
-	marker.clear();
-
-	for (int i = 0; i < mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size(); i++) {
-		marker.append(new QwtPlotMarker);
-		QwtText text = QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency);
-		if (mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).voltage == ui->comboBox_voltage->currentIndex()) {
-			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::black), QPen(Qt::black), QSize(5,5)));
-			text.setColor(QColor(Qt::black));
-		} else {
-			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(LGRAY), QPen(LGRAY), QSize(5,5)));
-			text.setColor(QColor(LGRAY));
-		}
-		marker.at(i)->setLabel(text);
-		marker.at(i)->setLabelOrientation(Qt::Vertical);
-		marker.at(i)->setLabelAlignment(Qt::AlignTop);
-		marker.at(i)->setValue(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency, mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).spectrumscan_lvl);
-		marker.at(i)->attach(ui->qwtPlot);
-	}
-	ui->qwtPlot->replot();
-}
-
-void MainWindow::on_comboBox_voltage_currentIndexChanged(int index)
-{
-	Q_UNUSED(index);
-	if (mytuners.size() == 0) {
-		return;
-	}
-	set_colors();
-}
-
-void MainWindow::on_checkBox_loop_stateChanged()
-{
-	myscan->loop = ui->checkBox_loop->isChecked();
-}
-
-void MainWindow::on_updateButton_clicked()
+void MainWindow::on_pushButton_spectrumscan_clicked()
 {
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->locked) {
 		return;
 	}
 
 	myscan->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
-	
+
 	if (ui->checkBox_fast->isChecked()) {
 		myscan->step = 5;
 	} else {
@@ -390,7 +226,7 @@ void MainWindow::on_updateButton_clicked()
 	myscan->start();
 }
 
-void MainWindow::on_pushButton_scan_clicked()
+void MainWindow::on_pushButton_blindscan_clicked()
 {
 	myblindscan.append(new blindscan);
 	myblindscan.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
@@ -519,33 +355,140 @@ void MainWindow::on_pushButton_scan_clicked()
 	}
 }
 
-void MainWindow::add_comboBox_modulation(QString name)
+void MainWindow::on_pushButton_usals_go_clicked()
 {
-	if (ui->comboBox_modulation->findText(name) < 0) {
-		ui->comboBox_modulation->addItem(name);
-	}
+	mytuners.at(ui->comboBox_adapter->currentIndex())->old_position = mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_usals_position").toDouble();
+	mytuners.at(ui->comboBox_adapter->currentIndex())->usals_drive(ui->lineEdit_usals->text().toDouble());
+	mysettings->setValue("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_usals_position", ui->lineEdit_usals->text().toDouble());
 }
 
-void MainWindow::update_status(QString text, int time)
+void MainWindow::on_pushButton_gotox_go_clicked()
 {
-	if (time == -1) {
-		if (mystatus.indexOf(text) != -1) {
-			mystatus.remove(mystatus.indexOf(text));
-		}
-	}
-	if (time == 0) {
-		mystatus.append(text);
-	}
-	if (time > 0) {
-		status_timer = new QTimer;
-		status_timer->setSingleShot(true);
-		connect(status_timer, SIGNAL(timeout()), &status_mapper, SLOT(map()));
-		status_mapper.setMapping(status_timer, text);
-		status_timer->start(time*1000);
-		mystatus.append(text);
+	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->comboBox_gotox->currentIndex());
+}
+
+void MainWindow::on_pushButton_gotox_save_clicked()
+{
+	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->comboBox_gotox->currentIndex());
+}
+
+void MainWindow::on_pushButton_drive_east_L_clicked()
+{
+	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 5);
+}
+
+void MainWindow::on_pushButton_drive_east_S_clicked()
+{
+	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 1);
+}
+
+void MainWindow::on_pushButton_drive_west_S_clicked()
+{
+	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 1);
+}
+
+void MainWindow::on_pushButton_drive_west_L_clicked()
+{
+	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 5);
+}
+
+void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
+{
+	if (index < 0) {
+		return;
 	}
 
-	ui->statusBar->showMessage(mystatus.last(), 0);
+	ui->comboBox_frontend->clear();
+	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentData().toString());
+	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
+	QStringList frontend_entries = adapter_dir.entryList();
+	for(QStringList::ConstIterator frontend_entry = frontend_entries.begin(); frontend_entry != frontend_entries.end(); frontend_entry++) {
+		QString frontend_dirname = *frontend_entry;
+		if (frontend_dirname.contains("frontend")) {
+			frontend_dirname.replace("frontend", "");
+			ui->comboBox_frontend->addItem(frontend_dirname);
+		}
+	}
+
+	reload_settings();
+}
+
+void MainWindow::on_comboBox_frontend_currentIndexChanged(int index)
+{
+	if (index < 0) {
+		return;
+	}
+	setup_tuning_options();
+}
+
+void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
+{
+	Q_UNUSED(index);
+	if (noload) {
+		return;
+	}
+
+	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
+	reload_settings();
+}
+
+void MainWindow::on_comboBox_voltage_currentIndexChanged(int index)
+{
+	Q_UNUSED(index);
+	if (mytuners.size() == 0) {
+		return;
+	}
+	set_colors();
+}
+
+void MainWindow::on_lineEdit_usals_returnPressed()
+{
+	on_pushButton_usals_go_clicked();
+}
+
+void MainWindow::on_checkBox_loop_stateChanged()
+{
+	myscan->loop = ui->checkBox_loop->isChecked();
+}
+
+void MainWindow::on_actionSettings_triggered()
+{
+	settings settings_dialog;
+	settings_dialog.mytuners = mytuners;
+	settings_dialog.setModal(true);
+	settings_dialog.exec();
+
+	noload = true;
+	ui->comboBox_lnb->clear();
+	for (int a = 0; a < MAX_LNBS; a++) {
+		if (mysettings->value("lnb"+QString::number(a)+"_enabled").toBool()) {
+			ui->comboBox_lnb->insertItem(a, QString::number(a) + " " + mysettings->value("lnb"+QString::number(a)+"_name").toString(), a);
+		}
+	}
+	if (ui->comboBox_lnb->currentIndex() < 0) {
+		ui->comboBox_lnb->insertItem(0, "0");
+	}
+	ui->comboBox_lnb->setCurrentIndex(0);
+	noload = false;
+	
+	reload_settings();
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+	qDebug() << "on_actionExit_triggered()";
+	close();
+}
+
+void MainWindow::adapter_status(int adapter, bool is_busy)
+{
+	if (is_busy) {
+		ui->comboBox_adapter->setItemText(adapter, QString("%1 Busy").arg(adapter));
+		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::red), Qt::TextColorRole);
+	} else {
+		ui->comboBox_adapter->setItemText(adapter, QString::number(adapter) + " " + mysettings->value("adapter" + QString::number(adapter) + "_name").toString());
+		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::black), Qt::TextColorRole);
+	}
 }
 
 void MainWindow::setup_tuning_options()
@@ -570,7 +513,7 @@ void MainWindow::setup_tuning_options()
 	} else {
 		ui->gridWidget_positioner->hide();
 	}
-	
+
 	update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, 0);
 
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_SPECTRUMSCAN) {
@@ -590,7 +533,7 @@ void MainWindow::setup_tuning_options()
 		ui->comboBox_system->addItem("ATSC");
 		ui->comboBox_system->addItem("DVB-C B");
 	}
-	
+
 	ui->comboBox_modulation->clear();
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1 || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSCMH) != -1) {
 		add_comboBox_modulation("VSB 8");
@@ -642,53 +585,13 @@ void MainWindow::setup_tuning_options()
 	} else {
 		ui->gridWidget_system->show();
 		ui->gridWidget_blindscan->hide();
-		
+
 		if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1) {
 			ui->gridWidget_blindscan->show();
 			ui->gridWidget_satellite->hide();
 		} else {
 			ui->gridWidget_satellite->show();
 		}
-	}
-}
-
-void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
-{
-	if (index < 0) {
-		return;
-	}
-
-	ui->comboBox_frontend->clear();
-	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentData().toString());
-	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
-	QStringList frontend_entries = adapter_dir.entryList();
-	for(QStringList::ConstIterator frontend_entry = frontend_entries.begin(); frontend_entry != frontend_entries.end(); frontend_entry++) {
-		QString frontend_dirname = *frontend_entry;
-		if (frontend_dirname.contains("frontend")) {
-			frontend_dirname.replace("frontend", "");
-			ui->comboBox_frontend->addItem(frontend_dirname);
-		}
-	}
-
-	reload_settings();
-}
-
-void MainWindow::on_comboBox_frontend_currentIndexChanged(int index)
-{
-	if (index < 0) {
-		return;
-	}
-	setup_tuning_options();	
-}
-
-void MainWindow::adapter_status(int adapter, bool is_busy)
-{
-	if (is_busy) {
-		ui->comboBox_adapter->setItemText(adapter, QString("%1 Busy").arg(adapter));
-		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::red), Qt::TextColorRole);
-	} else {
-		ui->comboBox_adapter->setItemText(adapter, QString::number(adapter) + " " + mysettings->value("adapter" + QString::number(adapter) + "_name").toString());
-		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::black), Qt::TextColorRole);
 	}
 }
 
@@ -719,50 +622,148 @@ void MainWindow::getadapters()
 	}
 }
 
-void MainWindow::on_pushButton_usals_go_clicked()
+void MainWindow::reload_settings()
 {
-	mytuners.at(ui->comboBox_adapter->currentIndex())->old_position = mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_usals_position").toDouble();
-	mytuners.at(ui->comboBox_adapter->currentIndex())->usals_drive(ui->lineEdit_usals->text().toDouble());
-	mysettings->setValue("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_usals_position", ui->lineEdit_usals->text().toDouble());
+	if (noload) {
+		return;
+	}
+
+	mysettings->sync();
+	tune_ops.clear();
+	tuning_options tmp;
+
+	for (int a = 0; a < MAX_LNBS; a++) {
+		tmp.f_lof		= mysettings->value("lnb"+QString::number(a)+"_freqlof").toInt();
+		tmp.f_start		= mysettings->value("lnb"+QString::number(a)+"_freqstart").toInt();
+		tmp.f_stop		= mysettings->value("lnb"+QString::number(a)+"_freqstop").toInt();
+		tmp.voltage		= mysettings->value("lnb"+QString::number(a)+"_voltage").toInt();
+		tmp.tone		= mysettings->value("lnb"+QString::number(a)+"_tone").toBool();
+//		tmp.mis			= mysettings->value("lnb"+QString::number(a)+"_mis").toInt();
+		tmp.mis			= -1;
+		tmp.committed	= mysettings->value("lnb"+QString::number(a)+"_committed").toInt();
+		tmp.uncommitted	= mysettings->value("lnb"+QString::number(a)+"_uncommitted").toInt();
+		tmp.site_lat	= mysettings->value("site_lat").toDouble();
+		tmp.site_long	= mysettings->value("site_long").toDouble();
+		tmp.name		= mysettings->value("name").toString();
+		tune_ops.append(tmp);
+	}
+
+	if (ui->comboBox_adapter->currentData().toInt() < 0) {
+		return;
+	}
+
+	if (mytuners.size()) {
+		noload = true;
+		int current_adap = 0;
+		if (ui->comboBox_adapter->currentIndex() >= 0) {
+			current_adap = ui->comboBox_adapter->currentIndex();
+		}
+		ui->comboBox_adapter->clear();
+		for (int i = 0; i < mytuners.size(); i++) {
+			mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
+			ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
+		}
+		ui->comboBox_adapter->setCurrentIndex(current_adap);
+		setup_tuning_options();
+		noload = false;
+	}
+
+	int gotox_i = ui->comboBox_gotox->currentIndex();
+	ui->comboBox_gotox->clear();
+	ui->comboBox_gotox->addItem("");
+	for (int i = 1; i < 256; i++) {
+		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_diseqc_v12_name_"+QString::number(i)).toString();
+		if (text != "") {
+			ui->comboBox_gotox->addItem(text);
+		}
+	}
+	ui->comboBox_gotox->setCurrentIndex(gotox_i);
+
+	QVariant d(0);
+	QVariant e(1|32);
+	qDebug() << "Adapter:" << ui->comboBox_adapter->currentData().toInt() << "lnb:" << ui->comboBox_lnb->currentData().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage;
+	switch(tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage) {
+	case 0:
+		ui->gridWidget_voltage->hide();
+		ui->comboBox_voltage->setCurrentIndex(0);
+		ui->comboBox_voltage->setItemData(0, e, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(1, d, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
+		break;
+	case 1:
+		ui->gridWidget_voltage->hide();
+		ui->comboBox_voltage->setCurrentIndex(1);
+		ui->comboBox_voltage->setItemData(0, d, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(1, e, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
+		break;
+	case 2:
+		ui->gridWidget_voltage->hide();
+		ui->comboBox_voltage->setCurrentIndex(2);
+		ui->comboBox_voltage->setItemData(0, d, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(1, d, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(2, e, Qt::UserRole -1);
+		break;
+	case 3:
+		ui->gridWidget_voltage->show();
+		ui->comboBox_voltage->setCurrentIndex(1);
+		ui->comboBox_voltage->setItemData(0, e, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(1, e, Qt::UserRole -1);
+		ui->comboBox_voltage->setItemData(2, d, Qt::UserRole -1);
+		break;
+	}
+
+	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_start, tune_ops[ui->comboBox_lnb->currentData().toInt()].f_stop);
+	ui->qwtPlot->replot();
 }
 
-void MainWindow::on_lineEdit_usals_returnPressed()
+void MainWindow::add_comboBox_modulation(QString name)
 {
-	on_pushButton_usals_go_clicked();
+	if (ui->comboBox_modulation->findText(name) < 0) {
+		ui->comboBox_modulation->addItem(name);
+	}
 }
 
-void MainWindow::on_pushButton_drive_east_L_clicked()
+void MainWindow::set_colors()
 {
-	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 5);
-}
+	curve.at(0)->detach();
+	curve.at(1)->detach();
+	switch(ui->comboBox_voltage->currentIndex())
+	{
+	case 0:
+		curve[1]->setPen(QPen(LGRAY));
+		curve[1]->attach(ui->qwtPlot);
+		curve[0]->setPen(QPen(Qt::black));
+		curve[0]->attach(ui->qwtPlot);
+		break;
+	case 1:
+		curve[0]->setPen(QPen(LGRAY));
+		curve[0]->attach(ui->qwtPlot);
+		curve[1]->setPen(QPen(Qt::black));
+		curve[1]->attach(ui->qwtPlot);
+		break;
+	}
 
-void MainWindow::on_pushButton_drive_east_S_clicked()
-{
-	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 1);
-}
+	for (int i = 0; i < marker.size(); i++) {
+		marker.at(i)->detach();
+	}
+	marker.clear();
 
-void MainWindow::on_pushButton_drive_west_S_clicked()
-{
-	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 1);
-}
-
-void MainWindow::on_pushButton_drive_west_L_clicked()
-{
-	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 5);
-}
-
-void MainWindow::on_pushButton_gotox_go_clicked()
-{
-	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->comboBox_gotox->currentIndex());
-}
-
-void MainWindow::on_pushButton_gotox_save_clicked()
-{
-	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->comboBox_gotox->currentIndex());
-}
-
-void MainWindow::on_actionExit_triggered()
-{
-	qDebug() << "on_actionExit_triggered()";
-	close();
+	for (int i = 0; i < mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size(); i++) {
+		marker.append(new QwtPlotMarker);
+		QwtText text = QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency);
+		if (mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).voltage == ui->comboBox_voltage->currentIndex()) {
+			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(Qt::black), QPen(Qt::black), QSize(5,5)));
+			text.setColor(QColor(Qt::black));
+		} else {
+			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(LGRAY), QPen(LGRAY), QSize(5,5)));
+			text.setColor(QColor(LGRAY));
+		}
+		marker.at(i)->setLabel(text);
+		marker.at(i)->setLabelOrientation(Qt::Vertical);
+		marker.at(i)->setLabelAlignment(Qt::AlignTop);
+		marker.at(i)->setValue(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency, mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).spectrumscan_lvl);
+		marker.at(i)->attach(ui->qwtPlot);
+	}
+	ui->qwtPlot->replot();
 }

@@ -70,27 +70,27 @@ public:
     ~MainWindow();
 
 public slots:
-	void qwtPlot_selected(QPointF pos);
 	void qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
+	void qwtPlot_selected(QPointF pos);
 	void update_status(QString text, int time = -1);
 
 private slots:
-	void on_updateButton_clicked();
-	void on_checkBox_loop_stateChanged();
-	void on_actionSettings_triggered();
-	void on_comboBox_lnb_currentIndexChanged(int index);
-	void on_comboBox_adapter_currentIndexChanged(int index);
-	void on_comboBox_frontend_currentIndexChanged(int index);
-	void on_comboBox_voltage_currentIndexChanged(int index);
-	void on_pushButton_scan_clicked();
+	void on_pushButton_spectrumscan_clicked();
+	void on_pushButton_blindscan_clicked();
 	void on_pushButton_usals_go_clicked();
-	void on_lineEdit_usals_returnPressed();
+	void on_pushButton_gotox_go_clicked();
+	void on_pushButton_gotox_save_clicked();
 	void on_pushButton_drive_east_L_clicked();
 	void on_pushButton_drive_east_S_clicked();
 	void on_pushButton_drive_west_S_clicked();
 	void on_pushButton_drive_west_L_clicked();
-	void on_pushButton_gotox_go_clicked();
-	void on_pushButton_gotox_save_clicked();
+	void on_comboBox_adapter_currentIndexChanged(int index);
+	void on_comboBox_frontend_currentIndexChanged(int index);
+	void on_comboBox_lnb_currentIndexChanged(int index);
+	void on_comboBox_voltage_currentIndexChanged(int index);
+	void on_lineEdit_usals_returnPressed();
+	void on_checkBox_loop_stateChanged();
+	void on_actionSettings_triggered();
 	void on_actionExit_triggered();
 	void adapter_status(int adapter, bool is_busy);
 	void setup_tuning_options();
