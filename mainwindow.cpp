@@ -371,6 +371,10 @@ void MainWindow::on_checkBox_loop_stateChanged()
 
 void MainWindow::on_updateButton_clicked()
 {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->locked) {
+		return;
+	}
+
 	myscan->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 	
 	if (ui->checkBox_fast->isChecked()) {
@@ -683,7 +687,7 @@ void MainWindow::adapter_status(int adapter, bool is_busy)
 		ui->comboBox_adapter->setItemText(adapter, QString("%1 Busy").arg(adapter));
 		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::red), Qt::TextColorRole);
 	} else {
-		ui->comboBox_adapter->setItemText(adapter, QString("%1").arg(adapter));
+		ui->comboBox_adapter->setItemText(adapter, QString::number(adapter) + " " + mysettings->value("adapter" + QString::number(adapter) + "_name").toString());
 		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::black), Qt::TextColorRole);
 	}
 }

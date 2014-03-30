@@ -27,6 +27,7 @@ dvbtune::dvbtune()
 	frontend_name	= "";
 	ready		= true;
 	loop		= false;
+	locked		= false;
 	iq_options	= 0x00;
 	adapter		= 0;
 	frontend	= 0;

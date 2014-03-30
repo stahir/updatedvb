@@ -115,6 +115,7 @@ public:
 	void run();
 	bool loop;
 	bool ready;
+	bool locked;
 
 	QVector<int> delsys;
 	u_int64_t caps;
