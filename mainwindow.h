@@ -33,6 +33,7 @@
 #include <qwt_picker_machine.h>
 #include <qwt_legend.h>
 #include <qwt_plot_canvas.h>
+#include <qwt_plot_grid.h>
 #include "dvb_settings.h"
 #include "scan.h"
 #include "settings.h"
@@ -103,6 +104,7 @@ private:
 	QVector<QwtPlotCurve*> curve;
 	QVector<QwtPlotMarker*> marker;
 	QwtLegend *legend;
+	QwtPlotGrid *grid;
 	QSettings *mysettings;
 	QVector<tuning_options> tune_ops;
 	dvb_settings dvbnames;

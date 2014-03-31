@@ -26,6 +26,8 @@
 
 #define MAX_LNBS 16
 
+#define GRAY QColor(80,80,80)
+#define DGRAY QColor(60,60,60)
 #define DGREEN QColor(0,100,0)
 #define GREEN QColor(0,255,0)
 

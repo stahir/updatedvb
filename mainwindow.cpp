@@ -41,6 +41,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
 	ui->qwtPlot->setCanvasBackground(Qt::black);
 
+	grid = new QwtPlotGrid();
+	grid->enableX(true);
+	grid->enableY(true);
+	grid->enableXMin(true);
+	grid->enableYMin(true);
+	grid->setMajorPen(QPen(GRAY, 0, Qt::DotLine));
+	grid->setMinorPen(QPen(DGRAY, 0, Qt::DotLine));
+	grid->attach(ui->qwtPlot);
+
     qwt_picker = new PlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, qobject_cast<QwtPlotCanvas*>(ui->qwtPlot->canvas()));
 	qwt_picker->setStateMachine(new QwtPickerDragPointMachine());
 	qwt_picker->setRubberBandPen(QColor(Qt::darkMagenta));
