@@ -67,8 +67,8 @@ tuning::~tuning()
 		sleep(1);
 	}
 
-	mytune->locked	= false;
-	mytune->loop	= false;
+	mytune->is_tuned	= false;
+	mytune->loop		= false;
 	mytune->quit();
 	mytune->wait(1000);
 	while (mytune->isRunning()) {
@@ -81,7 +81,7 @@ tuning::~tuning()
 	delete mystatusbar;
 	delete ui;
 
-	shutdown	= true;
+	shutdown = true;
 }
 
 void tuning::closeEvent(QCloseEvent *event)
@@ -93,7 +93,7 @@ void tuning::closeEvent(QCloseEvent *event)
 
 void tuning::init()
 {
-	mytune->locked = true;
+	mytune->is_tuned = true;
 
 	connect(&myProcess, SIGNAL(finished(int)), this, SLOT(stop_demux()));
 	connect(mytune, SIGNAL(updatesignal()), this, SLOT(updatesignal()));

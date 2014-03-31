@@ -114,8 +114,9 @@ public:
 	
 	void run();
 	bool loop;
-	bool ready;
-	bool locked;
+	bool is_reading;
+	bool is_busy;
+	bool is_tuned;
 
 	QVector<int> delsys;
 	u_int64_t caps;

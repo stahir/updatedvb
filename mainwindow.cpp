@@ -218,7 +218,7 @@ void MainWindow::update_status(QString text, int time)
 
 void MainWindow::on_pushButton_spectrumscan_clicked()
 {
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->locked) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->is_tuned) {
 		return;
 	}
 

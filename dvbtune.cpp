@@ -25,9 +25,9 @@ dvbtune::dvbtune()
 	sct_name	= "";
 	out_name	= "";
 	frontend_name	= "";
-	ready		= true;
+	is_busy		= false;
+	is_reading	= false;
 	loop		= false;
-	locked		= false;
 	iq_options	= 0x00;
 	adapter		= 0;
 	frontend	= 0;
@@ -113,7 +113,7 @@ void dvbtune::closefd()
 	if (frontend_name == "") {
 		return;
 	}
-	while(!ready) {
+	while(is_reading) {
 		qDebug() << "waiting till ready to close";
 		msleep(250);
 	}
@@ -154,6 +154,7 @@ void dvbtune::getops()
 	p_status.num = 1;
 	p_status.props = p;
 
+	is_busy = true;
 	if (ioctl(frontend_fd, FE_GET_PROPERTY, &p_status) == -1) {
 		qDebug() << "FE_GET_PROPERTY failed";
 		return;
@@ -168,6 +169,7 @@ void dvbtune::getops()
 		qDebug() << "FE_GET_INFO failed";
 		return;
 	}
+	is_busy = false;
 	caps	= fe_info.caps;
 	name	= fe_info.name;
 	fmin	= fe_info.frequency_min;
@@ -182,6 +184,10 @@ void dvbtune::step_motor(int direction, int steps)
 	// 0xFF = 1 step
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, (__u8)(0x68 + direction), (__u8)(0xFF - (steps-1)), 0x00, 0x00 }, 4 };
 	
+	while (is_busy) {
+		msleep(10);
+	}
+
 	qDebug() << "cmd:" << hex
 			 << diseqc_cmd.msg[0]
 			 << diseqc_cmd.msg[1]
@@ -190,30 +196,27 @@ void dvbtune::step_motor(int direction, int steps)
 			 << diseqc_cmd.msg[4]
 			 << diseqc_cmd.msg[5];
 	
+	is_busy = true;
+	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+		myswitch.tone = -1;
+		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
+			qDebug() << "FE_SET_TONE ERROR!";
+		}
+		msleep(20);
+	}
+
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
 	msleep(20);
+	is_busy = false;
 
-	if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
-		qDebug() << "FE_SET_TONE ERROR!";
-	}
-	msleep(20);
+	setup_switch();
 }
 
 void dvbtune::usals_drive(double sat_long)
 {
 	openfd();
-
-	myswitch.tone = -1;
-	if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1)
-		perror("FE_SET_TONE ERROR!");
-	msleep(20);
-
-	myswitch.voltage = -1;
-	if (ioctl(frontend_fd, FE_SET_VOLTAGE, SEC_VOLTAGE_18) == -1)
-		perror("FE_SET_VOLTAGE ERROR!");
-	msleep(20);
 
 	double r_eq = 6378.14;		// Earth radius
 	double r_sat = 42164.57;	// Distance from earth centre to satellite
@@ -246,6 +249,10 @@ void dvbtune::usals_drive(double sat_long)
 
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6e, (__u8)angle_1, (__u8)angle_2, 0x00 }, 5 };
 
+	while (is_busy) {
+		msleep(10);
+	}
+
 	qDebug() << "cmd:" << hex
 			 << diseqc_cmd.msg[0]
 			 << diseqc_cmd.msg[1]
@@ -254,9 +261,20 @@ void dvbtune::usals_drive(double sat_long)
 			 << diseqc_cmd.msg[4]
 			 << diseqc_cmd.msg[5];
 
+	is_busy = true;
+	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+		myswitch.tone = -1;
+		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
+			qDebug() << "FE_SET_TONE ERROR!";
+		}
+		msleep(20);
+	}
+
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
+	msleep(20);
+	is_busy = false;
 
 	int howlong;
 	if (!old_position) {
@@ -266,12 +284,18 @@ void dvbtune::usals_drive(double sat_long)
 	}
 	old_position = degree(sat_long);
 	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move";
+
+	setup_switch();
 }
 
 void dvbtune::gotox_drive(int position)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6B, (__u8)position, 0x00, 0x00 }, 4 };
 	
+	while (is_busy) {
+		msleep(10);
+	}
+
 	qDebug() << "cmd:" << hex
 			 << diseqc_cmd.msg[0]
 			 << diseqc_cmd.msg[1]
@@ -280,25 +304,31 @@ void dvbtune::gotox_drive(int position)
 			 << diseqc_cmd.msg[4]
 			 << diseqc_cmd.msg[5];
 	
-	myswitch.tone = -1;
-	if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1)
-		perror("FE_SET_TONE ERROR!");
-	msleep(20);
-
-	myswitch.voltage = -1;
-	if (ioctl(frontend_fd, FE_SET_VOLTAGE, SEC_VOLTAGE_18) == -1)
-		perror("FE_SET_VOLTAGE ERROR!");
-	msleep(20);
+	is_busy = true;
+	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+		myswitch.tone = -1;
+		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
+			qDebug() << "FE_SET_TONE ERROR!";
+		}
+		msleep(20);
+	}
 
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
+	is_busy = false;
+
+	setup_switch();
 }
 
 void dvbtune::gotox_save(int position)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6A, (__u8)position, 0x00, 0x00 }, 4 };
 
+	while (is_busy) {
+		msleep(10);
+	}
+
 	qDebug() << "cmd:" << hex
 			 << diseqc_cmd.msg[0]
 			 << diseqc_cmd.msg[1]
@@ -307,15 +337,22 @@ void dvbtune::gotox_save(int position)
 			 << diseqc_cmd.msg[4]
 			 << diseqc_cmd.msg[5];
 	
+	is_busy = true;
+	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+		myswitch.tone = -1;
+		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
+			qDebug() << "FE_SET_TONE ERROR!";
+		}
+		msleep(20);
+	}
+
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}	
 	msleep(20);
+	is_busy = false;
 
-	if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
-		qDebug() << "FE_SET_TONE ERROR!";
-	}
-	msleep(20);
+	setup_switch();
 }
 
 void dvbtune::setup_switch()
@@ -338,6 +375,11 @@ void dvbtune::setup_switch()
 		{ { 0xE0, 0x10, 0x39, 0xF7, 0x00, 0x00 }, 4 }
 	};
 
+	while (is_busy) {
+		msleep(10);
+	}
+
+	is_busy = true;
 	if (myswitch.voltage != tp.voltage) {
 		qDebug() << "Voltage:" << (tp.voltage ? "H" : "V");
 		if (ioctl(frontend_fd, FE_SET_VOLTAGE, tp.voltage) == -1) {
@@ -347,6 +389,13 @@ void dvbtune::setup_switch()
 	}
 
 	if (myswitch.uncommitted != tune_ops.uncommitted && tune_ops.uncommitted > 0) {
+		if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+			myswitch.tone = -1;
+			if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
+				qDebug() << "FE_SET_TONE ERROR!";
+			}
+			msleep(20);
+		}
 		qDebug() << "Uncommitted:" << tune_ops.uncommitted;
 		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &uncommitted_switch_cmds[tune_ops.uncommitted-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
@@ -355,6 +404,13 @@ void dvbtune::setup_switch()
 	}
 
 	if (myswitch.committed != tune_ops.committed && tune_ops.committed > 0) {
+		if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+			myswitch.tone = -1;
+			if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
+				qDebug() << "FE_SET_TONE ERROR!";
+			}
+			msleep(20);
+		}
 		qDebug() << "Committed:" << tune_ops.committed;
 		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &committed_switch_cmds[tune_ops.committed-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
@@ -369,6 +425,7 @@ void dvbtune::setup_switch()
 		}
 		msleep(20);
 	}
+	is_busy = false;
 
 	myswitch.voltage		= tp.voltage;
 	myswitch.tone			= tune_ops.tone;
@@ -380,6 +437,11 @@ void dvbtune::check_frontend()
 {
 	fe_status_t status;
 
+	while (is_busy) {
+		msleep(10);
+	}
+
+	is_busy = true;
 	if (ioctl(frontend_fd, FE_READ_STATUS, &status) == -1) {
 		qDebug() << "FE_READ_STATUS failed";
 	}
@@ -455,6 +517,7 @@ void dvbtune::check_frontend()
 			tp.ber = 0;
 		}
 	}
+	is_busy = false;
 
 	tp.status		= status;
 	emit updatesignal();
@@ -466,14 +529,7 @@ int dvbtune::tune()
 	iq_x.clear();
 	iq_y.clear();
 	openfd();
-	if (tp.system != SYS_ATSC &&
-		tp.system != SYS_ATSCMH &&
-		tp.system != SYS_DVBC_ANNEX_A &&
-		tp.system != SYS_DVBC_ANNEX_B &&
-		tp.system != SYS_DVBC_ANNEX_C &&
-		tp.system != SYS_DVBC_ANNEX_AC &&
-		tp.system != SYS_DVBT &&
-		tp.system != SYS_DVBT2) {
+	if (isSatellite(tp.system)) {
 		setup_switch();	
 	}
 
@@ -484,10 +540,12 @@ int dvbtune::tune()
 	cmdseq_clear.num     = 1;
 	cmdseq_clear.props   = p_clear;
 
+	is_busy = true;
 	if ((ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_clear)) == -1) {
 		qDebug() << "FE_SET_PROPERTY DTV_CLEAR failed";
 		return -1;
 	}
+	is_busy = false;
 
 	int i = 0;
 	struct dtv_property p_tune[13];
@@ -565,20 +623,24 @@ int dvbtune::tune()
 	cmdseq_tune.num     = i;
 	cmdseq_tune.props   = p_tune;
 
+	is_busy = true;
 	if (ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_tune) == -1) {
 		qDebug() << "FE_SET_PROPERTY TUNE failed";
 		return -1;
 	}
+	is_busy = false;
 
 	// Keep trying for upto 2 second
 	QTime t;
 	t.start();
 	fe_status_t status;
 	while (t.elapsed() < 2000) {
+		is_busy = true;
 		if (ioctl(frontend_fd, FE_READ_STATUS, &status) == -1) {
 			qDebug() << "FE_READ_STATUS failed";
 			return -1;
 		}
+		is_busy = false;
 
 		if (status & FE_TIMEDOUT) {
 			qDebug() << "Tuning Failed, time:" << t.elapsed() << "status:" << hex << status;
@@ -625,9 +687,9 @@ void dvbtune::get_bitrate()
 	stime.start();	
 	while (stime.elapsed() < 2000 && buffer.size() < BUFFY && loop) {
 		msleep(100);
-		ready = false;
+		is_reading = true;
 		int len = read(dvr_fd, buf, BUFFY);
-		ready = true;
+		is_reading = false;
 		if (len < 0) {
 			qDebug() << "get_bitrate() read() failed";
 			continue;
@@ -672,8 +734,8 @@ void dvbtune::get_bitrate()
 void dvbtune::demux_video()
 {
 	while (dmx_fd.size()) {
-		while(!ready) {
-			qDebug() << "waiting till ready to close";
+		while(is_reading) {
+			qDebug() << "waiting till is_reading to close";
 			msleep(250);
 		}
 		ioctl(dmx_fd.last(), DMX_STOP);	
@@ -725,9 +787,9 @@ QByteArray dvbtune::demux_stream()
 	char buf[TCP_BUFSIZE];
 
 	memset(buf, 0, TCP_BUFSIZE);
-	ready = false;
+	is_reading = true;
 	len = read(dvr_fd, buf, TCP_BUFSIZE);
-	ready = true;
+	is_reading = false;
 
 	if (len == -1) {
 		return QByteArray();
@@ -764,10 +826,10 @@ void dvbtune::demux_file()
 
 	do {
 		memset(buf, 0, buf_size);
-		ready = false;
+		is_reading = true;
 		int len = read(dvr_fd, buf, buf_size);
 		ssize_t wlen = write(out_fd, buf, len);
-		ready = true;
+		is_reading = false;
 		emit demux_status(len);
 		Q_UNUSED(wlen);
 	} while (thread_function.indexOf("demux_file") != -1);
@@ -879,9 +941,9 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 	buffer.clear();
 	char buf[BUFFY];
 	memset(buf, 0, BUFFY);
-	ready = false;
+	is_reading = true;
 	int len = read(sct_fd, buf, BUFFY);
-	ready = true;
+	is_reading = false;
 	if (len < 0) {
 		qDebug() << "demux_packet() read() error";
 		return -1;
@@ -900,7 +962,7 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 void dvbtune::close_dvr()
 {
 	if (dvr_name != "") {
-		while(!ready) {
+		while(is_reading) {
 			qDebug() << "waiting till ready to close";
 			msleep(250);
 		}
@@ -909,7 +971,7 @@ void dvbtune::close_dvr()
 		close(dvr_fd);
 	}
 	if (out_name != "") {
-		while(!ready) {
+		while(is_reading) {
 			qDebug() << "waiting till ready to close";
 			msleep(250);
 		}
@@ -923,7 +985,7 @@ void dvbtune::close_dvr()
 void dvbtune::stop_demux()
 {
 	while (dmx_fd.size()) {
-		while(!ready) {
+		while(is_reading) {
 			qDebug() << "waiting till ready to close";
 			msleep(250);
 		}
@@ -935,7 +997,7 @@ void dvbtune::stop_demux()
 	dmx_name = "";
 	
 	if (sct_name != "") {
-		while(!ready) {
+		while(is_reading) {
 			qDebug() << "waiting till ready to close";
 			msleep(250);
 		}
@@ -945,7 +1007,7 @@ void dvbtune::stop_demux()
 		sct_name = "";
 	}
 	if (dvr_name != "") {
-		while(!ready) {
+		while(is_reading) {
 			qDebug() << "waiting till ready to close";
 			msleep(250);
 		}
@@ -954,7 +1016,7 @@ void dvbtune::stop_demux()
 		dvr_name = "";
 	}
 	if (out_name != "") {
-		while(!ready) {
+		while(is_reading) {
 			qDebug() << "waiting till ready to close";
 			msleep(250);
 		}
@@ -974,9 +1036,15 @@ void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 		setup_switch();	
 	}
 
+	while (is_busy) {
+		msleep(10);
+	}
+
+	is_busy = true;
 	if (ioctl(frontend_fd, FE_GET_SPECTRUM_SCAN, scan) != 0) {
 		qDebug() << "Error! FE_GET_SPECTRUM_SCAN";
     }
+	is_busy = false;
 	qDebug() << "Spectrum scan time: " << t.elapsed();
 }
 
@@ -988,11 +1056,16 @@ void dvbtune::iqplot()
     const_samples.samples = samples;
 	const_samples.options = iq_options;
 
-	ready = false;
+	while (is_busy) {
+		msleep(10);
+	}
+
+	is_busy = true;
 	if ((ioctl(frontend_fd, FE_GET_CONSTELLATION_SAMPLES, &const_samples)) == -1) {
 		qDebug() << "ERROR: FE_GET_CONSTELLATION_SAMPLES";
 		return;
 	}
+	is_busy = false;
 	for (unsigned int i = 0 ; i < const_samples.num ; i++) {
 		while (iq_x.size() >= (int)const_samples.num * PERSISTENCE) {
 			iq_x.erase(iq_x.begin());
@@ -1001,7 +1074,6 @@ void dvbtune::iqplot()
 		iq_x.append(samples[i].imaginary);
 		iq_y.append(samples[i].real);
 	}
-	ready = true;
 	emit iqdraw(iq_x, iq_y);
 }
 
