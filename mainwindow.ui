@@ -116,6 +116,9 @@
               <property name="text">
                <string>&gt;&gt;</string>
               </property>
+              <property name="shortcut">
+               <string>Ctrl+Shift+W</string>
+              </property>
              </widget>
             </item>
             <item row="0" column="3">
@@ -134,6 +137,9 @@
               </property>
               <property name="text">
                <string>&gt;</string>
+              </property>
+              <property name="shortcut">
+               <string>Ctrl+W</string>
               </property>
              </widget>
             </item>
@@ -170,6 +176,9 @@
               <property name="text">
                <string>&lt;&lt;</string>
               </property>
+              <property name="shortcut">
+               <string>Ctrl+Shift+E</string>
+              </property>
              </widget>
             </item>
             <item row="0" column="2">
@@ -188,6 +197,9 @@
               </property>
               <property name="text">
                <string>&lt;</string>
+              </property>
+              <property name="shortcut">
+               <string>Ctrl+E</string>
               </property>
              </widget>
             </item>
