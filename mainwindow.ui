@@ -1051,6 +1051,30 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>comboBox_adapter</tabstop>
+  <tabstop>comboBox_frontend</tabstop>
+  <tabstop>comboBox_lnb</tabstop>
+  <tabstop>checkBox_smart</tabstop>
+  <tabstop>checkBox_loop</tabstop>
+  <tabstop>checkBox_fast</tabstop>
+  <tabstop>pushButton_blindscan</tabstop>
+  <tabstop>pushButton_spectrumscan</tabstop>
+  <tabstop>comboBox_voltage</tabstop>
+  <tabstop>lineEdit_symbolrate</tabstop>
+  <tabstop>comboBox_fec</tabstop>
+  <tabstop>comboBox_system</tabstop>
+  <tabstop>comboBox_modulation</tabstop>
+  <tabstop>comboBox_gotox</tabstop>
+  <tabstop>pushButton_gotox_go</tabstop>
+  <tabstop>pushButton_gotox_save</tabstop>
+  <tabstop>lineEdit_usals</tabstop>
+  <tabstop>pushButton_usals_go</tabstop>
+  <tabstop>pushButton_drive_east_L</tabstop>
+  <tabstop>pushButton_drive_east_S</tabstop>
+  <tabstop>pushButton_drive_west_S</tabstop>
+  <tabstop>pushButton_drive_west_L</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <slots>
