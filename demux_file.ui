@@ -82,6 +82,11 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_filename</tabstop>
+  <tabstop>pushButton_start</tabstop>
+  <tabstop>pushButton_stop</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

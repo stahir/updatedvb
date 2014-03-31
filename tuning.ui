@@ -685,6 +685,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_play</tabstop>
+  <tabstop>pushButton_demux</tabstop>
+  <tabstop>pushButton_file</tabstop>
+  <tabstop>pushButton_ipcleaner</tabstop>
+  <tabstop>pushButton_stream</tabstop>
+  <tabstop>pushButton_iqplot</tabstop>
+  <tabstop>treeWidget</tabstop>
+  <tabstop>listWidget</tabstop>
+  <tabstop>pushButton_expand</tabstop>
+  <tabstop>pushButton_unexpand</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

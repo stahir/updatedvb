@@ -167,6 +167,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_tune</tabstop>
+  <tabstop>pushButton_save</tabstop>
+  <tabstop>treeWidget</tabstop>
+  <tabstop>pushButton_expand</tabstop>
+  <tabstop>pushButton_unexpand</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

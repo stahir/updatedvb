@@ -48,6 +48,9 @@
          <property name="text">
           <string>Save</string>
          </property>
+         <property name="shortcut">
+          <string>Ctrl+S</string>
+         </property>
         </widget>
        </item>
        <item row="0" column="0">
@@ -686,6 +689,36 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>comboBox_lnb</tabstop>
+  <tabstop>checkBox_enabled</tabstop>
+  <tabstop>lineEdit_lnb_name</tabstop>
+  <tabstop>checkBox_tone</tabstop>
+  <tabstop>comboBox_committed</tabstop>
+  <tabstop>comboBox_uncommitted</tabstop>
+  <tabstop>comboBox_voltage</tabstop>
+  <tabstop>lineEdit_f_start</tabstop>
+  <tabstop>lineEdit_f_stop</tabstop>
+  <tabstop>lineEdit_f_lof</tabstop>
+  <tabstop>comboBox_type</tabstop>
+  <tabstop>comboBox_adapter</tabstop>
+  <tabstop>lineEdit_adapter_name</tabstop>
+  <tabstop>checkBox_diseqc_v12</tabstop>
+  <tabstop>checkBox_diseqc_v13</tabstop>
+  <tabstop>lineEdit_lat</tabstop>
+  <tabstop>lineEdit_long</tabstop>
+  <tabstop>tableWidget_diseqc_v12</tabstop>
+  <tabstop>checkBox_servo</tabstop>
+  <tabstop>checkBox_asc1</tabstop>
+  <tabstop>lineEdit_asc1_serialport</tabstop>
+  <tabstop>pushButton_asc1_upload</tabstop>
+  <tabstop>pushButton_asc1_download</tabstop>
+  <tabstop>lineEdit_play</tabstop>
+  <tabstop>lineEdit_ipcleaner</tabstop>
+  <tabstop>pushButton_save</tabstop>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
