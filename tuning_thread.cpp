@@ -305,7 +305,7 @@ void tuning_thread::parsetp()
 
 	mytune->get_bitrate();
 
-	if (mytune->tp.system == SYS_ATSC || mytune->tp.system == SYS_ATSCMH) {
+	if (isATSC(mytune->tp.system)) {
 		for (int i = 0; i < 5; i++) {
 			if (!loop) return;
 			if (mytune->demux_packet(0x1FFB, 0xC8) > 0) {
