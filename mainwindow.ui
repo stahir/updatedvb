@@ -822,7 +822,14 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QComboBox" name="comboBox_gotox"/>
+             <widget class="QComboBox" name="comboBox_gotox">
+              <property name="minimumSize">
+               <size>
+                <width>70</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
