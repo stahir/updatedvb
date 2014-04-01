@@ -7,14 +7,13 @@ iqplot::iqplot(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	int bc = 180;
-	int gr = bc/MAX_GRADIANT;
+	int gr = 255/MAX_GRADIANT;
 	for (unsigned int i = 0; i < MAX_GRADIANT; i++) {
 		scatter_symbol[i] = new QwtSymbol;
 		scatter_symbol[i]->setStyle(QwtSymbol::Rect);
 		scatter_symbol[i]->setSize(2,2);
-		scatter_symbol[i]->setPen(QColor(bc-(gr*i), bc-(gr*i), bc-(gr*i)));
-		scatter_symbol[i]->setBrush(QColor(bc-(gr*i), bc-(gr*i), bc-(gr*i)));
+		scatter_symbol[i]->setPen(QColor(0, gr*i + gr, 0));
+		scatter_symbol[i]->setBrush(QColor(0, gr*i + gr, 0));
 		curve[i] = new QwtPlotCurve("Curve");
 		curve[i]->setStyle(QwtPlotCurve::NoCurve);
 		curve[i]->attach(ui->qwtPlot);
@@ -25,6 +24,7 @@ iqplot::iqplot(QWidget *parent) :
 	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, -128, 128);
 	ui->qwtPlot->enableAxis(QwtPlot::xBottom ,0);
 	ui->qwtPlot->enableAxis(QwtPlot::yLeft ,0);
+	ui->qwtPlot->setCanvasBackground(Qt::black);
 
 	scaleX = new QwtPlotScaleItem();
 	scaleX->setAlignment(QwtScaleDraw::BottomScale);
