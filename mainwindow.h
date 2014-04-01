@@ -98,7 +98,7 @@ private slots:
 	
 private:
 	Ui::MainWindow *ui;
-	QVector<tuning*> mytuning;
+	QVector< QPointer<tuning> > mytuning;
     scan *myscan;
 	PlotPicker *qwt_picker;
 	QVector<QwtPlotCurve*> curve;

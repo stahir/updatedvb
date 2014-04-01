@@ -133,8 +133,8 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 {
 	Q_UNUSED(ce);
 
-	for(int i = 0; i < mytuning.size(); i++) {
-		if (mytuning.at(i)->shutdown == false) {
+	for (int i = 0; i < mytuning.size(); i++) {
+		if (!mytuning.at(i).isNull()) {
 			mytuning.at(i)->deleteLater();
 		}
 	}
@@ -166,9 +166,9 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 		qDebug() << "Tuner is busy, attempt to tune again later when its no longer busy...";
 		return;
 	}
-	
+
 	for (int i = 0; i < mytuning.size(); i++) {
-		if (mytuning.at(i)->shutdown) {
+		if (mytuning.at(i).isNull()) {
 			mytuning.remove(i);
 		}
 	}
