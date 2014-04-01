@@ -111,6 +111,7 @@ public:
 	void gotox_save(int position);
 	void step_motor(int direction, int steps);
 	void iqplot();
+	QString min_snr();
 	
 	void run();
 	bool loop;

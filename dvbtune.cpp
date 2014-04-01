@@ -1078,6 +1078,193 @@ void dvbtune::iqplot()
 	emit iqdraw(iq_x, iq_y);
 }
 
+QString dvbtune::min_snr()
+{
+	QString snr;
+
+	switch (tp.system) {
+	case SYS_ATSC:
+	case SYS_ATSCMH:
+		snr = "15.2";
+		break;
+	case SYS_DVBT:
+		switch (tp.modulation) {
+		case QPSK:
+			snr = "14.0";
+			break;
+		case QAM_16:
+			snr = "20.0";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBT2:
+		switch (tp.modulation) {
+		case QAM_16:
+			snr = "12.3";
+			break;
+		case QAM_64:
+			snr = "17.1";
+			break;
+		case QAM_256:
+			snr = "18.9";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBC_ANNEX_C:
+		switch (tp.modulation) {
+		case QAM_64:
+			snr = "30.0";
+			break;
+		case QAM_256:
+			snr = "34.0";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBC_ANNEX_B:
+		switch (tp.modulation) {
+		case QAM_16:
+			snr = "18.0";
+			break;
+		case QAM_64:
+			snr = "24.0";
+			break;
+		case QAM_256:
+			snr = "30.0";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBS:
+		switch (tp.fec) {
+		case FEC_1_2:
+			snr = "2.7";
+			break;
+		case FEC_2_3:
+			snr = "4.4";
+			break;
+		case FEC_3_4:
+			snr = "5.5";
+			break;
+		case FEC_5_6:
+			snr = "6.5";
+			break;
+		case FEC_7_8:
+			snr = "7.2";
+			break;
+		default:
+			break;
+		}
+		break;
+	case SYS_DVBS2:
+		switch (tp.modulation) {
+		case QPSK:
+			switch (tp.fec) {
+			case FEC_3_5:
+				snr = "2.2";
+				break;
+			case FEC_3_4:
+				snr = "4.0";
+				break;
+			case FEC_5_6:
+				snr = "5.2";
+				break;
+			case FEC_8_9:
+				snr = "6.2";
+				break;
+			case FEC_9_10:
+				snr = "6.4";
+				break;
+			default:
+				break;
+			}
+			break;
+		case PSK_8:
+			switch (tp.fec) {
+			case FEC_3_5:
+				snr = "5.5";
+				break;
+			case FEC_2_3:
+				snr = "6.6";
+				break;
+			case FEC_3_4:
+				snr = "7.9";
+				break;
+			case FEC_5_6:
+				snr = "9.4";
+				break;
+			case FEC_8_9:
+				snr = "10.7";
+				break;
+			case FEC_9_10:
+				snr = "11.0";
+				break;
+			default:
+				break;
+			}
+			break;
+		case APSK_16:
+			switch (tp.fec) {
+			case FEC_2_3:
+				snr = "9.0";
+				break;
+			case FEC_3_4:
+				snr = "10.2";
+				break;
+			case FEC_4_5:
+				snr = "11.0";
+				break;
+			case FEC_5_6:
+				snr = "11.6";
+				break;
+			case FEC_8_9:
+				snr = "12.9";
+				break;
+			case FEC_9_10:
+				snr = "12.1";
+				break;
+			default:
+				break;
+			}
+			break;
+		case APSK_32:
+			switch (tp.fec) {
+			case FEC_3_4:
+				snr = "14.8";
+				break;
+			case FEC_4_5:
+				snr = "15.7";
+				break;
+			case FEC_5_6:
+				snr = "16.3";
+				break;
+			case FEC_8_9:
+				snr = "17.7";
+				break;
+			case FEC_9_10:
+				snr = "18.1";
+				break;
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return snr;
+}
+
 void dvbtune::run()
 {
 	emit adapter_status(adapter, true);

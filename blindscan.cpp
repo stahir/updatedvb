@@ -175,10 +175,13 @@ void blindscan::updatesignal()
 	tree_create_child(parent_1, text);
 	if (mytune->tp.snr_scale == FE_SCALE_DECIBEL) {
 		text = "Signal Q: " + QString::number(mytune->tp.snr, 'f', 1) + "dB";
+		tree_create_child(parent_1, text);
+		ctree[cindex]->setToolTip(0, "min snr: " + mytune->min_snr() + "dB");
 	} else {
 		text = "Signal Q: " + QString::number(mytune->tp.snr) + "%";
+		tree_create_child(parent_1, text);
 	}
-	tree_create_child(parent_1, text);
+
 	mythread.ready = true;
 }
 
