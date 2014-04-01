@@ -24,6 +24,11 @@ tuning::tuning(QWidget *parent) :
 	ui(new Ui::tuning)
 {
 	ui->setupUi(this);
+
+	QPalette black_palette;
+	black_palette = ui->listWidget->palette();
+	black_palette.setColor(QPalette::Base, Qt::black);
+	ui->listWidget->setPalette(black_palette);
 	ui->listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	mystatusbar = new QStatusBar;
@@ -38,6 +43,9 @@ tuning::tuning(QWidget *parent) :
 
 	ui->treeWidget->setColumnCount(1);
 	ui->treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	black_palette = ui->treeWidget->palette();
+	black_palette.setColor(QPalette::Base, Qt::black);
+	ui->treeWidget->setPalette(black_palette);
 }
 
 tuning::~tuning()
@@ -307,8 +315,9 @@ void tuning::list_create(QString text, int pid)
 	list_pid.append(pid);
 	list_item.append(new QListWidgetItem(ui->listWidget));
 	list_item.last()->setText(text);
+	list_item.last()->setTextColor(QColor(Qt::gray));
 	if (pid == 0x00 || pid == 0x11 || pid == 0x1fff) {
-		list_item.last()->setTextColor(QColor(Qt::green).darker(300));
+		list_item.last()->setTextColor(QColor(Qt::green));
 	}
 	if (tree_pid.indexOf(pid) != -1) {
 		list_item.last()->setTextColor(tree_item.at(tree_pid.indexOf(pid))->textColor(0));
@@ -323,6 +332,7 @@ void tuning::tree_create_root(int *parent, QString text, int pid)
 	tree_pid.append(pid);
 	tree_item.append(new QTreeWidgetItem(ui->treeWidget));
 	tree_item.last()->setText(0, text);
+	tree_item.last()->setTextColor(0, QColor(Qt::gray));
 	*parent = tree_item.size() - 1;
 	mythread.ready = true;
 }
@@ -335,6 +345,7 @@ void tuning::tree_create_child(int *parent, QString text, int pid)
 	tree_pid.append(pid);
 	tree_item.append(new QTreeWidgetItem());
 	tree_item.last()->setText(0, text);
+	tree_item.last()->setTextColor(0, QColor(Qt::gray));
 	tree_item.last()->setExpanded(true);
 	tree_item.last()->setTextColor(0, tree_item.at(*parent)->textColor(0));
 	tree_item.at(*parent)->addChild(tree_item.last());

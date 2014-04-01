@@ -242,7 +242,7 @@ int tuning_thread::parse_sdt()
 	int parent, parent_t;
 
 	tree_create_root_wait(&parent, "SDT pid: 0x11", 0x11);
-	emit setcolor(parent, QColor(Qt::green).darker(300));
+	emit setcolor(parent, Qt::green);
 	int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
 	mytune->index += 8;
 	while (mytune->index < section_length) {
@@ -343,7 +343,7 @@ void tuning_thread::parsetp()
 			int section_length = mytune->read16(0x0FFF);
 
 			tree_create_root_wait(&parent_1, "NIT pid: 0x10", 0x10);
-			emit setcolor(parent_1, QColor(Qt::green).darker(300));
+			emit setcolor(parent_1, Qt::green);
 			parent_t = parent_1;
 			tree_create_child_wait(&parent_t, QString("Network ID: 0x%1").arg(mytune->read16(),4,16,QChar('0')));
 
@@ -379,7 +379,7 @@ void tuning_thread::parsetp()
 		}
 
 		tree_create_root_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2 %3").arg(mypat.pid[i],4,16,QChar('0')).arg(mypat.number[i],4,10,QChar(' ')).arg(sdt_name), mypat.pid[i]);
-		emit setcolor(parent_1, QColor(Qt::green).darker(300));
+		emit setcolor(parent_1, Qt::green);
 
 		if (mytune->tp.system == SYS_DCII) {
 			if (!loop) return;
