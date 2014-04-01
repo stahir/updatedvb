@@ -117,6 +117,11 @@ void blindscan::updatesignal()
 	if (mythread.ready) {
 		return;
 	}
+	if (isATSC(mythread.mytune->tp.system) && !(mythread.mytune->tp.status & FE_HAS_LOCK)) {
+		qDebug() << "no ATSC lock";
+		mythread.ready = true;
+		return;
+	}
 	if (!(mythread.mytune->tp.status & (0xFF ^ FE_TIMEDOUT))) {
 		mythread.ready = true;
 		return;
