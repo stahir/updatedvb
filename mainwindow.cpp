@@ -240,6 +240,11 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 
 void MainWindow::on_pushButton_blindscan_clicked()
 {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->is_tuned) {
+		qDebug() << "adapter" << mytuners.at(ui->comboBox_adapter->currentIndex())->adapter << "is currently tuned";
+		return;
+	}
+
 	myblindscan.append(new blindscan);
 	myblindscan.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 	myblindscan.last()->init();
