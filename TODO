@@ -15,4 +15,5 @@
 - tuning window at bottom should show hex/text of descriptors, or maybe mouse over with right click to copy
 - diseqc v1.2 names needs to update when adapters change. different adapters, different names (ie two motors)
 - I should be using QPointer when possible over regular pointers
+- Look into a waterfall plot
 - clear up this TODO :)

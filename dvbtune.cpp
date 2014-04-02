@@ -158,7 +158,6 @@ void dvbtune::getops()
 	is_busy = true;
 	if (ioctl(frontend_fd, FE_GET_PROPERTY, &p_status) == -1) {
 		qDebug() << "FE_GET_PROPERTY failed";
-		return;
 	}	
 	delsys.clear();
 	for (;p[0].u.buffer.len > 0; p[0].u.buffer.len--) {
@@ -168,7 +167,6 @@ void dvbtune::getops()
 	struct dvb_frontend_info fe_info;
 	if (ioctl(frontend_fd, FE_GET_INFO, &fe_info) == -1) {
 		qDebug() << "FE_GET_INFO failed";
-		return;
 	}
 	is_busy = false;
 	caps	= fe_info.caps;
@@ -317,6 +315,7 @@ void dvbtune::gotox_drive(int position)
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
+	msleep(20);
 	is_busy = false;
 
 	setup_switch();
@@ -468,7 +467,6 @@ void dvbtune::check_frontend()
 	// get the actual parameters from the driver for that channel
 	if (ioctl(frontend_fd, FE_GET_PROPERTY, &p_status) == -1) {
 		qDebug() << "FE_GET_PROPERTY failed";
-		return;
 	}
 
 	tp.frequency	= (int)p_status.props[0].u.data / 1000;
@@ -544,7 +542,6 @@ int dvbtune::tune()
 	is_busy = true;
 	if ((ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_clear)) == -1) {
 		qDebug() << "FE_SET_PROPERTY DTV_CLEAR failed";
-		return -1;
 	}
 	is_busy = false;
 
@@ -627,7 +624,6 @@ int dvbtune::tune()
 	is_busy = true;
 	if (ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_tune) == -1) {
 		qDebug() << "FE_SET_PROPERTY TUNE failed";
-		return -1;
 	}
 	is_busy = false;
 
@@ -639,7 +635,6 @@ int dvbtune::tune()
 		is_busy = true;
 		if (ioctl(frontend_fd, FE_READ_STATUS, &status) == -1) {
 			qDebug() << "FE_READ_STATUS failed";
-			return -1;
 		}
 		is_busy = false;
 
@@ -766,7 +761,6 @@ void dvbtune::demux_video()
 		pesFilterParams.flags = DMX_IMMEDIATE_START;
 		if (ioctl(dmx_fd.last(), DMX_SET_PES_FILTER, &pesFilterParams) == -1) {
 			qDebug() << "DEMUX: DMX_SET_PES_FILTER";
-			return;
 		}
 	}
 }
@@ -918,7 +912,6 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 		}
 		if (ioctl(sct_fd, DMX_SET_BUFFER_SIZE, BUFFY) == -1) {
 			qDebug() << "DEMUX: DMX_SET_BUFFER_SIZE";
-			return -1;
 		}
 	}
 	qDebug().nospace() << "demux_packet(0x" << hex << pid << ", " << table << ")";
@@ -935,7 +928,6 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 
 	if (ioctl(sct_fd, DMX_SET_FILTER, &sctfilter) == -1) {
 		qDebug() << "DEMUX: DMX_SET_FILTER";
-		return -1;
 	}
 	
 	index = 0;
@@ -1064,7 +1056,6 @@ void dvbtune::iqplot()
 	is_busy = true;
 	if ((ioctl(frontend_fd, FE_GET_CONSTELLATION_SAMPLES, &const_samples)) == -1) {
 		qDebug() << "ERROR: FE_GET_CONSTELLATION_SAMPLES";
-		return;
 	}
 	is_busy = false;
 	for (unsigned int i = 0 ; i < const_samples.num ; i++) {
