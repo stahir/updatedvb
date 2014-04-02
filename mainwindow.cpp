@@ -74,12 +74,24 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 	ui->comboBox_lnb->setCurrentIndex(0);
 	noload = false;
-	
+		
 	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
 
 	reload_settings();
 	getadapters();
 	reload_settings();
+
+	if (mytuners.size()) {
+		noload = true;
+		ui->comboBox_adapter->clear();
+		for (int i = 0; i < mytuners.size(); i++) {
+			mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
+			ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
+		}
+		ui->comboBox_adapter->setCurrentIndex(0);
+		setup_tuning_options();
+		noload = false;
+	}
 }
 
 MainWindow::~MainWindow()
@@ -435,6 +447,7 @@ void MainWindow::on_comboBox_frontend_currentIndexChanged(int index)
 	if (index < 0) {
 		return;
 	}
+
 	setup_tuning_options();
 }
 
@@ -667,22 +680,6 @@ void MainWindow::reload_settings()
 
 	if (ui->comboBox_adapter->currentData().toInt() < 0) {
 		return;
-	}
-
-	if (mytuners.size()) {
-		noload = true;
-		int current_adap = 0;
-		if (ui->comboBox_adapter->currentIndex() >= 0) {
-			current_adap = ui->comboBox_adapter->currentIndex();
-		}
-		ui->comboBox_adapter->clear();
-		for (int i = 0; i < mytuners.size(); i++) {
-			mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
-			ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
-		}
-		ui->comboBox_adapter->setCurrentIndex(current_adap);
-		setup_tuning_options();
-		noload = false;
 	}
 
 	int gotox_i = ui->comboBox_gotox->currentIndex();
