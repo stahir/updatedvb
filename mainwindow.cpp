@@ -33,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	curve.append(new QwtPlotCurve("V"));
 	curve.append(new QwtPlotCurve("H"));
 	curve.append(new QwtPlotCurve("N"));
-	curve.last()->setPen(QPen(GREEN));
 
 	legend = new QwtLegend;
 	ui->qwtPlot->insertLegend(legend, QwtPlot::RightLegend);
@@ -160,6 +159,30 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, tune_ops[lnb].f_start, tune_ops[lnb].f_stop);
 	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, min, max);
 
+	QVector< QwtPlotCurve* > *waterfall_curve;
+	QVector< QVector<double> > *waterfall_x;
+	QVector< QVector<double> > *waterfall_y;
+
+	switch (cindex) {
+	case 0:
+		waterfall_curve = &waterfall_curve_V;
+		waterfall_x		= &waterfall_x_V;
+		waterfall_y		= &waterfall_y_V;
+		break;
+	case 1:
+		waterfall_curve = &waterfall_curve_H;
+		waterfall_x		= &waterfall_x_H;
+		waterfall_y		= &waterfall_y_H;
+		break;
+	case 2:
+		waterfall_curve = &waterfall_curve_N;
+		waterfall_x		= &waterfall_x_N;
+		waterfall_y		= &waterfall_y_N;
+		break;
+	default:
+		break;
+	}
+
 	if (ui->checkBox_waterfall->isChecked()) {
 		double max_waterfall = ui->comboBox_waterfall_points->currentText().toInt();
 		double scale_x = abs(tune_ops[lnb].f_start - tune_ops[lnb].f_stop)/max_waterfall/3;
@@ -170,53 +193,38 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 		if (scale_y <= 0) {
 			scale_y = 1;
 		}
-		double scale_color = 256/(max_waterfall+1);
-		if (scale_color <= 0) {
-			scale_color = 1;
-		}
 
-		waterfall_x.append(x);
-		if (waterfall_x.size() > max_waterfall) {
-			waterfall_x.pop_front();
+		waterfall_x->append(x);
+		if (waterfall_x->size() > max_waterfall) {
+			waterfall_x->pop_front();
 		}
-		waterfall_y.append(y);
-		if (waterfall_y.size() > max_waterfall) {
-			waterfall_y.pop_front();
+		waterfall_y->append(y);
+		if (waterfall_y->size() > max_waterfall) {
+			waterfall_y->pop_front();
 		}
-		waterfall_curve.append(new QwtPlotCurve());
-		if (waterfall_curve.size() > max_waterfall) {
-			waterfall_curve.first()->detach();
-			waterfall_curve.pop_front();
+		waterfall_curve->append(new QwtPlotCurve());
+		if (waterfall_curve->size() > max_waterfall) {
+			waterfall_curve->first()->detach();
+			waterfall_curve->pop_front();
 		}
-		for (int c = 0; c < waterfall_curve.size(); c++) {
+		for (int c = 0; c < waterfall_curve->size(); c++) {
 			QVector<double> new_x;
 			QVector<double> new_y;
-			for (int i = 0; i < waterfall_x.at(c).size(); i++) {
-				new_x.append(waterfall_x.at(c).at(i) + (waterfall_curve.size()-c)*scale_x);
-				new_y.append(waterfall_y.at(c).at(i) + (waterfall_curve.size()-c)*scale_y);
+			for (int i = 0; i < waterfall_x->at(c).size(); i++) {
+				new_x.append(waterfall_x->at(c).at(i) + (waterfall_curve->size()-c)*scale_x);
+				new_y.append(waterfall_y->at(c).at(i) + (waterfall_curve->size()-c)*scale_y);
 			}
-			int pen_color = 100-(waterfall_curve.size()-c)*max_waterfall;
-			if (pen_color < 0) {
-				pen_color = 0;
-			}
-			int brush_color = 255-(waterfall_curve.size()-c)*scale_color;
-			if (brush_color < 0) {
-				brush_color = 0;
-			}
-			waterfall_curve.at(c)->setItemAttribute(QwtPlotItem::Legend, false);
-			waterfall_curve.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
-			waterfall_curve.at(c)->setBrush(QBrush(QColor(0, brush_color, 0)));
-			waterfall_curve.at(c)->setSamples(new_x, new_y);
-			waterfall_curve.at(c)->attach(ui->qwtPlot);
+			waterfall_curve->at(c)->setItemAttribute(QwtPlotItem::Legend, false);
+			waterfall_curve->at(c)->setSamples(new_x, new_y);
+			waterfall_curve->at(c)->attach(ui->qwtPlot);
 		}
-		waterfall_curve.last()->setItemAttribute(QwtPlotItem::Legend, true);
-		waterfall_curve.last()->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
+		waterfall_curve->last()->setItemAttribute(QwtPlotItem::Legend, true);
+		waterfall_curve->last()->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
 	} else {
 		curve[cindex]->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
 		curve[cindex]->setSamples(x, y);
-
-		set_colors();
 	}
+	set_colors();
 }
 
 void MainWindow::qwtPlot_selected(QPointF pos)
@@ -519,8 +527,14 @@ void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
 	for(int i = 0; i < marker.size(); i++) {
 		marker.at(i)->detach();
 	}
-	for(int i = 0; i < waterfall_curve.size(); i++) {
-		waterfall_curve.at(i)->detach();
+	for(int i = 0; i < waterfall_curve_V.size(); i++) {
+		waterfall_curve_V.at(i)->detach();
+	}
+	for(int i = 0; i < waterfall_curve_H.size(); i++) {
+		waterfall_curve_H.at(i)->detach();
+	}
+	for(int i = 0; i < waterfall_curve_N.size(); i++) {
+		waterfall_curve_N.at(i)->detach();
 	}
 	ui->qwtPlot->replot();
 }
@@ -832,24 +846,73 @@ void MainWindow::markers_draw()
 
 void MainWindow::set_colors()
 {
-	switch(ui->comboBox_voltage->currentIndex())
-	{
-	case 0:
-		curve[0]->setPen(QPen(GREEN));
-		curve[1]->setPen(QPen(DGREEN));
-		curve[1]->detach();
-		curve[1]->attach(ui->qwtPlot);
-		curve[0]->detach();
-		curve[0]->attach(ui->qwtPlot);
-		break;
-	case 1:
-		curve[0]->setPen(QPen(DGREEN));
-		curve[1]->setPen(QPen(GREEN));
-		curve[0]->detach();
-		curve[0]->attach(ui->qwtPlot);
-		curve[1]->detach();
-		curve[1]->attach(ui->qwtPlot);
-		break;
+	Qt::BrushStyle pattern_H;
+	Qt::BrushStyle pattern_V;
+	double max_waterfall = ui->comboBox_waterfall_points->currentText().toInt();
+	int pen_color;
+	int brush_color;
+	double scale_color;
+
+	if (ui->checkBox_waterfall->isChecked()) {
+		switch(ui->comboBox_voltage->currentIndex())
+		{
+		case 0:
+			pattern_H = Qt::Dense4Pattern;
+			pattern_V = Qt::SolidPattern;
+			break;
+		case 1:
+			pattern_H = Qt::SolidPattern;
+			pattern_V = Qt::Dense4Pattern;
+			break;
+		}
+		scale_color = 256/(max_waterfall+1);
+		if (scale_color <= 0) {
+			scale_color = 1;
+		}
+		for (int c = 0; c < waterfall_curve_V.size(); c++) {
+			pen_color = 100-(waterfall_curve_V.size()-c)*max_waterfall;
+			if (pen_color < 0) {
+				pen_color = 0;
+			}
+			brush_color = 255-(waterfall_curve_V.size()-c)*scale_color;
+			if (brush_color < 0) {
+				brush_color = 0;
+			}
+			waterfall_curve_V.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
+			waterfall_curve_V.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_V));
+		}
+		for (int c = 0; c < waterfall_curve_H.size(); c++) {
+			pen_color = 100-(waterfall_curve_H.size()-c)*max_waterfall;
+			if (pen_color < 0) {
+				pen_color = 0;
+			}
+			brush_color = 255-(waterfall_curve_H.size()-c)*scale_color;
+			if (brush_color < 0) {
+				brush_color = 0;
+			}
+			waterfall_curve_H.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
+			waterfall_curve_H.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_H));
+		}
+	} else {
+		switch(ui->comboBox_voltage->currentIndex())
+		{
+		case 0:
+			curve[0]->setPen(QPen(GREEN));
+			curve[1]->setPen(QPen(DGREEN));
+			curve[1]->detach();
+			curve[1]->attach(ui->qwtPlot);
+			curve[0]->detach();
+			curve[0]->attach(ui->qwtPlot);
+			break;
+		case 1:
+			curve[0]->setPen(QPen(DGREEN));
+			curve[1]->setPen(QPen(GREEN));
+			curve[0]->detach();
+			curve[0]->attach(ui->qwtPlot);
+			curve[1]->detach();
+			curve[1]->attach(ui->qwtPlot);
+			break;
+		}
 	}
 	ui->qwtPlot->replot();
 }

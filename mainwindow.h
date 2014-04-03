@@ -109,9 +109,15 @@ private:
 	PlotPicker *qwt_picker;
 	QVector<QwtPlotCurve*> curve;
 	QVector<QwtPlotMarker*> marker;
-	QVector<QwtPlotCurve*> waterfall_curve;
-	QVector< QVector<double> > waterfall_x;
-	QVector< QVector<double> > waterfall_y;
+	QVector<QwtPlotCurve*> waterfall_curve_V;
+	QVector<QwtPlotCurve*> waterfall_curve_H;
+	QVector<QwtPlotCurve*> waterfall_curve_N;
+	QVector< QVector<double> > waterfall_x_V;
+	QVector< QVector<double> > waterfall_x_H;
+	QVector< QVector<double> > waterfall_x_N;
+	QVector< QVector<double> > waterfall_y_V;
+	QVector< QVector<double> > waterfall_y_H;
+	QVector< QVector<double> > waterfall_y_N;
 	QwtLegend *legend;
 	QwtPlotGrid *grid;
 	QSettings *mysettings;
