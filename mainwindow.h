@@ -34,6 +34,9 @@
 #include <qwt_legend.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
+#include <qwt_point_3d.h>
+#include <qwt_plot_spectrocurve.h>
+#include <qwt_color_map.h>
 #include "dvb_settings.h"
 #include "scan.h"
 #include "settings.h"
@@ -72,6 +75,7 @@ public:
 
 public slots:
 	void qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
+	void markers_draw();
 	void qwtPlot_selected(QPointF pos);
 	void update_status(QString text, int time = -1);
 
@@ -96,6 +100,8 @@ private slots:
 	void adapter_status(int adapter, bool is_busy);
 	void setup_tuning_options();
 	
+	void on_checkBox_waterfall_clicked();
+
 private:
 	Ui::MainWindow *ui;
 	QVector< QPointer<tuning> > mytuning;
@@ -103,6 +109,9 @@ private:
 	PlotPicker *qwt_picker;
 	QVector<QwtPlotCurve*> curve;
 	QVector<QwtPlotMarker*> marker;
+	QVector<QwtPlotCurve*> waterfall_curve;
+	QVector< QVector<double> > waterfall_x;
+	QVector< QVector<double> > waterfall_y;
 	QwtLegend *legend;
 	QwtPlotGrid *grid;
 	QSettings *mysettings;

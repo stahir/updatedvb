@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1024</width>
     <height>500</height>
    </rect>
   </property>
@@ -55,7 +55,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>195</width>
+          <width>220</width>
           <height>16777215</height>
          </size>
         </property>
@@ -447,7 +447,7 @@
          </item>
          <item row="4" column="0">
           <widget class="QWidget" name="gridWidget_voltage" native="true">
-           <layout class="QGridLayout" name="gridLayout_voltage" rowminimumheight="0">
+           <layout class="QGridLayout" name="gridLayout_voltage">
             <property name="leftMargin">
              <number>0</number>
             </property>
@@ -630,7 +630,7 @@
          </item>
          <item row="3" column="0">
           <widget class="QWidget" name="gridWidget_spectrumscan" native="true">
-           <layout class="QGridLayout" name="gridLayout_spectrumscan" rowminimumheight="0,0">
+           <layout class="QGridLayout" name="gridLayout_spectrumscan" rowminimumheight="0,0,0">
             <property name="leftMargin">
              <number>0</number>
             </property>
@@ -646,6 +646,22 @@
             <property name="spacing">
              <number>0</number>
             </property>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="checkBox_fast">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Fast</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="0">
              <widget class="QCheckBox" name="checkBox_loop">
               <property name="maximumSize">
@@ -696,20 +712,30 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="checkBox_fast">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>20</height>
-               </size>
-              </property>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="checkBox_waterfall">
               <property name="text">
-               <string>Fast</string>
+               <string>Waterfall</string>
               </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="comboBox_waterfall_points">
+              <item>
+               <property name="text">
+                <string>20</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>50</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>100</string>
+               </property>
+              </item>
              </widget>
             </item>
            </layout>
@@ -1022,7 +1048,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1024</width>
      <height>20</height>
     </rect>
    </property>

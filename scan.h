@@ -42,6 +42,7 @@ class scan : public QThread
 signals:
 	void signaldraw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
 	void update_status(QString text, int time);
+	void markers_draw();
 
 public:
 	bool loop;

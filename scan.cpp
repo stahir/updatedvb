@@ -43,6 +43,7 @@ void scan::run()
 		}
 		ready = false;
 		mytune->tp_try.clear();
+
 		min_old = -1;
 		max_old = -1;
 
@@ -62,6 +63,7 @@ void scan::run()
 			sweep();
 			break;
 		}
+		emit markers_draw();
 	} while(loop);
 }
 
