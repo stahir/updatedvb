@@ -158,6 +158,8 @@ void dvbtune::getops()
 	is_busy = true;
 	if (ioctl(frontend_fd, FE_GET_PROPERTY, &p_status) == -1) {
 		qDebug() << "FE_GET_PROPERTY failed";
+		is_busy = false;
+		return;
 	}	
 	delsys.clear();
 	for (;p[0].u.buffer.len > 0; p[0].u.buffer.len--) {
@@ -167,6 +169,8 @@ void dvbtune::getops()
 	struct dvb_frontend_info fe_info;
 	if (ioctl(frontend_fd, FE_GET_INFO, &fe_info) == -1) {
 		qDebug() << "FE_GET_INFO failed";
+		is_busy = false;
+		return;
 	}
 	is_busy = false;
 	caps	= fe_info.caps;
@@ -444,6 +448,8 @@ void dvbtune::check_frontend()
 	is_busy = true;
 	if (ioctl(frontend_fd, FE_READ_STATUS, &status) == -1) {
 		qDebug() << "FE_READ_STATUS failed";
+		is_busy = false;
+		return;
 	}
 
 	struct dtv_property p[12];
@@ -467,6 +473,8 @@ void dvbtune::check_frontend()
 	// get the actual parameters from the driver for that channel
 	if (ioctl(frontend_fd, FE_GET_PROPERTY, &p_status) == -1) {
 		qDebug() << "FE_GET_PROPERTY failed";
+		is_busy = false;
+		return;
 	}
 
 	tp.frequency	= (int)p_status.props[0].u.data / 1000;
@@ -542,6 +550,8 @@ int dvbtune::tune()
 	is_busy = true;
 	if ((ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_clear)) == -1) {
 		qDebug() << "FE_SET_PROPERTY DTV_CLEAR failed";
+		is_busy = false;
+		return -1;
 	}
 	is_busy = false;
 
@@ -624,6 +634,8 @@ int dvbtune::tune()
 	is_busy = true;
 	if (ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_tune) == -1) {
 		qDebug() << "FE_SET_PROPERTY TUNE failed";
+		is_busy = false;
+		return -1;
 	}
 	is_busy = false;
 
@@ -635,6 +647,8 @@ int dvbtune::tune()
 		is_busy = true;
 		if (ioctl(frontend_fd, FE_READ_STATUS, &status) == -1) {
 			qDebug() << "FE_READ_STATUS failed";
+			is_busy = false;
+			return -1;
 		}
 		is_busy = false;
 
@@ -1036,7 +1050,9 @@ void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 	is_busy = true;
 	if (ioctl(frontend_fd, FE_GET_SPECTRUM_SCAN, scan) != 0) {
 		qDebug() << "Error! FE_GET_SPECTRUM_SCAN";
-    }
+		is_busy = false;
+		return;
+	}
 	is_busy = false;
 	qDebug() << "Spectrum scan time: " << t.elapsed();
 }
@@ -1056,6 +1072,8 @@ void dvbtune::iqplot()
 	is_busy = true;
 	if ((ioctl(frontend_fd, FE_GET_CONSTELLATION_SAMPLES, &const_samples)) == -1) {
 		qDebug() << "ERROR: FE_GET_CONSTELLATION_SAMPLES";
+		is_busy = false;
+		return;
 	}
 	is_busy = false;
 	for (unsigned int i = 0 ; i < const_samples.num ; i++) {
