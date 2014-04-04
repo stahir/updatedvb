@@ -72,6 +72,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+	void clear_qwtplot();
 
 public slots:
 	void qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
@@ -95,12 +96,11 @@ private slots:
 	void on_comboBox_voltage_currentIndexChanged(int index);
 	void on_lineEdit_usals_returnPressed();
 	void on_checkBox_loop_stateChanged();
+	void on_checkBox_waterfall_clicked();
 	void on_actionSettings_triggered();
 	void on_actionExit_triggered();
 	void adapter_status(int adapter, bool is_busy);
 	void setup_tuning_options();
-	
-	void on_checkBox_waterfall_clicked();
 
 private:
 	Ui::MainWindow *ui;

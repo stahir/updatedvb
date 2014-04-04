@@ -141,6 +141,25 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
+void MainWindow::clear_qwtplot()
+{
+	for(int i = 0; i < curve.size(); i++) {
+		curve.at(i)->detach();
+	}
+	for(int i = 0; i < marker.size(); i++) {
+		marker.at(i)->detach();
+	}
+	for(int i = 0; i < waterfall_curve_V.size(); i++) {
+		waterfall_curve_V.at(i)->detach();
+	}
+	for(int i = 0; i < waterfall_curve_H.size(); i++) {
+		waterfall_curve_H.at(i)->detach();
+	}
+	for(int i = 0; i < waterfall_curve_N.size(); i++) {
+		waterfall_curve_N.at(i)->detach();
+	}
+}
+
 void MainWindow::closeEvent(QCloseEvent* ce)
 {
 	Q_UNUSED(ce);
@@ -294,6 +313,8 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 		qDebug() << "adapter" << mytuners.at(ui->comboBox_adapter->currentIndex())->adapter << "is currently tuned";
 		return;
 	}
+
+	clear_qwtplot();
 
 	myscan->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 
@@ -521,21 +542,7 @@ void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
 	reload_settings();
 
-	for(int i = 0; i < curve.size(); i++) {
-		curve.at(i)->detach();
-	}
-	for(int i = 0; i < marker.size(); i++) {
-		marker.at(i)->detach();
-	}
-	for(int i = 0; i < waterfall_curve_V.size(); i++) {
-		waterfall_curve_V.at(i)->detach();
-	}
-	for(int i = 0; i < waterfall_curve_H.size(); i++) {
-		waterfall_curve_H.at(i)->detach();
-	}
-	for(int i = 0; i < waterfall_curve_N.size(); i++) {
-		waterfall_curve_N.at(i)->detach();
-	}
+	clear_qwtplot();
 	ui->qwtPlot->replot();
 }
 
@@ -848,6 +855,7 @@ void MainWindow::set_colors()
 {
 	Qt::BrushStyle pattern_H;
 	Qt::BrushStyle pattern_V;
+	Qt::BrushStyle pattern_N;
 	double max_waterfall = ui->comboBox_waterfall_points->currentText().toInt();
 	int pen_color;
 	int brush_color;
@@ -863,6 +871,9 @@ void MainWindow::set_colors()
 		case 1:
 			pattern_H = Qt::SolidPattern;
 			pattern_V = Qt::Dense4Pattern;
+			break;
+		case 2:
+			pattern_N = Qt::SolidPattern;
 			break;
 		}
 		scale_color = 256/(max_waterfall+1);
@@ -893,25 +904,55 @@ void MainWindow::set_colors()
 			waterfall_curve_H.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
 			waterfall_curve_H.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_H));
 		}
+		for (int c = 0; c < waterfall_curve_N.size(); c++) {
+			pen_color = 100-(waterfall_curve_N.size()-c)*max_waterfall;
+			if (pen_color < 0) {
+				pen_color = 0;
+			}
+			brush_color = 255-(waterfall_curve_N.size()-c)*scale_color;
+			if (brush_color < 0) {
+				brush_color = 0;
+			}
+			waterfall_curve_N.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
+			waterfall_curve_N.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_N));
+		}
 	} else {
-		switch(ui->comboBox_voltage->currentIndex())
-		{
-		case 0:
-			curve[0]->setPen(QPen(GREEN));
-			curve[1]->setPen(QPen(DGREEN));
-			curve[1]->detach();
-			curve[1]->attach(ui->qwtPlot);
-			curve[0]->detach();
-			curve[0]->attach(ui->qwtPlot);
-			break;
-		case 1:
-			curve[0]->setPen(QPen(DGREEN));
-			curve[1]->setPen(QPen(GREEN));
-			curve[0]->detach();
-			curve[0]->attach(ui->qwtPlot);
-			curve[1]->detach();
-			curve[1]->attach(ui->qwtPlot);
-			break;
+		if (mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.voltage == 3) {
+			switch(ui->comboBox_voltage->currentIndex())
+			{
+			case 0:
+				curve[0]->setPen(QPen(GREEN));
+				curve[1]->setPen(QPen(DGREEN));
+				curve[1]->detach();
+				curve[1]->attach(ui->qwtPlot);
+				curve[0]->detach();
+				curve[0]->attach(ui->qwtPlot);
+				break;
+			case 1:
+				curve[0]->setPen(QPen(DGREEN));
+				curve[1]->setPen(QPen(GREEN));
+				curve[0]->detach();
+				curve[0]->attach(ui->qwtPlot);
+				curve[1]->detach();
+				curve[1]->attach(ui->qwtPlot);
+				break;
+			}
+		} else {
+			if (mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.voltage == 0) {
+				curve[0]->setPen(QPen(GREEN));
+				curve[0]->detach();
+				curve[0]->attach(ui->qwtPlot);
+			}
+			if (mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.voltage == 1) {
+				curve[1]->setPen(QPen(GREEN));
+				curve[1]->detach();
+				curve[1]->attach(ui->qwtPlot);
+			}
+			if (mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops.voltage == 2) {
+				curve[2]->setPen(QPen(GREEN));
+				curve[2]->detach();
+				curve[2]->attach(ui->qwtPlot);
+			}
 		}
 	}
 	ui->qwtPlot->replot();
