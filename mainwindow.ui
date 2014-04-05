@@ -576,7 +576,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>16777215</height>
+                <height>20</height>
                </size>
               </property>
               <property name="text">
@@ -721,6 +721,24 @@
             </item>
             <item row="2" column="1">
              <widget class="QComboBox" name="comboBox_waterfall_points">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="baseSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
               <item>
                <property name="text">
                 <string>20</string>
@@ -789,7 +807,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>16777215</height>
+                <height>20</height>
                </size>
               </property>
               <property name="text">
@@ -839,7 +857,7 @@
               <property name="maximumSize">
                <size>
                 <width>40</width>
-                <height>16777215</height>
+                <height>20</height>
                </size>
               </property>
               <property name="text">
@@ -853,6 +871,18 @@
                <size>
                 <width>70</width>
                 <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="baseSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
                </size>
               </property>
              </widget>
