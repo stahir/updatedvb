@@ -34,9 +34,6 @@
 #include <qwt_legend.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_grid.h>
-#include <qwt_point_3d.h>
-#include <qwt_plot_spectrocurve.h>
-#include <qwt_color_map.h>
 #include "dvb_settings.h"
 #include "scan.h"
 #include "settings.h"

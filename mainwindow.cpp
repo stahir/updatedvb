@@ -233,12 +233,15 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 				new_x.append(waterfall_x->at(c).at(i) + (waterfall_curve->size()-c)*scale_x);
 				new_y.append(waterfall_y->at(c).at(i) + (waterfall_curve->size()-c)*scale_y);
 			}
-			waterfall_curve->at(c)->setItemAttribute(QwtPlotItem::Legend, false);
+			if (waterfall_curve->size()-1 == c) {
+				waterfall_curve->last()->setItemAttribute(QwtPlotItem::Legend, true);
+				waterfall_curve->last()->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
+			} else {
+				waterfall_curve->at(c)->setItemAttribute(QwtPlotItem::Legend, false);
+			}
 			waterfall_curve->at(c)->setSamples(new_x, new_y);
 			waterfall_curve->at(c)->attach(ui->qwtPlot);
 		}
-		waterfall_curve->last()->setItemAttribute(QwtPlotItem::Legend, true);
-		waterfall_curve->last()->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
 	} else {
 		curve[cindex]->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
 		curve[cindex]->setSamples(x, y);
