@@ -884,8 +884,8 @@ void MainWindow::set_colors()
 			break;
 		}
 		for (int c = 0; c < waterfall_curve_V.size(); c++) {
-			pen_color = azero(100 * (c / max_waterfall - 1));
-			brush_color = azero(255 * (c / max_waterfall - 1));
+			pen_color = azero(100 * (1 - c / max_waterfall));
+			brush_color = azero(255 * (1 - c / max_waterfall));
 			waterfall_curve_V.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
 			waterfall_curve_V.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_V));
 		}
@@ -896,8 +896,8 @@ void MainWindow::set_colors()
 			waterfall_curve_H.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_H));
 		}
 		for (int c = 0; c < waterfall_curve_N.size(); c++) {
-			pen_color = azero(100 * (c / max_waterfall - 1));
-			brush_color = azero(255 * (c / max_waterfall - 1));
+			pen_color = azero(100 * (1 - c / max_waterfall));
+			brush_color = azero(255 * (1 - c / max_waterfall));
 			waterfall_curve_N.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
 			waterfall_curve_N.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_N));
 		}
