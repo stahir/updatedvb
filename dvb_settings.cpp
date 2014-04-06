@@ -807,3 +807,11 @@ bool isQAM(int system)
 	}
 	return ret;
 }
+
+int azero(int num)
+{
+	if (num < 0) {
+		num = 0;
+	}
+	return num;
+}
