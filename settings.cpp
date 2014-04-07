@@ -280,7 +280,6 @@ void settings::on_checkBox_asc1_clicked()
 
 void settings::on_pushButton_asc1_upload_clicked()
 {
-	asc1_data mydata;
 	QSerialPort myserial;
 	QByteArray cmd;
 	QByteArray data;

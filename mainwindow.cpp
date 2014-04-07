@@ -865,10 +865,10 @@ void MainWindow::set_colors()
 	Qt::BrushStyle pattern_V;
 	Qt::BrushStyle pattern_N;
 	double max_waterfall = ui->comboBox_waterfall_points->currentText().toInt();
-	int pen_color;
-	int brush_color;
 
 	if (ui->checkBox_waterfall->isChecked()) {
+		int pen_color;
+		int brush_color;
 		switch(ui->comboBox_voltage->currentIndex())
 		{
 		case 0:

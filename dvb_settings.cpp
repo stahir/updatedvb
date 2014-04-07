@@ -44,6 +44,9 @@ tp_info::tp_info()
 	lvl			= 0;
 	spectrumscan_lvl	= 0;
 	status		= 0;
+	ber_scale	= FE_SCALE_COUNTER;
+	snr_scale	= FE_SCALE_DECIBEL;
+	lvl_scale	= FE_SCALE_DECIBEL;
 }
 
 tuning_options::tuning_options()

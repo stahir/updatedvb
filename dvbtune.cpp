@@ -41,6 +41,7 @@ dvbtune::dvbtune()
 	fmin		= 0;
 	fmax		= 0;
 	fstep		= 0;
+	servo		= false;
 }
 
 dvbtune::~dvbtune()
@@ -200,7 +201,7 @@ void dvbtune::step_motor(int direction, int steps)
 			 << diseqc_cmd.msg[5];
 	
 	is_busy = true;
-	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
@@ -265,7 +266,7 @@ void dvbtune::usals_drive(double sat_long)
 			 << diseqc_cmd.msg[5];
 
 	is_busy = true;
-	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
@@ -308,7 +309,7 @@ void dvbtune::gotox_drive(int position)
 			 << diseqc_cmd.msg[5];
 	
 	is_busy = true;
-	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
@@ -342,7 +343,7 @@ void dvbtune::gotox_save(int position)
 			 << diseqc_cmd.msg[5];
 	
 	is_busy = true;
-	if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
@@ -393,7 +394,7 @@ void dvbtune::setup_switch()
 	}
 
 	if (myswitch.uncommitted != tune_ops.uncommitted && tune_ops.uncommitted > 0) {
-		if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+		if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 			myswitch.tone = -1;
 			if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
 				qDebug() << "FE_SET_TONE ERROR!";
@@ -408,7 +409,7 @@ void dvbtune::setup_switch()
 	}
 
 	if (myswitch.committed != tune_ops.committed && tune_ops.committed > 0) {
-		if (myswitch.tone == !SEC_TONE_ON) { // SEC_TONE_ON == 0
+		if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 			myswitch.tone = -1;
 			if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
 				qDebug() << "FE_SET_TONE ERROR!";
