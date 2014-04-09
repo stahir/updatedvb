@@ -71,6 +71,7 @@ void blindscan_thread::smartscan()
 		int progress = ((i+1)/size)*100;
 		mytune->tp.frequency	= mytune->tp_try.at(i).frequency;
 		mytune->tp.voltage		= mytune->tp_try.at(i).voltage;
+		mytune->tp.system		= mytune->tp_try.at(i).system;
 		mytune->tp.symbolrate	= 1000;
 		ready = false;
 		mytune->tune();

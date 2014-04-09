@@ -128,6 +128,7 @@ void scan::rescale() {
 			end = x.at(i);
 			tmp.frequency			= (start + end)/2;
 			tmp.voltage				= mytune->tp.voltage;
+			tmp.system				= mytune->tp.system;
 			tmp.spectrumscan_lvl	= tmax;
 			mytune->tp_try.append(tmp);
 			start = 0;
