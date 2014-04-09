@@ -45,6 +45,8 @@ void scan::run()
 		}
 		ready = false;
 		mytune->tp_try.clear();
+		min_old = -1;
+		max_old = -1;
 
 		switch(mytune->tune_ops.voltage) {
 		case 0:
