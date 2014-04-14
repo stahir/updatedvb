@@ -77,6 +77,7 @@ private slots:
 	void setcolor(int index, QColor color);
 	void on_listWidget_itemClicked(QListWidgetItem *item);
 	void delete_iqplot();
+	void delete_demux_file();
 	void on_pushButton_iqplot_clicked();
 	void parsetp_done();
 
@@ -93,8 +94,8 @@ private:
 	tuning_thread mythread;
 	dvbstream_thread mystream;
 	QThread mystream_thread;
-	iqplot *myiqplot;
-	bool myiqplot_running;
+	QPointer<iqplot> myiqplot;
+	QPointer<demux_file> mydemux_file;
 	bool parsetp_started;
 	QTime unlock_t;
 

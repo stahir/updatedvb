@@ -16,4 +16,5 @@
 - I should be using QPointer when possible over regular pointers
 - waterfall plot should really be using proper 3D not my hobbled 2D to look 3D
 - if you cant open an adapter, we shouldnt list it as an option. It should be listed, but as BUSY
+- test the threaded ability of demux, try recording numerous demux's at once
 - clear up this TODO :)

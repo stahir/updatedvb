@@ -28,7 +28,6 @@ tuning_thread::tuning_thread()
 tuning_thread::~tuning_thread()
 {
 	qDebug() << "~tuning_thread()";
-	qDebug() << "~tuning_thread() done";
 }
 
 unsigned int tuning_thread::dtag_convert(unsigned int temp)

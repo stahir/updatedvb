@@ -38,7 +38,6 @@ tuning::tuning(QWidget *parent) :
 	mysettings = new QSettings("UDL", "updateDVB");
 
 	shutdown = false;
-	myiqplot_running = false;
 	parsetp_started = false;
 
 	ui->treeWidget->setColumnCount(1);
@@ -52,8 +51,12 @@ tuning::~tuning()
 {
 	qDebug() << "~tuning()";
 
-	if (myiqplot_running) {
+	if (!myiqplot.isNull()) {
 		myiqplot->deleteLater();
+	}
+	if (!mydemux_file.isNull()) {
+		mydemux_file->on_pushButton_stop_clicked();
+		mydemux_file->deleteLater();
 	}
 
 	mystream.socket_close();
@@ -204,7 +207,9 @@ void tuning::updatesignal()
 			updateresults();
 		}
 		ui->pushButton_demux->setEnabled(true);
-		ui->pushButton_file->setEnabled(true);
+		if (mydemux_file.isNull()) {
+			ui->pushButton_file->setEnabled(true);
+		}
 		ui->pushButton_ipcleaner->setEnabled(true);
 		ui->pushButton_play->setEnabled(true);
 		ui->pushButton_stream->setEnabled(true);
@@ -225,10 +230,12 @@ void tuning::updatesignal()
 			return;
 		}
 	}
-	if (!(mytune->caps & FE_CAN_IQ)) {
-		ui->pushButton_iqplot->setEnabled(false);
+	if (mytune->caps & FE_CAN_IQ) {
+		if (myiqplot.isNull()) {
+			ui->pushButton_iqplot->setEnabled(true);
+		}
 	} else {
-		ui->pushButton_iqplot->setEnabled(true);
+		ui->pushButton_iqplot->setEnabled(false);
 	}
 
 	if (mytune->tp.lvl_scale == FE_SCALE_DECIBEL) {
@@ -453,17 +460,25 @@ void tuning::on_pushButton_demux_clicked()
 	stop_demux();
 }
 
+void tuning::delete_demux_file()
+{
+	qDebug() << "delete_demux_file()";
+	ui->pushButton_file->setEnabled(true);
+	stop_demux();
+}
+
 void tuning::on_pushButton_file_clicked()
 {
+	ui->pushButton_file->setEnabled(false);
+
 	setup_demux();
 
-	demux_file demux_file_dialog;
-	demux_file_dialog.mytune = mytune;
-	demux_file_dialog.setModal(true);
-	demux_file_dialog.init();
-	demux_file_dialog.exec();
+	mydemux_file = new demux_file;
+	connect(mydemux_file, SIGNAL(destroyed()), this, SLOT(delete_demux_file()));
 
-	stop_demux();
+	mydemux_file->mytune = mytune;
+	mydemux_file->init();
+	mydemux_file->show();
 }
 
 void tuning::on_pushButton_expand_clicked()
@@ -494,7 +509,6 @@ void tuning::delete_iqplot()
 {
 	qDebug() << "delete_iqplot()";
 	ui->pushButton_iqplot->setEnabled(true);
-	myiqplot_running = false;
 }
 
 void tuning::on_pushButton_iqplot_clicked()
@@ -509,7 +523,6 @@ void tuning::on_pushButton_iqplot_clicked()
 	myiqplot->show();
 
 	ui->pushButton_iqplot->setEnabled(false);
-	myiqplot_running = true;
 }
 
 void tuning::update_status(QString text, int time = 0)

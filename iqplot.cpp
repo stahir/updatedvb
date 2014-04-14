@@ -39,6 +39,7 @@ iqplot::iqplot(QWidget *parent) :
 
 iqplot::~iqplot()
 {
+	qDebug() << "~iqplot()";
 	mytune->loop = false;
 	mytune->quit();
 	mytune->wait(1000);
