@@ -31,6 +31,14 @@
 #define DGREEN QColor(0,100,0)
 #define GREEN QColor(0,255,0)
 
+#define LIL_BUFSIZE (348*188)
+#define BIG_BUFSIZE (30*LIL_BUFSIZE)
+//#define TCP_BUFSIZE (1448)
+#define MAX_PES_SIZE (4*1024)
+#define DMXOFF 5
+#define PACKETRETRY 3
+#define PERSISTENCE 30
+
 struct asc1_data
 {
 	QString			name;

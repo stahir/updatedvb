@@ -59,11 +59,11 @@ tuning::~tuning()
 		mydemux_file->deleteLater();
 	}
 
-	mystream.socket_close();
+	mystream.server_close();
 	mystream_thread.quit();
 	mystream_thread.wait(1000);
 	while (mystream_thread.isRunning()) {
-		qDebug() << "mystream.isRunning()";
+		qDebug() << "mystream_thread.isRunning()";
 		sleep(1);
 	}
 
@@ -115,7 +115,9 @@ void tuning::init()
 	connect(&mythread, SIGNAL(setcolor(int,QColor)), this, SLOT(setcolor(int,QColor)));
 	connect(&mythread, SIGNAL(parsetp_done()), this, SLOT(parsetp_done()));
 	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
-	connect(this, SIGNAL(setup_server()), &mystream, SLOT(setup_server()));
+	connect(this, SIGNAL(server_new()), &mystream, SLOT(server_new()));
+
+	connect(&mytune->dvr, SIGNAL(data(QByteArray)), &mystream, SLOT(stream(QByteArray)));
 
 	update_status("Tuning...", 0);
 	mytune->start();
@@ -125,6 +127,7 @@ void tuning::init()
 	mystream.mytune	= mytune;
 	mystream.moveToThread(&mystream_thread);
 	mystream_thread.start();
+
 	unlock_t.start();
 
 	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
@@ -497,11 +500,13 @@ void tuning::on_pushButton_unexpand_clicked()
 
 void tuning::on_pushButton_stream_clicked()
 {
-	if (mystream.port) {
-		mystream.socket_close();
+	qDebug() << Q_FUNC_INFO << QThread::currentThreadId();
+
+	if (mystream.server && mystream.server->isListening()) {
+		mystream.server_close();
 	} else {
 		setup_demux();
-		emit setup_server();
+		emit server_new();
 	}
 }
 

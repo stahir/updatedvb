@@ -54,7 +54,7 @@ public:
 	bool shutdown;
 
 signals:
-	void setup_server();
+	void server_new();
 
 public slots:
 	void update_status(QString text, int time);
@@ -92,12 +92,13 @@ private:
 	QVector<QTreeWidgetItem *> tree_item;
 	QVector<QListWidgetItem *> list_item;
 	tuning_thread mythread;
-	dvbstream_thread mystream;
-	QThread mystream_thread;
 	QPointer<iqplot> myiqplot;
 	QPointer<demux_file> mydemux_file;
 	bool parsetp_started;
 	QTime unlock_t;
+	dvbstream_thread mystream;
+	QThread mystream_thread;
+	QThread reader_thread;
 
 protected:
 	void closeEvent(QCloseEvent *event);

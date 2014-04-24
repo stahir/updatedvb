@@ -11,6 +11,8 @@ demux_file::demux_file(QWidget *parent) :
 	ui->verticalLayout->addWidget(mystatus);
 	mystatus->setVisible(true);
 	ui->lineEdit_filename->setText(QDir::currentPath() + "/test.ts");
+	ui->pushButton_start->setEnabled(true);
+	ui->pushButton_stop->setEnabled(false);
 }
 
 demux_file::~demux_file()
@@ -24,24 +26,24 @@ demux_file::~demux_file()
 
 void demux_file::init()
 {
-	connect(mytune, SIGNAL(demux_status(int)), this, SLOT(demux_status(int)));
+	connect(&mytune->dvr, SIGNAL(data_size(int)), this, SLOT(demux_status(int)));
 }
 
 void demux_file::on_pushButton_start_clicked()
 {
+	ui->pushButton_stop->setEnabled(true);
+	ui->pushButton_start->setEnabled(false);
 	bytes_wrote = 0;
 	mytune->close_dvr();
 	mytune->out_name = ui->lineEdit_filename->text();
-	mytune->loop = true;
-	mytune->thread_function.append("demux_file");
-	mytune->start();
+	mytune->demux_file(true);
 }
 
 void demux_file::on_pushButton_stop_clicked()
 {
-	if (mytune->thread_function.indexOf("demux_file") != -1) {
-		mytune->thread_function.remove(mytune->thread_function.indexOf("demux_file"));
-	}
+	ui->pushButton_start->setEnabled(true);
+	ui->pushButton_stop->setEnabled(false);
+	mytune->demux_file(false);
 	mytune->close_dvr();
 }
 

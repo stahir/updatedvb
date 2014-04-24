@@ -20,38 +20,41 @@
 
 dvbstream_thread::dvbstream_thread()
 {
+	qDebug() << Q_FUNC_INFO;
+
 	signal(SIGPIPE, SIG_IGN);
 	mytune	= NULL;
 	server	= NULL;
 	socket	= NULL;
 	IP		= QHostAddress::Null;
 	port	= 0;
-	socket_connected = false;
-	server_connected = false;
 }
 
 dvbstream_thread::~dvbstream_thread()
 {
 	qDebug() << "~dvbstream_thread()";
-	socket_close();
+	server_close();
 }
 
 void dvbstream_thread::socket_new()
 {
-	if (!port) {
-		return;
+	qDebug() << Q_FUNC_INFO;
+
+	if (socket) {
+		qDebug() << "deleting old socket";
+		socket_close();
 	}
 	socket = server->nextPendingConnection();
 	socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
-	socket_connected = true;
 	connect(socket, SIGNAL(disconnected()), this, SLOT(socket_close()), Qt::DirectConnection);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(read_data()), Qt::DirectConnection);
 	emit update_status(QString("Streaming to %1").arg(socket->peerAddress().toString()), 0);
-	stream();
 }
 
 void dvbstream_thread::read_data()
 {
+	qDebug() << Q_FUNC_INFO;
+
 	QString line;
 	while (socket->bytesAvailable()) {
 		line = socket->readLine();
@@ -59,17 +62,34 @@ void dvbstream_thread::read_data()
 			emit update_status(QString("Streaming to %1 @ %2").arg(line.section(" ", 1, 1)).arg(socket->peerAddress().toString()), 0);
 		}
 	}
+
+	socket->write("HTTP/1.0 200 OK\r\n");
+	socket->write("Content-type: application/octet-stream\r\n");
+	socket->write("Cache-Control : no-cache\r\n");
+	socket->write("\r\n");
+	socket->waitForBytesWritten(2000);
+
+	mytune->demux_stream(true);
 }
 
 void dvbstream_thread::socket_close()
 {
-	if (socket_connected) {
-		socket_connected = false;
+	qDebug() << Q_FUNC_INFO;
+
+	if (socket) {
+		mytune->demux_stream(false);
 		socket->close();
 		socket->deleteLater();
+		emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), 0);
 	}
-	if (server_connected) {
-		server_connected = false;
+}
+
+void dvbstream_thread::server_close()
+{
+	qDebug() << Q_FUNC_INFO;
+
+	socket_close();
+	if (server) {
 		server->close();
 		server->deleteLater();
 	}
@@ -80,8 +100,10 @@ void dvbstream_thread::socket_close()
 	emit update_status("Disconnected", 1);
 }
 
-void dvbstream_thread::setup_server()
+void dvbstream_thread::server_new()
 {
+	qDebug() << Q_FUNC_INFO;
+
 	QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
 	for (int i = 0; i < ipAddressesList.size(); ++i) {
 		if (ipAddressesList.at(i) != QHostAddress::LocalHost && ipAddressesList.at(i).toIPv4Address()) {
@@ -96,28 +118,20 @@ void dvbstream_thread::setup_server()
 	server = new QTcpServer();
 	if (!server->listen(QHostAddress::Any, port)) {
 		qDebug() << "Server could not start";
+		server_close();
 		return;
 	}
-	server_connected = true;
 	connect(server, SIGNAL(newConnection()), this, SLOT(socket_new()), Qt::DirectConnection);
 	emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), 0);
 }
 
-void dvbstream_thread::stream()
+void dvbstream_thread::stream(QByteArray data)
 {
-    QTextStream resultStream(socket);
-    resultStream << "HTTP/1.0 200 Ok\r\n";
-    resultStream << "Content-Type: video/MP2T\r\n";
-    resultStream << "\r\n";
-    resultStream.flush();
-
-	while (socket_connected && socket->state() == QAbstractSocket::ConnectedState) {
-		qint64 len = socket->write(mytune->demux_stream());
-		// Fix this, this causes much better performance, but randomly crash's with sigpipe, catch the error and ignore it
-		//socket->flush();
+	if (socket && socket->state() == QAbstractSocket::ConnectedState) {
+		qint64 len = socket->write(data);
 		socket->waitForBytesWritten(2000);
-		if (len != TCP_BUFSIZE) {
-			qDebug() << "TCP write() issue:" << len << "of" << TCP_BUFSIZE;
+		if (len != LIL_BUFSIZE) {
+			qDebug() << "TCP write() issue:" << len << "of" << LIL_BUFSIZE;
 		}
 	}
 }

@@ -48,6 +48,14 @@ dvbtune::~dvbtune()
 {
 	qDebug() << "~dvbtune()";
 	
+	dvr.loop = false;
+	dvr.quit();
+	dvr.wait(1000);
+	while (dvr.isRunning()) {
+		qDebug() << "dvr.isRunning()";
+		sleep(1);
+	}
+
 	stop_demux();
 	closefd();
 }
@@ -428,7 +436,7 @@ void dvbtune::setup_switch()
 		if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
 		}
-		msleep(20);
+		msleep(500);
 	}
 	is_busy = false;
 
@@ -694,15 +702,15 @@ void dvbtune::get_bitrate()
 		}
 	}
 	
-	char buf[BUFFY];
-	memset(buf, 0, BUFFY);
+	char buf[BIG_BUFSIZE];
+	memset(buf, 0, BIG_BUFSIZE);
 	
 	buffer.clear();
 	stime.start();	
-	while (stime.elapsed() < 2000 && buffer.size() < BUFFY && loop) {
+	while (stime.elapsed() < 2000 && buffer.size() < BIG_BUFSIZE && loop) {
 		msleep(100);
 		is_reading = true;
-		int len = read(dvr_fd, buf, BUFFY);
+		int len = read(dvr_fd, buf, BIG_BUFSIZE);
 		is_reading = false;
 		if (len < 0) {
 			qDebug() << "get_bitrate() read() failed";
@@ -770,7 +778,7 @@ void dvbtune::demux_video()
 			return;
 		}
 		dmx_fd.append(temp_fd);
-		ioctl(dmx_fd.last(), DMX_SET_BUFFER_SIZE, BUFFY);
+		ioctl(dmx_fd.last(), DMX_SET_BUFFER_SIZE, BIG_BUFSIZE);
 
 		pesFilterParams.pid = pids[a];
 		pesFilterParams.input = DMX_IN_FRONTEND;
@@ -783,69 +791,31 @@ void dvbtune::demux_video()
 	}
 }
 
-QByteArray dvbtune::demux_stream()
+void dvbtune::demux_stream(bool start)
 {
-	if (dvr_name == "") {
-		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
-		qDebug() << "demux_stream() opening" << dvr_name;
-//		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY|O_NONBLOCK);
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
-		if (dvr_fd < 0) {
-			qDebug() << "Failed to open" << dvr_name;
-			return QByteArray();
+	if (start) {
+		dvr.adapter	= adapter;
+		dvr.thread_function.append("demux_stream");
+		dvr.start();
+	} else {
+		if (dvr.thread_function.indexOf("demux_stream") != -1) {
+			dvr.thread_function.remove(dvr.thread_function.indexOf("demux_stream"));
 		}
 	}
-
-	int len;
-	char buf[TCP_BUFSIZE];
-
-	memset(buf, 0, TCP_BUFSIZE);
-	is_reading = true;
-	len = read(dvr_fd, buf, TCP_BUFSIZE);
-	is_reading = false;
-
-	if (len == -1) {
-		return QByteArray();
-	}
-	if (len != TCP_BUFSIZE) {
-		qDebug() << "dvr read issue:" << len << "of" << TCP_BUFSIZE;
-	}
-	
-	return QByteArray(buf, len);
 }
 
-void dvbtune::demux_file()
+void dvbtune::demux_file(bool start)
 {
-	if (dvr_name == "") {
-		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
-		qDebug() << "demux_file() opening" << dvr_name;
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
-		if (dvr_fd < 0) {
-			qDebug() << "Failed to open" << dvr_name;
-			return;
+	if (start) {
+		dvr.adapter		= adapter;
+		dvr.file_name	= out_name;
+		dvr.thread_function.append("demux_file");
+		dvr.start();
+	} else {
+		if (dvr.thread_function.indexOf("demux_file") != -1) {
+			dvr.thread_function.remove(dvr.thread_function.indexOf("demux_file"));
 		}
 	}
-	if (!out_fd) {
-		qDebug() << "open out_fd";
-		out_fd = open(out_name.toStdString().c_str(), O_CREAT|O_TRUNC|O_RDWR|O_NONBLOCK, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-		if (out_fd < 0) {
-			qDebug() << "Failed to open" << out_name;
-			return;
-		}
-	}
-
-	int buf_size = 188*348;
-	char buf[buf_size];
-
-	do {
-		memset(buf, 0, buf_size);
-		is_reading = true;
-		int len = read(dvr_fd, buf, buf_size);
-		ssize_t wlen = write(out_fd, buf, len);
-		is_reading = false;
-		emit demux_status(len);
-		Q_UNUSED(wlen);
-	} while (thread_function.indexOf("demux_file") != -1);
 }
 
 int dvbtune::crc32()
@@ -928,7 +898,7 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 			qDebug() << "Failed to open" << dmx_name;
 			return -1;
 		}
-		if (ioctl(sct_fd, DMX_SET_BUFFER_SIZE, BUFFY) == -1) {
+		if (ioctl(sct_fd, DMX_SET_BUFFER_SIZE, BIG_BUFSIZE) == -1) {
 			qDebug() << "DEMUX: DMX_SET_BUFFER_SIZE";
 		}
 	}
@@ -950,10 +920,10 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 	
 	index = 0;
 	buffer.clear();
-	char buf[BUFFY];
-	memset(buf, 0, BUFFY);
+	char buf[BIG_BUFSIZE];
+	memset(buf, 0, BIG_BUFSIZE);
 	is_reading = true;
-	int len = read(sct_fd, buf, BUFFY);
+	int len = read(sct_fd, buf, BIG_BUFSIZE);
 	is_reading = false;
 	if (len < 0) {
 		qDebug() << "demux_packet() read() error";
@@ -1288,9 +1258,6 @@ void dvbtune::run()
 	iqplot_t.start();
 	loop = true;
 	do {
-		if (thread_function.indexOf("demux_file") != -1) {
-			demux_file();
-		}
 		if (thread_function.indexOf("iqplot") != -1) {
 			if (iqplot_t.elapsed() > 500) {
 				iqplot();

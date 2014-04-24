@@ -41,14 +41,8 @@
 #include <sstream>
 #include <math.h>
 #include "dvb_settings.h"
+#include "dvr_thread.h"
 using namespace std;
-
-#define BUFFY (188*348*30)
-#define TCP_BUFSIZE (188*348)
-#define MAX_PES_SIZE (4*1024)
-#define DMXOFF 5
-#define PACKETRETRY 3
-#define PERSISTENCE 30
 
 class dvbtune : public QThread
 {
@@ -59,7 +53,8 @@ signals:
 	void iqdraw(QVector<short int> x, QVector<short int> y);
 	void adapter_status(int adapter, bool is_busy);
 	void demux_status(int bytes);
-	
+	void send_stream(QByteArray);
+
 public:
 	dvbtune();
 	~dvbtune();
@@ -85,14 +80,16 @@ public:
 	QVector<short int> iq_x;
 	QVector<short int> iq_y;	
 	
+	dvr_thread dvr;
+
 	int crc32();
 	void check_frontend();
 	void get_bitrate();
 	int tune();
 	int demux_packet(int pid, unsigned char table = 0, int timeout = 3000);
+	void demux_file(bool start);
 	void demux_video();
-	void demux_file();
-	QByteArray demux_stream();
+	void demux_stream(bool start);
 	void stop_demux();
 	void setup_switch();
 	void spectrum_scan(dvb_fe_spectrum_scan *scan);

@@ -204,11 +204,10 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 		waterfall_y		= &waterfall_y_H;
 		break;
 	case 2:
+	default:
 		waterfall_curve = &waterfall_curve_N;
 		waterfall_x		= &waterfall_x_N;
 		waterfall_y		= &waterfall_y_N;
-		break;
-	default:
 		break;
 	}
 
@@ -861,9 +860,9 @@ void MainWindow::markers_draw()
 
 void MainWindow::set_colors()
 {
-	Qt::BrushStyle pattern_H;
-	Qt::BrushStyle pattern_V;
-	Qt::BrushStyle pattern_N;
+	Qt::BrushStyle pattern_H = Qt::SolidPattern;
+	Qt::BrushStyle pattern_V = Qt::SolidPattern;
+	Qt::BrushStyle pattern_N = Qt::SolidPattern;
 	double max_waterfall = ui->comboBox_waterfall_points->currentText().toInt();
 
 	if (ui->checkBox_waterfall->isChecked()) {
