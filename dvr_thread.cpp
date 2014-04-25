@@ -9,6 +9,10 @@ dvr_thread::dvr_thread()
 dvr_thread::~dvr_thread()
 {
 	qDebug() << Q_FUNC_INFO;
+	while (is_busy) {
+		loop = false;
+		msleep(100);
+	}
 }
 
 void dvr_thread::run()

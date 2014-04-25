@@ -49,6 +49,10 @@ dvbtune::~dvbtune()
 	qDebug() << "~dvbtune()";
 	
 	dvr.loop = false;
+	while (dvr.is_busy) {
+		dvr.loop = false;
+		msleep(100);
+	}
 	dvr.quit();
 	dvr.wait(1000);
 	while (dvr.isRunning()) {
@@ -688,40 +692,34 @@ int dvbtune::tune()
 void dvbtune::get_bitrate()
 {
 	qDebug() << "get_bitrate()";
-	
-	QTime stime;
-	int ttime = 0;
-	
+		
 	if (dvr_name == "") {
 		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
 		qDebug() << "get_bitrate() opening" << dvr_name;
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY|O_NONBLOCK);
+		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
 		if (dvr_fd < 0) {
 			qDebug() << "Failed to open" << dvr_name;
 			return;
 		}
 	}
 	
+	QTime stime;
+	int ttime = 0;
+
+	pids_rate.clear();
+	pids_rate.fill(0, 0xFFFF+1);
+
 	char buf[BIG_BUFSIZE];
 	memset(buf, 0, BIG_BUFSIZE);
 	
-	buffer.clear();
-	stime.start();	
-	while (stime.elapsed() < 2000 && buffer.size() < BIG_BUFSIZE && loop) {
-		msleep(100);
-		is_reading = true;
-		int len = read(dvr_fd, buf, BIG_BUFSIZE);
-		is_reading = false;
-		if (len < 0) {
-			qDebug() << "get_bitrate() read() failed";
-			continue;
-		}
-		buffer.append(buf, len);
-	}
+	stime.start();
+	is_reading = true;
+	int len = read(dvr_fd, buf, BIG_BUFSIZE);
+	is_reading = false;
 	ttime = stime.elapsed();
-		
-	pids_rate.clear();
-	pids_rate.fill(0, 0xFFFF+1);
+
+	buffer.clear();
+	buffer.append(buf, len);
 
 	if (buffer.size() < 188) {
 		qDebug() << "read size too small," << buffer.size() << " bytes";
