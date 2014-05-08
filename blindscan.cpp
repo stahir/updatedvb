@@ -117,8 +117,8 @@ void blindscan::updatesignal()
 	if (mythread.ready) {
 		return;
 	}
-	if (isATSC(mythread.mytune->tp.system) && !(mythread.mytune->tp.status & FE_HAS_LOCK)) {
-		qDebug() << "no ATSC lock";
+	if (!(mythread.mytune->tp.status & FE_HAS_LOCK)) {
+		qDebug() << "no lock";
 		mythread.ready = true;
 		return;
 	}
@@ -131,23 +131,21 @@ void blindscan::updatesignal()
 
 	mytp_info.append(mythread.mytune->tp);
 
-	qam myqam;
-	atsc myatsc;
+	freq_list myfreq;
 	QString text;
 	if (isSatellite(mytune->tp.system)) {
 		text = QString::number(mytune->tp.frequency) + dvbnames.voltage[mytune->tp.voltage] + QString::number(mytune->tp.symbolrate);
+	} else if (isATSC(mytune->tp.system)) {
+		myfreq.atsc();
+		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency)));
+	} else if (isQAM(mytune->tp.system)) {
+		myfreq.qam();
+		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency)));
+	} else if (isDVBT(mytune->tp.system)) {
+		myfreq.dvbt();
+		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency)));
 	} else {
-		switch (mytune->tp.system) {
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]);
-			break;
-		case SYS_DVBC_ANNEX_B:
-			text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]);
-			break;
-		default:
-			text = QString::number(mytune->tp.frequency/1000) + "mhz";
-		}
+		text = QString::number(mytune->tp.frequency/1000) + "mhz";
 	}
 
 	parent_1 = tree_create_root(text);

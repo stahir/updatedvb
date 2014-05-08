@@ -304,17 +304,17 @@ void tuning::updatesignal()
 			break;
 		}
 	} else {
-		qam myqam;
-		atsc myatsc;
-		switch (mytune->tp.system) {
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));
-			break;
-		case SYS_DVBC_ANNEX_B:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]));
-			break;
-		default:
+		freq_list myfreq;
+		if (isATSC(mytune->tp.system)) {
+			myfreq.atsc();
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
+		} else if (isQAM(mytune->tp.system)) {
+			myfreq.qam();
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
+		} else if (isDVBT(mytune->tp.system)) {
+			myfreq.dvbt();
+			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
+		} else {
 			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz");
 		}
 	}

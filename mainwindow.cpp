@@ -349,9 +349,6 @@ void MainWindow::on_pushButton_blindscan_clicked()
 	myblindscan.last()->init();
 	myblindscan.last()->show();
 
-	qam myqam;
-	atsc myatsc;
-
 	tp_info tp;
 	if (ui->gridWidget_system->isVisible()) {
 		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
@@ -390,83 +387,62 @@ void MainWindow::on_pushButton_blindscan_clicked()
 		return;
 	}
 
+	freq_list myfreq;
 	if (ui->checkBox_smart->isChecked() && mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size()) {
-		switch (dvbnames.system.indexOf(ui->comboBox_system->currentText())) {
-		case SYS_DVBC_ANNEX_B:
-			qDebug() << "QAM";
+		if (!isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			if (isQAM(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "QAM";
+				myfreq.qam();
+			} else if (isATSC(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				myfreq.atsc();
+				qDebug() << "ATSC";
+			} else if (isDVBT(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				myfreq.dvbt();
+				qDebug() << "DVBT";
+			}
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
 			for (int i = 1; i < myscan->x.size(); i++) {
 				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < f_start || myscan->x.at(i) > f_stop) {
 					continue;
 				}
-				if (myqam.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
+				if (myfreq.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
 					tp.frequency = myscan->x.at(i);
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				} else { // Long search
-					for (int ai = 0; ai < myqam.freq.size(); ai++) {
-						if (abs(myqam.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
-							if (tp.frequency != myqam.freq.at(ai)) {
-								tp.frequency = myqam.freq.at(ai);
+					for (int ai = 0; ai < myfreq.freq.size(); ai++) {
+						if (abs(myfreq.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
+							if (tp.frequency != myfreq.freq.at(ai)) {
+								tp.frequency = myfreq.freq.at(ai);
 								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 							}
 						}
 					}
 				}
 			}
-			break;
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			qDebug() << "ATSC";
-			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 1; i < myscan->x.size(); i++) {
-				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < f_start || myscan->x.at(i) > f_stop) {
-					continue;
-				}
-				if (myatsc.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
-					tp.frequency = myscan->x.at(i);
-					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
-				} else { // Long search
-					for (int ai = 0; ai < myatsc.freq.size(); ai++) {
-						if (abs(myatsc.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
-							if (tp.frequency != myatsc.freq.at(ai)) {
-								tp.frequency = myatsc.freq.at(ai);
-								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
-							}
-						}
-					}
-				}
-			}
-			break;
 		}
 		myblindscan.last()->smartscan();
 	} else {
-		switch (dvbnames.system.indexOf(ui->comboBox_system->currentText())) {
-		case SYS_DVBC_ANNEX_B:
-			qDebug() << "QAM";
+		if (!isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			if (isQAM(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "QAM";
+				myfreq.qam();
+			} else if (isATSC(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "ATSC";
+				myfreq.atsc();
+			} else if (isDVBT(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "DVBT";
+				myfreq.dvbt();
+			}
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 0; i < myqam.freq.size(); i++) {
-				if (myqam.freq.at(i) >= f_start && myqam.freq.at(i) <= f_stop) {
-					tp.frequency	= myqam.freq.at(i);
+			for (int i = 0; i < myfreq.freq.size(); i++) {
+				if (myfreq.freq.at(i) >= f_start && myfreq.freq.at(i) <= f_stop) {
+					tp.frequency	= myfreq.freq.at(i);
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
 			}
 			myblindscan.last()->smartscan();
-			break;
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			qDebug() << "ATSC";
-			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 0; i < myatsc.freq.size(); i++) {
-				if (myatsc.freq.at(i) >= f_start && myatsc.freq.at(i) <= f_stop) {
-					tp.frequency	= myatsc.freq.at(i);
-					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
-				}
-			}
-			myblindscan.last()->smartscan();
-			break;
-		default:
+		} else {
 			myblindscan.last()->scan();
-			break;
 		}
 	}
 }
@@ -704,10 +680,7 @@ void MainWindow::setup_tuning_options()
 		ui->gridWidget_blindscan->show();
 		ui->gridWidget_satellite->hide();
 	} else {
-		ui->gridWidget_system->show();
-		ui->gridWidget_blindscan->hide();
-
-		if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1) {
+		if (isVectorQAM(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys) || isVectorATSC(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys) || isVectorDVBT(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys)) {
 			ui->gridWidget_blindscan->show();
 			ui->gridWidget_satellite->hide();
 		} else {
