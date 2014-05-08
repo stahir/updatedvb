@@ -21,7 +21,6 @@
 # Install v4l-updatelee kernel/modules, https://bitbucket.org/updatelee/v4l-updatelee
 #
 # Then download and install any dependancies you need
-# You must use Qt4, you cannot currently use Qt5 because of issues with qwt
 
 	sudo apt-get install git build-essential subversion libgl1-mesa-dev mesa-common-dev
 
@@ -41,7 +40,8 @@
 	
 	svn checkout svn://svn.code.sf.net/p/qwt/code/branches/qwt-6.1
 	cd qwt-6.1
-	qmake qwt.pro
+	/path/to/Qt/5.2.1/gcc/bin/qmake qwt.pro #(32 bit)
+	/path/to/Qt/5.2.1/gcc_64/bin/qmake qwt.pro #(64 bit)
 	make
 	sudo make install
 
