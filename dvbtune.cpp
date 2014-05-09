@@ -616,12 +616,12 @@ int dvbtune::tune()
 				}
 			}
 		}
+		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
+		qDebug() << "tune() Frequency: " << tp.frequency;
 	} else {
 		qDebug() << "Invalid system";
 	}
 
-	p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
-	qDebug() << "tune() Frequency: " << tp.frequency;
 	p_tune[i++].cmd = DTV_TUNE;
 	
 	struct dtv_properties cmdseq_tune;
