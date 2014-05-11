@@ -218,11 +218,6 @@ void settings::on_comboBox_type_currentIndexChanged(int index)
 		ui->lineEdit_f_start->setText("52000");
 		ui->lineEdit_f_stop->setText("900000");
 	}
-	if (ui->comboBox_type->currentText() == "DVBT") {
-		ui->lineEdit_f_lof->setText("0");
-		ui->lineEdit_f_start->setText("174000");
-		ui->lineEdit_f_stop->setText("790000");
-	}
 	if (ui->comboBox_type->currentText() == "Custom") {
 		ui->lineEdit_f_lof->setText("0");
 		ui->lineEdit_f_start->setText("950");

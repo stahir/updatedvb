@@ -573,7 +573,6 @@ int dvbtune::tune()
 	p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
 	p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
 
-	freq_list myfreq;
 	if (isSatellite(tp.system)) {
 		qDebug() << "Satellite selected";
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
@@ -587,41 +586,61 @@ int dvbtune::tune()
 		p_tune[i].cmd = DTV_PILOT;			p_tune[i++].u.data = tp.pilot;
 		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
 		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
-	} else if (isQAM(tp.system) || isATSC(tp.system) || isDVBT(tp.system)) {
-		if (isQAM(tp.system)) {
-			qDebug() << "QAM";
-			myfreq.qam();
-		} else if (isATSC(tp.system)) {
-			qDebug() << "ATSC";
-			myfreq.atsc();
-		} else if (isDVBT(tp.system)) {
-			qDebug() << "DVBT";
-			myfreq.dvbt();
-		}
+	} else {
 		int fr;
-		fr = tp.frequency;
-		if (fr < myfreq.freq.at(0)) {
-			tp.frequency = myfreq.freq.at(0);
-		} else if (fr > myfreq.freq.at(myfreq.freq.size()-1)) {
-			tp.frequency = myfreq.freq.at(myfreq.freq.size()-1);
-		} else {
-			for(int c = 0; c < myfreq.freq.size()-1; c++) {
-				if (fr > myfreq.freq.at(c) && fr < myfreq.freq.at(c+1)) {
-					int middle = (myfreq.freq.at(c) + myfreq.freq.at(c+1))/2;
-					if (fr < middle) {
-						tp.frequency = myfreq.freq.at(c);
-					} else {
-						tp.frequency = myfreq.freq.at(c+1);
+		qam myqam;
+		atsc myatsc;
+
+		switch (tp.system) {
+		case SYS_DVBC_ANNEX_B:
+			qDebug() << "QAM";
+			fr = tp.frequency;
+			if (fr < myqam.freq.at(0)) {
+				tp.frequency = myqam.freq.at(0);
+			} else if (fr > myqam.freq.at(myqam.freq.size()-1)) {
+				tp.frequency = myqam.freq.at(myqam.freq.size()-1);
+			} else {
+				for(int c = 0; c < myqam.freq.size()-1; c++) {
+					if (fr > myqam.freq.at(c) && fr < myqam.freq.at(c+1)) {
+						int middle = (myqam.freq.at(c) + myqam.freq.at(c+1))/2;
+						if (fr < middle) {
+							tp.frequency = myqam.freq.at(c);
+						} else {
+							tp.frequency = myqam.freq.at(c+1);
+						}
 					}
 				}
 			}
+			break;
+		case SYS_ATSC:
+		case SYS_ATSCMH:
+			qDebug() << "ATSC";
+			fr = tp.frequency;
+			if (fr < myatsc.freq.at(0)) {
+				tp.frequency = myatsc.freq.at(0);
+			} else if (fr > myatsc.freq.at(myatsc.freq.size()-1)) {
+				tp.frequency = myatsc.freq.at(myatsc.freq.size()-1);
+			} else {
+				for(int c = 0; c < myatsc.freq.size()-1; c++) {
+					if (fr > myatsc.freq.at(c) && fr < myatsc.freq.at(c+1)) {
+						int middle = (myatsc.freq.at(c) + myatsc.freq.at(c+1))/2;
+						if (fr < middle) {
+							tp.frequency = myatsc.freq.at(c);
+						} else {
+							tp.frequency = myatsc.freq.at(c+1);
+						}
+					}
+				}
+			}
+			break;
+		default:
+			qDebug() << "Invalid System";
+			return -1;
 		}
-	} else {
-		qDebug() << "Invalid system";
-	}
 
-	p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
-	qDebug() << "tune() Frequency: " << tp.frequency;
+		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
+		qDebug() << "tune() Frequency: " << tp.frequency;
+	}
 	p_tune[i++].cmd = DTV_TUNE;
 	
 	struct dtv_properties cmdseq_tune;

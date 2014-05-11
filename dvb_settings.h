@@ -161,24 +161,25 @@ public:
 	QVector<QString> pname;
 };
 
-class freq_list
+class atsc
 {
 public:
-	freq_list();
-	void qam();
-	void atsc();
-	void dvbt();
+	atsc();
+	QVector<int> freq;
+	QVector<int> ch;
+};
+
+class qam
+{
+public:
+	qam();
 	QVector<int> freq;
 	QVector<int> ch;
 };
 
 bool isSatellite(int system);
 bool isATSC(int system);
-bool isVectorQAM(QVector<int> system);
-bool isVectorATSC(QVector<int> system);
-bool isVectorDVBT(QVector<int> system);
 bool isQAM(int system);
-bool isDVBT(int system);
 int azero(int num);
 
 #endif // DVB_SETTINGS_H

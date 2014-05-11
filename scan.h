@@ -56,6 +56,9 @@ public:
 	scan();
 	~scan();
 	void setup();
+	void sweep_satellite();
+	void sweep_atsc();
+	void sweep_qam();
 	void sweep();
 	void rescale();
 private:
