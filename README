@@ -45,7 +45,11 @@
 	make
 	sudo make install
 
-# To compile and run open the project in qtcreator
+# To download the updateDVB source
+
+    git clone https://bitbucket.org/updatelee/updatedvb.git
+
+# To compile and run open updatedvb.pro in qtcreator
 # hit the green triangle that says 'Build and Run'
 
 # Author: Chris Lee <updatelee@gmail.com>
