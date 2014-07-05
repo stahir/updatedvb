@@ -19,4 +19,6 @@
 - test the threaded ability of demux, try recording numerous demux's at once
 - Save to file is buggered. When STOP is hit we need to close the file_fd descriptor
 - Test streaming and playing with VLC next branch
+- hammer blindscan and look for lockups
+
 - clear up this TODO :)
