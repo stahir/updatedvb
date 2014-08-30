@@ -40,8 +40,8 @@
 	
 	svn checkout https://svn.code.sf.net/p/qwt/code/branches/qwt-6.1
 	cd qwt-6.1
-	/opt/Qt5.3.1/5.3/gcc/bin/qmake qwt.pro #(32 bit)
-	/opt/Qt5.3.1/5.3/gcc_64/bin/qmake qwt.pro #(64 bit)
+	/opt/Qt/5.3/gcc/bin/qmake qwt.pro #(32 bit)
+	/opt/Qt/5.3/gcc_64/bin/qmake qwt.pro #(64 bit)
 	make
 	sudo make install
 
