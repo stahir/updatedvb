@@ -125,12 +125,8 @@ void dvbtune::closefd()
 	stop_demux();
 	close_dvr();
 
-	if (!frontend_name.isEmpty()) {
+	if (frontend_name.isEmpty()) {
 		return;
-	}
-	while(status & TUNER_RDING) {
-		qDebug() << "waiting for read() to complete";
-		msleep(100);
 	}
 	close(frontend_fd);
 	frontend_name.clear();

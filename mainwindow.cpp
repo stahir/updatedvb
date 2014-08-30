@@ -573,6 +573,7 @@ void MainWindow::on_actionSettings_triggered()
 	ui->comboBox_lnb->setCurrentIndex(mysettings->value("adapter"+ui->comboBox_adapter->currentData().toString()+"_default_lnb").toInt());
 
 	reload_settings();
+	setup_tuning_options();
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -603,8 +604,8 @@ void MainWindow::adapter_status(int adapter)
 void MainWindow::setup_tuning_options()
 {
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
-	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentData().toInt();
+	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
 
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_diseqc_v12").toBool()) {

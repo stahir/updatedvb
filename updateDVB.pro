@@ -12,8 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = updateDVB
 TEMPLATE = app
 
-SOURCES += dvb_settings.cpp \
-    dvr_thread.cpp
+SOURCES += dvb_settings.cpp
+SOURCES += dvr_thread.cpp
 SOURCES += demux_file.cpp
 SOURCES += tuning.cpp
 SOURCES += blindscan.cpp
@@ -29,8 +29,8 @@ SOURCES += scan.cpp
 SOURCES += mainwindow.cpp
 SOURCES += main.cpp
 
-HEADERS  += dvb_settings.h \
-    dvr_thread.h
+HEADERS  += dvb_settings.h
+HEADERS  += dvr_thread.h
 HEADERS  += demux_file.h
 HEADERS  += tuning.h
 HEADERS  += blindscan.h
