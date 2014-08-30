@@ -26,26 +26,30 @@
 
 # 64bit
 
-	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x64-1.5.0-2-online.run
-	chmod +x qt-opensource-linux-x64-1.5.0-2-online.run
-	sudo ./qt-opensource-linux-x64-1.5.0-2-online.run
+	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x64-1.6.0-4-online.run
+	chmod +x qt-opensource-linux-x64-1.6.0-4-online.run
+	sudo ./qt-opensource-linux-x64-1.6.0-4-online.run
 
 # or 32bit
 
-	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x86-1.5.0-2-online.run
-	chmod +x qt-opensource-linux-x86-1.5.0-2-online.run
-	sudo ./qt-opensource-linux-x86-1.5.0-2-online.run
+	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x86-1.6.0-4-online.run
+	chmod +x qt-opensource-linux-x86-1.6.0-4-online.run
+	sudo ./qt-opensource-linux-x86-1.6.0-4-online.run
 
 # Then for qwt
 	
-	svn checkout svn://svn.code.sf.net/p/qwt/code/branches/qwt-6.1
+	svn checkout https://svn.code.sf.net/p/qwt/code/branches/qwt-6.1
 	cd qwt-6.1
-	/path/to/Qt/5.2.1/gcc/bin/qmake qwt.pro #(32 bit)
-	/path/to/Qt/5.2.1/gcc_64/bin/qmake qwt.pro #(64 bit)
+	/opt/Qt/5.3/gcc/bin/qmake qwt.pro #(32 bit)
+	/opt/Qt/5.3/gcc_64/bin/qmake qwt.pro #(64 bit)
 	make
 	sudo make install
 
-# To compile and run open the project in qtcreator
+# To download the updateDVB source
+
+    git clone https://bitbucket.org/updatelee/updatedvb.git
+
+# To compile and run open updatedvb.pro in qtcreator
 # hit the green triangle that says 'Build and Run'
 
 # Author: Chris Lee <updatelee@gmail.com>
