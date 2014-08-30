@@ -32,12 +32,12 @@ public:
 	bool mytuning_running;
 
 private slots:
-	void updatesignal();
+	void update_signal();
 	void on_pushButton_tune_clicked();
 	void on_pushButton_save_clicked();
 	void on_pushButton_expand_clicked();
 	void on_pushButton_unexpand_clicked();
-	void updateprogress(int i);
+	void update_progress(int i);
 	void mytuning_destroyed();
 
 private:

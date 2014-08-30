@@ -27,22 +27,29 @@ settings::settings(QWidget *parent) :
 	ui->setupUi(this);
 	mysettings = new QSettings("UDL", "updateDVB");
 	
+	mystatusbar = new QStatusBar;
+	mystatusbar->setVisible(true);
+	ui->verticalLayout->addWidget(mystatusbar);
+
+	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
+
 	noload = true;
 	QVector<int> adaps;
 	QDir dvb_dir("/dev/dvb");
 	dvb_dir.setFilter(QDir::Dirs|QDir::NoDotAndDotDot);
 	QStringList adapter_entries = dvb_dir.entryList();
-	for(QStringList::ConstIterator adapter_entry = adapter_entries.begin(); adapter_entry != adapter_entries.end(); adapter_entry++) {
-		QString adapter_dirname = *adapter_entry;
-		adapter_dirname.replace("adapter", "");
-		adaps.append(adapter_dirname.toInt());
+	adapter_entries = adapter_entries.filter("adapter");
+	for(int i = 0; i < adapter_entries.size(); i++) {
+		QString adapter_name = adapter_entries.at(i);
+		adapter_name.replace("adapter", "");
+		adaps.append(adapter_name.toInt());
 	}
 	qSort(adaps);
 	for (int i = 0; i < adaps.size(); i++) {
-		ui->comboBox_adapter->addItem(QString::number(adaps.at(i)));
+		ui->comboBox_adapter->insertItem(adaps.at(i), QString::number(adaps.at(i)), adaps.at(i));
 	}
 	for (int i = 0; i < MAX_LNBS; i++) {
-		ui->comboBox_lnb->insertItem(i, QString::number(i));
+		ui->comboBox_lnb->insertItem(i, QString::number(i), i);
 	}
 
 	noload = false;
@@ -55,8 +62,8 @@ settings::settings(QWidget *parent) :
 
 settings::~settings()
 {
-	qDebug() << "~settings()";
 	delete mysettings;
+	delete mystatusbar;
 	delete ui;
 }
 
@@ -69,7 +76,16 @@ void settings::load_settings()
 	save_settings();
 	
 	lnb = ui->comboBox_lnb->currentIndex();
-	adp = ui->comboBox_adapter->currentText().toInt();
+	adp = ui->comboBox_adapter->currentData().toInt();
+	fnd = ui->comboBox_frontend->currentData().toInt();
+
+	ui->comboBox_default_lnb->clear();
+	for (int i = 0; i < MAX_LNBS; i++) {
+		if (mysettings->value("lnb"+QString::number(i)+"_name").toString() != "") {
+			ui->comboBox_default_lnb->insertItem(i, QString::number(i) + " - " + mysettings->value("lnb"+QString::number(i)+"_name").toString(), i);
+		}
+	}
+	ui->comboBox_default_lnb->setCurrentIndex(mysettings->value("adapter"+QString::number(adp)+"_default_lnb").toInt());
 
 	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());
 	ui->lineEdit_long->setText(mysettings->value("site_long").toString());
@@ -85,8 +101,8 @@ void settings::load_settings()
 	if (mysettings->value("adapter"+QString::number(adp)+"_name").toString() != "") {
 		ui->lineEdit_adapter_name->setText(mysettings->value("adapter"+QString::number(adp)+"_name").toString());
 	} else {
-		if (mytuners.size() > ui->comboBox_adapter->currentText().toInt()) {
-			ui->lineEdit_adapter_name->setText(mytuners.at(ui->comboBox_adapter->currentText().toInt())->name);
+		if (mytuners.size() > ui->comboBox_adapter->currentIndex()) {
+			ui->lineEdit_adapter_name->setText(mytuners.at(ui->comboBox_adapter->currentIndex())->name);
 		}
 	}
 
@@ -122,6 +138,10 @@ void settings::load_settings()
 	}
 
 	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
+
+	if (mytuners.size() > ui->comboBox_adapter->currentIndex()) {
+		update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
+	}
 }
 
 void settings::save_settings()
@@ -133,7 +153,9 @@ void settings::save_settings()
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12", ui->checkBox_diseqc_v12->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v13", ui->checkBox_diseqc_v13->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_name", ui->lineEdit_adapter_name->text());
-	
+	mysettings->setValue("adapter"+QString::number(adp)+"_frontend"+QString::number(fnd)+"_name", ui->lineEdit_frontend_name->text());
+	mysettings->setValue("adapter"+QString::number(adp)+"_default_lnb", ui->comboBox_default_lnb->currentIndex());
+
 	for (int i = 1; i < 100; i++) {
 		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i-1, 0)->text());
 	}
@@ -164,6 +186,8 @@ void settings::save_settings()
 
 	lnb = ui->comboBox_lnb->currentIndex();
 	adp = ui->comboBox_adapter->currentText().toInt();
+
+	update_status("Saved", 2);
 }
 
 void settings::on_comboBox_lnb_currentIndexChanged(int index)
@@ -174,14 +198,23 @@ void settings::on_comboBox_lnb_currentIndexChanged(int index)
 
 void settings::on_comboBox_adapter_currentIndexChanged(int index)
 {
-	Q_UNUSED(index);
 	load_settings();
+
+	ui->comboBox_frontend->clear();
+	QDir adapter_dir("/dev/dvb/adapter" + QString::number(index));
+	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
+	QStringList frontend_entries = adapter_dir.entryList();
+	frontend_entries = frontend_entries.filter("frontend");
+	for(int i = 0; i < frontend_entries.size(); i++) {
+		QString frontend_name = frontend_entries.at(i);
+		frontend_name.replace("frontend", "");
+		ui->comboBox_frontend->insertItem(frontend_name.toInt(), frontend_name, frontend_name.toInt());
+	}
 }
 
 void settings::on_comboBox_type_currentIndexChanged(int index)
 {
 	Q_UNUSED(index);
-	qDebug() << "on_comboBox_type_currentIndexChanged()" << ui->comboBox_type->currentText();
 	
 	if (ui->comboBox_type->currentText() == "C-Band") {
 		ui->lineEdit_f_lof->setText("-5150");
@@ -217,6 +250,11 @@ void settings::on_comboBox_type_currentIndexChanged(int index)
 		ui->lineEdit_f_lof->setText("0");
 		ui->lineEdit_f_start->setText("52000");
 		ui->lineEdit_f_stop->setText("900000");
+	}
+	if (ui->comboBox_type->currentText() == "DVBT") {
+		ui->lineEdit_f_lof->setText("0");
+		ui->lineEdit_f_start->setText("174000");
+		ui->lineEdit_f_stop->setText("790000");
 	}
 	if (ui->comboBox_type->currentText() == "Custom") {
 		ui->lineEdit_f_lof->setText("0");
@@ -425,10 +463,56 @@ void settings::on_pushButton_asc1_download_clicked()
 		ui->tableWidget_diseqc_v12->setItem(i-1, 2, new QTableWidgetItem(QString::number(mydata.Hdeg)));
 		ui->tableWidget_diseqc_v12->setItem(i-1, 3, new QTableWidgetItem(QString::number(mydata.Vdeg)));
 
-//		qDebug() << "name:" << mydata.name << "counter:" << mydata.counter << "Hdeg:" << mydata.Hdeg << "Vdeg:" << mydata.Vdeg;
 		ui->progressBar->setValue(i);
 	}
 	ui->progressBar->hide();
 
 	myserial.close();
+}
+
+void settings::update_status(QString text, int time)
+{
+	if (time == STATUS_CLEAR) {
+		mystatus.clear();
+	}
+	if (time == STATUS_REMOVE) {
+		if (mystatus.indexOf(text) != -1) {
+			mystatus.remove(mystatus.indexOf(text));
+		}
+	}
+	if (time == STATUS_NOEXP) {
+		mystatus.append(text);
+	}
+	if (time > 0) {
+		status_timer = new QTimer;
+		status_timer->setSingleShot(true);
+		connect(status_timer, SIGNAL(timeout()), &status_mapper, SLOT(map()));
+		status_mapper.setMapping(status_timer, text);
+		status_timer->start(time*1000);
+		mystatus.append(text);
+	}
+
+	if (mystatus.size()) {
+		mystatusbar->showMessage(mystatus.last(), 0);
+	} else {
+		mystatusbar->showMessage("", 0);
+	}
+}
+
+void settings::on_comboBox_frontend_currentIndexChanged(int index)
+{
+	load_settings();
+
+	if (adp < 0) {
+		adp = ui->comboBox_adapter->currentData().toInt();
+	}
+
+	ui->lineEdit_frontend_name->setText(mysettings->value("adapter"+QString::number(adp)+"_frontend"+QString::number(index)+"_name").toString());
+
+	if (mytuners.size() > ui->comboBox_adapter->currentIndex()) {
+		mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
+		mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentData().toInt();
+		mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
+		update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
+	}
 }

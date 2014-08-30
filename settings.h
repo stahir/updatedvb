@@ -25,6 +25,7 @@
 #include <QDir>
 #include <QThread>
 #include <QtSerialPort/QtSerialPort>
+#include <QStatusBar>
 #include <iostream>
 #include <unistd.h>
 #include "dvb_settings.h"
@@ -57,13 +58,20 @@ private slots:
 	void on_checkBox_asc1_clicked();
 	void on_pushButton_asc1_upload_clicked();
 	void on_pushButton_asc1_download_clicked();
+	void update_status(QString text, int time = STATUS_REMOVE);
+
+	void on_comboBox_frontend_currentIndexChanged(int index);
 
 private:
 	Ui::settings *ui;
 	QSettings *mysettings;
+	QStatusBar *mystatusbar;
+	QVector<QString> mystatus;
+	QSignalMapper status_mapper;
+	QTimer *status_timer;
 	bool noload;
 	bool nosave;
-	int lnb, adp;
+	int lnb, adp, fnd;
 };
 
 #endif // SETTINGS_H

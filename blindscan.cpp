@@ -23,33 +23,29 @@ void blindscan::init()
 {
 	mythread.mytune = mytune;
 	mythread.mytune->thread_function.clear();
-	connect(mythread.mytune, SIGNAL(updatesignal()), this, SLOT(updatesignal()), Qt::UniqueConnection);
-	connect(&mythread, SIGNAL(updateprogress(int)), this, SLOT(updateprogress(int)));
+	connect(mythread.mytune, SIGNAL(update_signal()), this, SLOT(update_signal()), Qt::UniqueConnection);
+	connect(&mythread, SIGNAL(update_progress(int)), this, SLOT(update_progress(int)));
 	this->setWindowTitle("Blindscan, Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 }
 
 blindscan::~blindscan()
 {
-	qDebug() << "~blindscan()";
-
 	mythread.ready	= true;
 	mythread.loop	= false;
 	mythread.quit();
 	mythread.wait(1000);
 	while (mythread.isRunning()) {
-		qDebug() << "mythread.isRunning()";
 		mythread.ready	= true;
 		mythread.loop	= false;
-		sleep(1);
+		QThread::msleep(100);
 	}
 
 	mytune->loop = false;
 	mytune->quit();
 	mytune->wait(1000);
 	while (mytune->isRunning()) {
-		qDebug() << "mytune->isRunning()";
 		mytune->loop = false;
-		sleep(1);
+		QThread::msleep(100);
 	}
 
 	if (mytuning_running) {
@@ -80,7 +76,7 @@ void blindscan::smartscan()
 	mythread.start();
 }
 
-void blindscan::updateprogress(int i)
+void blindscan::update_progress(int i)
 {
 	if (i > myprogress->maximum()) {
 		i = myprogress->maximum();
@@ -112,13 +108,12 @@ int blindscan::tree_create_child(int parent, QString text)
 	return cindex;
 }
 
-void blindscan::updatesignal()
+void blindscan::update_signal()
 {
 	if (mythread.ready) {
 		return;
 	}
-	if (isATSC(mythread.mytune->tp.system) && !(mythread.mytune->tp.status & FE_HAS_LOCK)) {
-		qDebug() << "no ATSC lock";
+	if (!(mythread.mytune->tp.status & FE_HAS_LOCK)) {
 		mythread.ready = true;
 		return;
 	}
@@ -131,23 +126,21 @@ void blindscan::updatesignal()
 
 	mytp_info.append(mythread.mytune->tp);
 
-	qam myqam;
-	atsc myatsc;
+	freq_list myfreq;
 	QString text;
 	if (isSatellite(mytune->tp.system)) {
 		text = QString::number(mytune->tp.frequency) + dvbnames.voltage[mytune->tp.voltage] + QString::number(mytune->tp.symbolrate);
+	} else if (isATSC(mytune->tp.system)) {
+		myfreq.atsc();
+		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency)));
+	} else if (isQAM(mytune->tp.system)) {
+		myfreq.qam();
+		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency)));
+	} else if (isDVBT(mytune->tp.system)) {
+		myfreq.dvbt();
+		text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency)));
 	} else {
-		switch (mytune->tp.system) {
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]);
-			break;
-		case SYS_DVBC_ANNEX_B:
-			text = QString::number(mytune->tp.frequency/1000) + "mhz, Channel " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]);
-			break;
-		default:
-			text = QString::number(mytune->tp.frequency/1000) + "mhz";
-		}
+		text = QString::number(mytune->tp.frequency/1000) + "mhz";
 	}
 
 	parent_1 = tree_create_root(text);
@@ -221,7 +214,6 @@ void blindscan::on_pushButton_tune_clicked()
 
 void blindscan::mytuning_destroyed()
 {
-	qDebug() << "mytuning_destroyed()";
 	mytuning_running = false;
 }
 

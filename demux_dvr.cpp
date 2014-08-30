@@ -28,8 +28,6 @@ demux_dvr::demux_dvr(QWidget *parent) :
 
 demux_dvr::~demux_dvr()
 {
-	qDebug() << "~demux_dvr()";
-	
 	delete ui;
 }
 

@@ -39,7 +39,7 @@ public:
 	bool ready;
 	QVector<QString> thread_function;
 signals:
-	void updateprogress(int i);
+	void update_progress(int i);
 private:
 	void blindscan();
 	void smartscan();

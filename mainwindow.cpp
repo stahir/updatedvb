@@ -72,9 +72,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	if (ui->comboBox_lnb->currentIndex() < 0) {
 		ui->comboBox_lnb->insertItem(0, "0");
 	}
-	ui->comboBox_lnb->setCurrentIndex(0);
 	noload = false;
-		
+
 	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
 
 	reload_settings();
@@ -86,25 +85,24 @@ MainWindow::MainWindow(QWidget *parent) :
 		ui->comboBox_adapter->clear();
 		for (int i = 0; i < mytuners.size(); i++) {
 			mytuners.at(i)->servo = mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_servo").toBool();
-			ui->comboBox_adapter->insertItem(i, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
+			ui->comboBox_adapter->insertItem(mytuners.at(i)->adapter, QString::number(mytuners.at(i)->adapter) + " " + mysettings->value("adapter" + QString::number(mytuners.at(i)->adapter) + "_name").toString(), mytuners.at(i)->adapter);
 		}
 		ui->comboBox_adapter->setCurrentIndex(0);
-		setup_tuning_options();
 		noload = false;
+		setup_tuning_options();
 	}
+
+	status_timer = new QTimer;
 }
 
 MainWindow::~MainWindow()
 {
-	qDebug() << "~MainWindow()";
-	
 	myscan->loop = false;
 	myscan->quit();
 	myscan->wait(1000);
 	while (myscan->isRunning()) {
-		qDebug() << "myscan->isRunning()";
 		myscan->loop = false;
-		sleep(1);
+		QThread::msleep(100);
 	}
 	delete myscan;
 	
@@ -113,9 +111,8 @@ MainWindow::~MainWindow()
 		mytuners.at(i)->quit();
 		mytuners.at(i)->wait(1000);
 		while (mytuners.at(i)->isRunning()) {
-			qDebug().nospace() << "mytuners.at(" << i << ")->isRunning()";
 			mytuners.at(i)->loop = false;
-			sleep(1);
+			QThread::msleep(100);
 		}
 		mytuners.at(i)->stop_demux();
 		mytuners.at(i)->closefd();		
@@ -131,8 +128,9 @@ MainWindow::~MainWindow()
 		marker.at(i)->detach();
 	}
 
-	delete mysettings;
+	status_timer->deleteLater();
 
+	delete mysettings;
 	delete qwt_picker;
 	delete legend;
 	
@@ -255,12 +253,12 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 void MainWindow::qwtPlot_selected(QPointF pos)
 {
 	if (myscan->loop) {
-		qDebug() << "Spectrumscan loop in progress, stop spectrum scan then attempt to tune again...";
+		update_status("Please wait for spectrum scan to finish first", 1);
 		return;
 	}
 
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->loop) {
-		qDebug() << "Tuner is busy, attempt to tune again later when its no longer busy...";
+		update_status("Tuner is currently busy", 1);
 		return;
 	}
 
@@ -287,22 +285,25 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 		mytuning.last()->mytune->tp.fec			= FEC_AUTO;
 	}
 	
+	connect(mytuning.last(), SIGNAL(adapter_status(int)), this, SLOT(adapter_status(int)));
 	mytuning.last()->init();
 	mytuning.last()->show();
 }
 
 void MainWindow::update_status(QString text, int time)
 {
-	if (time == -1) {
+	if (time == STATUS_CLEAR) {
+		mystatus.clear();
+	}
+	if (time == STATUS_REMOVE) {
 		if (mystatus.indexOf(text) != -1) {
 			mystatus.remove(mystatus.indexOf(text));
 		}
 	}
-	if (time == 0) {
+	if (time == STATUS_NOEXP) {
 		mystatus.append(text);
 	}
 	if (time > 0) {
-		status_timer = new QTimer;
 		status_timer->setSingleShot(true);
 		connect(status_timer, SIGNAL(timeout()), &status_mapper, SLOT(map()));
 		status_mapper.setMapping(status_timer, text);
@@ -310,13 +311,17 @@ void MainWindow::update_status(QString text, int time)
 		mystatus.append(text);
 	}
 
-	ui->statusBar->showMessage(mystatus.last(), 0);
+	if (mystatus.size()) {
+		ui->statusBar->showMessage(mystatus.last(), 0);
+	} else {
+		ui->statusBar->showMessage("", 0);
+	}
 }
 
 void MainWindow::on_pushButton_spectrumscan_clicked()
 {
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->is_tuned) {
-		qDebug() << "adapter" << mytuners.at(ui->comboBox_adapter->currentIndex())->adapter << "is currently tuned";
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->status != TUNER_AVAIL) {
+		update_status("Adapter " + QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->adapter) + " is currently busy", 1);
 		return;
 	}
 
@@ -339,8 +344,8 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 
 void MainWindow::on_pushButton_blindscan_clicked()
 {
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->is_tuned) {
-		qDebug() << "adapter" << mytuners.at(ui->comboBox_adapter->currentIndex())->adapter << "is currently tuned";
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->status != TUNER_AVAIL) {
+		update_status("Adapter " + QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->adapter) + " is currently busy", 1);
 		return;
 	}
 
@@ -348,9 +353,6 @@ void MainWindow::on_pushButton_blindscan_clicked()
 	myblindscan.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 	myblindscan.last()->init();
 	myblindscan.last()->show();
-
-	qam myqam;
-	atsc myatsc;
 
 	tp_info tp;
 	if (ui->gridWidget_system->isVisible()) {
@@ -390,83 +392,62 @@ void MainWindow::on_pushButton_blindscan_clicked()
 		return;
 	}
 
+	freq_list myfreq;
 	if (ui->checkBox_smart->isChecked() && mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size()) {
-		switch (dvbnames.system.indexOf(ui->comboBox_system->currentText())) {
-		case SYS_DVBC_ANNEX_B:
-			qDebug() << "QAM";
+		if (!isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			if (isQAM(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "QAM";
+				myfreq.qam();
+			} else if (isATSC(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				myfreq.atsc();
+				qDebug() << "ATSC";
+			} else if (isDVBT(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				myfreq.dvbt();
+				qDebug() << "DVBT";
+			}
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
 			for (int i = 1; i < myscan->x.size(); i++) {
 				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < f_start || myscan->x.at(i) > f_stop) {
 					continue;
 				}
-				if (myqam.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
+				if (myfreq.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
 					tp.frequency = myscan->x.at(i);
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				} else { // Long search
-					for (int ai = 0; ai < myqam.freq.size(); ai++) {
-						if (abs(myqam.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
-							if (tp.frequency != myqam.freq.at(ai)) {
-								tp.frequency = myqam.freq.at(ai);
+					for (int ai = 0; ai < myfreq.freq.size(); ai++) {
+						if (abs(myfreq.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
+							if (tp.frequency != myfreq.freq.at(ai)) {
+								tp.frequency = myfreq.freq.at(ai);
 								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 							}
 						}
 					}
 				}
 			}
-			break;
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			qDebug() << "ATSC";
-			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 1; i < myscan->x.size(); i++) {
-				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < f_start || myscan->x.at(i) > f_stop) {
-					continue;
-				}
-				if (myatsc.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
-					tp.frequency = myscan->x.at(i);
-					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
-				} else { // Long search
-					for (int ai = 0; ai < myatsc.freq.size(); ai++) {
-						if (abs(myatsc.freq.at(ai) - (int)myscan->x.at(i)) < 3000) {
-							if (tp.frequency != myatsc.freq.at(ai)) {
-								tp.frequency = myatsc.freq.at(ai);
-								mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
-							}
-						}
-					}
-				}
-			}
-			break;
 		}
 		myblindscan.last()->smartscan();
 	} else {
-		switch (dvbnames.system.indexOf(ui->comboBox_system->currentText())) {
-		case SYS_DVBC_ANNEX_B:
-			qDebug() << "QAM";
+		if (!isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			if (isQAM(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "QAM";
+				myfreq.qam();
+			} else if (isATSC(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "ATSC";
+				myfreq.atsc();
+			} else if (isDVBT(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+				qDebug() << "DVBT";
+				myfreq.dvbt();
+			}
 			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 0; i < myqam.freq.size(); i++) {
-				if (myqam.freq.at(i) >= f_start && myqam.freq.at(i) <= f_stop) {
-					tp.frequency	= myqam.freq.at(i);
+			for (int i = 0; i < myfreq.freq.size(); i++) {
+				if (myfreq.freq.at(i) >= f_start && myfreq.freq.at(i) <= f_stop) {
+					tp.frequency	= myfreq.freq.at(i);
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				}
 			}
 			myblindscan.last()->smartscan();
-			break;
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			qDebug() << "ATSC";
-			mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.clear();
-			for (int i = 0; i < myatsc.freq.size(); i++) {
-				if (myatsc.freq.at(i) >= f_start && myatsc.freq.at(i) <= f_stop) {
-					tp.frequency	= myatsc.freq.at(i);
-					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
-				}
-			}
-			myblindscan.last()->smartscan();
-			break;
-		default:
+		} else {
 			myblindscan.last()->scan();
-			break;
 		}
 	}
 }
@@ -518,12 +499,11 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentData().toString());
 	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
 	QStringList frontend_entries = adapter_dir.entryList();
-	for(QStringList::ConstIterator frontend_entry = frontend_entries.begin(); frontend_entry != frontend_entries.end(); frontend_entry++) {
-		QString frontend_dirname = *frontend_entry;
-		if (frontend_dirname.contains("frontend")) {
-			frontend_dirname.replace("frontend", "");
-			ui->comboBox_frontend->addItem(frontend_dirname);
-		}
+	frontend_entries = frontend_entries.filter("frontend");
+	for(int i = 0; i < frontend_entries.size(); i++) {
+		QString frontend_name = frontend_entries.at(i);
+		frontend_name.replace("frontend", "");
+		ui->comboBox_frontend->insertItem(frontend_name.toInt(), frontend_name + " " + mysettings->value("adapter" + ui->comboBox_adapter->currentData().toString() + "_frontend" + frontend_name + "_name").toString(), frontend_name.toInt());
 	}
 
 	reload_settings();
@@ -589,26 +569,34 @@ void MainWindow::on_actionSettings_triggered()
 	if (ui->comboBox_lnb->currentIndex() < 0) {
 		ui->comboBox_lnb->insertItem(0, "0");
 	}
-	ui->comboBox_lnb->setCurrentIndex(0);
 	noload = false;
-	
+	ui->comboBox_lnb->setCurrentIndex(mysettings->value("adapter"+ui->comboBox_adapter->currentData().toString()+"_default_lnb").toInt());
+
 	reload_settings();
 }
 
 void MainWindow::on_actionExit_triggered()
 {
-	qDebug() << "on_actionExit_triggered()";
 	close();
 }
 
-void MainWindow::adapter_status(int adapter, bool is_busy)
+void MainWindow::adapter_status(int adapter)
 {
-	if (is_busy) {
-		ui->comboBox_adapter->setItemText(adapter, QString("%1 Busy").arg(adapter));
-		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::red), Qt::TextColorRole);
-	} else {
-		ui->comboBox_adapter->setItemText(adapter, QString::number(adapter) + " " + mysettings->value("adapter" + QString::number(adapter) + "_name").toString());
-		ui->comboBox_adapter->setItemData(adapter, QColor(Qt::black), Qt::TextColorRole);
+	int index = ui->comboBox_adapter->findData(adapter);
+	if (index < 0) {
+		return;
+	}
+	if (mytuners.at(index)->status == TUNER_AVAIL) {
+		ui->comboBox_adapter->setItemText(index, QString::number(adapter) + " " + mysettings->value("adapter" + QString::number(adapter) + "_name").toString());
+		ui->comboBox_adapter->setItemData(index, QColor(Qt::black), Qt::TextColorRole);
+	}
+	if (mytuners.at(index)->status & TUNER_TUNED) {
+		ui->comboBox_adapter->setItemText(index, QString::number(adapter) + " Tuned");
+		ui->comboBox_adapter->setItemData(index, QColor(Qt::red), Qt::TextColorRole);
+	}
+	if (mytuners.at(index)->status & TUNER_DEMUX) {
+		ui->comboBox_adapter->setItemText(index, QString::number(adapter) + " Busy");
+		ui->comboBox_adapter->setItemData(index, QColor(Qt::red), Qt::TextColorRole);
 	}
 }
 
@@ -616,7 +604,7 @@ void MainWindow::setup_tuning_options()
 {
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
 	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
-	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentText().toInt();
+	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentData().toInt();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
 
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_diseqc_v12").toBool()) {
@@ -635,7 +623,7 @@ void MainWindow::setup_tuning_options()
 		ui->gridWidget_positioner->hide();
 	}
 
-	update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, 0);
+	update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
 
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_SPECTRUMSCAN) {
 		ui->gridWidget_spectrumscan->show();
@@ -705,15 +693,19 @@ void MainWindow::setup_tuning_options()
 		ui->gridWidget_satellite->hide();
 	} else {
 		ui->gridWidget_system->show();
-		ui->gridWidget_blindscan->hide();
-
-		if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1) {
+		if (isVectorQAM(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys) || isVectorATSC(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys) || isVectorDVBT(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys)) {
 			ui->gridWidget_blindscan->show();
 			ui->gridWidget_satellite->hide();
 		} else {
 			ui->gridWidget_satellite->show();
 		}
 	}
+
+	if (!noload && mysettings->value("lnb"+mysettings->value("adapter"+ui->comboBox_adapter->currentData().toString()+"_default_lnb").toString()+"_enabled").toBool()) {
+		ui->comboBox_lnb->setCurrentIndex(mysettings->value("adapter"+ui->comboBox_adapter->currentData().toString()+"_default_lnb").toInt());
+	}
+
+	qDebug() << "Adapter:" << ui->comboBox_adapter->currentData().toInt() << "Frontend:" << ui->comboBox_frontend->currentData().toInt() << "lnb:" << ui->comboBox_lnb->currentData().toInt() << "Voltage setting:" << dvbnames.voltage[tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage];
 }
 
 void MainWindow::getadapters()
@@ -722,18 +714,19 @@ void MainWindow::getadapters()
 	QDir dvb_dir("/dev/dvb");
 	dvb_dir.setFilter(QDir::Dirs|QDir::NoDotAndDotDot);
 	QStringList adapter_entries = dvb_dir.entryList();
-	for(QStringList::ConstIterator adapter_entry = adapter_entries.begin(); adapter_entry != adapter_entries.end(); adapter_entry++) {
-		QString adapter_dirname = *adapter_entry;
-		adapter_dirname.replace("adapter", "");
-		adaps.append(adapter_dirname.toInt());
+	adapter_entries = adapter_entries.filter("adapter");
+	for(int i = 0; i < adapter_entries.size(); i++) {
+		QString adapter_name = adapter_entries.at(i);
+		adapter_name.replace("adapter", "");
+		adaps.append(adapter_name.toInt());
 	}
 	qSort(adaps);
 
 	for (int i = 0; i < adaps.size(); i++) {
 		mytuners.append(new dvbtune);
-		connect(mytuners.last(), SIGNAL(adapter_status(int,bool)), this, SLOT(adapter_status(int,bool)));
+		connect(mytuners.last(), SIGNAL(adapter_status(int)), this, SLOT(adapter_status(int)));
 		mytuners.last()->adapter	= adaps.at(i);
-		mytuners.last()->frontend	= ui->comboBox_frontend->currentText().toInt();
+		mytuners.last()->frontend	= ui->comboBox_frontend->currentData().toInt();
 		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentData().toInt()];
 		mytuners.last()->getops();
 	}
@@ -769,8 +762,8 @@ void MainWindow::reload_settings()
 		tune_ops.append(tmp);
 	}
 
-	if (ui->comboBox_adapter->currentData().toInt() < 0) {
-		return;
+	for (int i = 0; i < mytuners.size(); i++) {
+		adapter_status(mytuners.at(i)->adapter);
 	}
 
 	int gotox_i = ui->comboBox_gotox->currentIndex();
@@ -786,7 +779,6 @@ void MainWindow::reload_settings()
 
 	QVariant d(0);
 	QVariant e(1|32);
-	qDebug() << "Adapter:" << ui->comboBox_adapter->currentData().toInt() << "lnb:" << ui->comboBox_lnb->currentData().toInt() << "Voltage setting:" << tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage;
 	switch(tune_ops[ui->comboBox_lnb->currentData().toInt()].voltage) {
 	case 0:
 		ui->gridWidget_voltage->hide();

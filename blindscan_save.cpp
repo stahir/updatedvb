@@ -32,8 +32,6 @@ blindscan_save::blindscan_save(QWidget *parent) :
 
 blindscan_save::~blindscan_save()
 {
-	qDebug() << "~blindscan_save()";
-
 	delete mystatus;
 	delete ui;
 }
@@ -60,7 +58,6 @@ void blindscan_save::on_pushButton_save_clicked()
 		out << dvbnames.modulation[mytp_info[i].modulation] << "\n";
 	}
 	mystatus->showMessage("Saved");
-	sleep(2);
 	emit QDialog::accept();
 }
 

@@ -55,13 +55,14 @@ public:
 
 signals:
 	void server_new();
+	void adapter_status(int adapter);
 
 public slots:
-	void update_status(QString text, int time);
+	void update_status(QString text, int time = STATUS_REMOVE);
 
 private slots:
-	void updatesignal();
-	void updateresults();
+	void update_signal();
+	void update_results();
 	void stop_demux();
 	void on_pushButton_play_clicked();
 	void on_pushButton_ipcleaner_clicked();
@@ -80,6 +81,7 @@ private slots:
 	void delete_demux_file();
 	void on_pushButton_iqplot_clicked();
 	void parsetp_done();
+	void myProcess_finished();
 
 private:
 	Ui::tuning *ui;
@@ -99,6 +101,9 @@ private:
 	dvbstream_thread mystream;
 	QThread mystream_thread;
 	QThread reader_thread;
+	QVector<QString> mystatus;
+	QSignalMapper status_mapper;
+	QTimer *status_timer;
 
 protected:
 	void closeEvent(QCloseEvent *event);

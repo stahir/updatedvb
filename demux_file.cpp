@@ -17,7 +17,6 @@ demux_file::demux_file(QWidget *parent) :
 
 demux_file::~demux_file()
 {
-	qDebug() << "~demux_file()";
 	on_pushButton_stop_clicked();
 
 	delete mystatus;
@@ -26,7 +25,7 @@ demux_file::~demux_file()
 
 void demux_file::init()
 {
-	connect(&mytune->dvr, SIGNAL(data_size(int)), this, SLOT(demux_status(int)));
+	connect(mytune->mydvr, SIGNAL(data_size(int)), this, SLOT(demux_status(int)));
 }
 
 void demux_file::on_pushButton_start_clicked()

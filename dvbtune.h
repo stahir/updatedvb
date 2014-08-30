@@ -40,18 +40,22 @@
 #include <string>
 #include <sstream>
 #include <math.h>
+#include <sys/select.h>
 #include "dvb_settings.h"
 #include "dvr_thread.h"
 using namespace std;
+
+class dvr_thread;
 
 class dvbtune : public QThread
 {
 	Q_OBJECT
 signals:
-	void updatesignal();
-	void updateresults();
+	void update_signal();
+	void update_results();
+	void update_status(QString text, int time);
 	void iqdraw(QVector<short int> x, QVector<short int> y);
-	void adapter_status(int adapter, bool is_busy);
+	void adapter_status(int adapter);
 	void demux_status(int bytes);
 	void send_stream(QByteArray);
 
@@ -72,6 +76,7 @@ public:
 	int frontend_fd, dvr_fd, sct_fd, out_fd;
 	QVector<int> dmx_fd;
 	QString frontend_name, dvr_name, dmx_name, sct_name, out_name;
+	struct timeval fd_timeout;
 	QVector<int> pids;
 	QVector<int> pids_rate;
 	double old_position;
@@ -80,7 +85,7 @@ public:
 	QVector<short int> iq_x;
 	QVector<short int> iq_y;	
 	
-	dvr_thread dvr;
+	dvr_thread *mydvr;
 
 	int crc32();
 	void check_frontend();
@@ -112,9 +117,7 @@ public:
 	
 	void run();
 	bool loop;
-	bool is_reading;
-	bool is_busy;
-	bool is_tuned;
+	unsigned int status;
 
 	QVector<int> delsys;
 	u_int64_t caps;

@@ -39,14 +39,12 @@ iqplot::iqplot(QWidget *parent) :
 
 iqplot::~iqplot()
 {
-	qDebug() << "~iqplot()";
 	mytune->loop = false;
 	mytune->quit();
 	mytune->wait(1000);
 	while (mytune->isRunning()) {
-		qDebug() << "mytune->isRunning()";
 		mytune->loop = false;
-		sleep(1);
+		QThread::msleep(100);
 	}
 
 	ui->qwtPlot->detachItems();
@@ -64,7 +62,6 @@ void iqplot::closeEvent(QCloseEvent *event)
 
 void iqplot::init()
 {
-	qDebug() << "init()";
 	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 
 	connect(mytune, SIGNAL(iqdraw(QVector<short int>, QVector<short int>)), this, SLOT(iqdraw(QVector<short int>, QVector<short int>)));
@@ -75,7 +72,6 @@ void iqplot::init()
 
 void iqplot::delete_iqplot()
 {
-	qDebug() << "delete_iqplot()";
 	this->deleteLater();
 }
 

@@ -45,12 +45,12 @@ tuning::tuning(QWidget *parent) :
 	black_palette = ui->treeWidget->palette();
 	black_palette.setColor(QPalette::Base, Qt::black);
 	ui->treeWidget->setPalette(black_palette);
+
+	status_timer = new QTimer;
 }
 
 tuning::~tuning()
 {
-	qDebug() << "~tuning()";
-
 	if (!myiqplot.isNull()) {
 		myiqplot->deleteLater();
 	}
@@ -63,8 +63,7 @@ tuning::~tuning()
 	mystream_thread.quit();
 	mystream_thread.wait(1000);
 	while (mystream_thread.isRunning()) {
-		qDebug() << "mystream_thread.isRunning()";
-		sleep(1);
+		QThread::msleep(100);
 	}
 
 	mythread.ready	= true;
@@ -72,21 +71,23 @@ tuning::~tuning()
 	mythread.quit();
 	mythread.wait(1000);
 	while (mythread.isRunning()) {
-		qDebug() << "mythread.isRunning()";
 		mythread.ready	= true;
 		mythread.loop	= false;
-		sleep(1);
+		QThread::msleep(100);
 	}
 
-	mytune->is_tuned	= false;
+	mytune->status = unsetbit(mytune->status, 0xff);
+	emit adapter_status(mytune->adapter);
+
 	mytune->loop		= false;
 	mytune->quit();
 	mytune->wait(1000);
 	while (mytune->isRunning()) {
-		qDebug() << "mytune->isRunning()";
 		mytune->loop = false;
-		sleep(1);
+		QThread::msleep(100);
 	}
+
+	status_timer->deleteLater();
 
 	delete mysettings;
 	delete mystatusbar;
@@ -104,11 +105,10 @@ void tuning::closeEvent(QCloseEvent *event)
 
 void tuning::init()
 {
-	mytune->is_tuned = true;
-
-	connect(&myProcess, SIGNAL(finished(int)), this, SLOT(stop_demux()));
-	connect(mytune, SIGNAL(updatesignal()), this, SLOT(updatesignal()));
-	connect(mytune, SIGNAL(updateresults()), this, SLOT(updateresults()));
+	connect(&myProcess, SIGNAL(finished(int)), this, SLOT(myProcess_finished()));
+	connect(mytune, SIGNAL(update_signal()), this, SLOT(update_signal()));
+	connect(mytune, SIGNAL(update_results()), this, SLOT(update_results()));
+	connect(mytune, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 	connect(&mythread, SIGNAL(list_create(QString, int)), this, SLOT(list_create(QString, int)));
 	connect(&mythread, SIGNAL(tree_create_root(int *, QString, int)), this, SLOT(tree_create_root(int *, QString, int)));
 	connect(&mythread, SIGNAL(tree_create_child(int *, QString, int)), this, SLOT(tree_create_child(int *, QString, int)));
@@ -116,12 +116,14 @@ void tuning::init()
 	connect(&mythread, SIGNAL(parsetp_done()), this, SLOT(parsetp_done()));
 	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 	connect(this, SIGNAL(server_new()), &mystream, SLOT(server_new()));
+	connect(mytune->mydvr, SIGNAL(data(QByteArray)), &mystream, SLOT(stream(QByteArray)));
+	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
 
-	connect(&mytune->dvr, SIGNAL(data(QByteArray)), &mystream, SLOT(stream(QByteArray)));
-
-	update_status("Tuning...", 0);
+	update_status("Tuning...", STATUS_NOEXP);
 	mytune->start();
 	mytune->thread_function.append("tune");
+	mytune->status = setbit(mytune->status, TUNER_TUNED);
+	emit adapter_status(mytune->adapter);
 	mythread.mytune = mytune;
 
 	mystream.mytune	= mytune;
@@ -140,6 +142,11 @@ void tuning::init()
 	ui->pushButton_iqplot->setEnabled(false);
 }
 
+void tuning::myProcess_finished()
+{
+	mytune->close_dvr();
+}
+
 void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
 {
 	Q_UNUSED(item);
@@ -149,7 +156,6 @@ void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
 	if (mythread.loop) {
 		return;
 	}
-	qDebug() << "on_treeWidget_itemClicked()";
 
 	for(int a = 0; a < list_item.size(); a++) {
 		list_item.at(a)->setSelected(false);
@@ -198,16 +204,17 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 
 void tuning::parsetp_done()
 {
-	update_status("Parsing transponder done", 3);
+	update_status("", STATUS_CLEAR);
+	update_status("Parsing transponder done", 2);
 }
 
-void tuning::updatesignal()
+void tuning::update_signal()
 {
 	if (mytune->tp.status & FE_HAS_LOCK) {
 		if (parsetp_started) {
 			unlock_t.restart();
 		} else if (unlock_t.elapsed() > 5000) {
-			updateresults();
+			update_results();
 		}
 		ui->pushButton_demux->setEnabled(true);
 		if (mydemux_file.isNull()) {
@@ -220,7 +227,6 @@ void tuning::updatesignal()
 		ui->label_lock->setStyleSheet("QLabel { color : green; }");
 	} else {
 		unlock_t.restart();
-		update_status("Tuning failed, no lock", 0);
 		ui->pushButton_demux->setEnabled(false);
 		ui->pushButton_file->setEnabled(false);
 		ui->pushButton_ipcleaner->setEnabled(false);
@@ -304,17 +310,23 @@ void tuning::updatesignal()
 			break;
 		}
 	} else {
-		qam myqam;
-		atsc myatsc;
-		switch (mytune->tp.system) {
-		case SYS_ATSC:
-		case SYS_ATSCMH:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myatsc.ch[myatsc.freq.indexOf(mytune->tp.frequency)]));
-			break;
-		case SYS_DVBC_ANNEX_B:
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myqam.ch[myqam.freq.indexOf(mytune->tp.frequency)]));
-			break;
-		default:
+		freq_list myfreq;
+		if (isATSC(mytune->tp.system)) {
+			myfreq.atsc();
+			if (myfreq.freq.indexOf(mytune->tp.frequency) >= 0) {
+				ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
+			}
+		} else if (isQAM(mytune->tp.system)) {
+			myfreq.qam();
+			if (myfreq.freq.indexOf(mytune->tp.frequency) >= 0) {
+				ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
+			}
+		} else if (isDVBT(mytune->tp.system)) {
+			myfreq.dvbt();
+			if (myfreq.freq.indexOf(mytune->tp.frequency) >= 0) {
+				ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
+			}
+		} else {
 			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz");
 		}
 	}
@@ -372,7 +384,7 @@ void tuning::setcolor(int index, QColor color)
 	}
 }
 
-void tuning::updateresults()
+void tuning::update_results()
 {
 	if (mytune->tp.system == SYS_DSS) {
 		return;
@@ -387,13 +399,12 @@ void tuning::updateresults()
 	mythread.thread_function.append("parsetp");
 	mythread.start();
 
-	update_status("Parsing transponder...", 0);
+	update_status("", STATUS_CLEAR);
+	update_status("Parsing transponder...", STATUS_NOEXP);
 }
 
 void tuning::stop_demux()
 {
-	qDebug() << "stop_demux()";
-
 	setup_demux();
 	mytune->pids.clear();
 	mytune->pids.append(0x2000);
@@ -420,6 +431,9 @@ void tuning::setup_demux()
 
 void tuning::on_pushButton_ipcleaner_clicked()
 {
+	if (mytune->status & TUNER_DEMUX) {
+		return;
+	}
 	if (myProcess.pid()) {
 		myProcess.terminate();
 		myProcess.waitForFinished();
@@ -435,6 +449,9 @@ void tuning::on_pushButton_ipcleaner_clicked()
 
 void tuning::on_pushButton_play_clicked()
 {
+	if (mytune->status & TUNER_DEMUX) {
+		return;
+	}
 	if (myProcess.pid()) {
 		qDebug() << "stopping previous player first...";
 		myProcess.kill();
@@ -461,17 +478,23 @@ void tuning::on_pushButton_demux_clicked()
 	demux_dvr_dialog.exec();
 
 	stop_demux();
+	mytune->close_dvr();
 }
 
 void tuning::delete_demux_file()
 {
-	qDebug() << "delete_demux_file()";
 	ui->pushButton_file->setEnabled(true);
+
 	stop_demux();
+	mytune->close_dvr();
 }
 
 void tuning::on_pushButton_file_clicked()
 {
+	if (mytune->status & TUNER_DEMUX) {
+		return;
+	}
+
 	ui->pushButton_file->setEnabled(false);
 
 	setup_demux();
@@ -500,11 +523,12 @@ void tuning::on_pushButton_unexpand_clicked()
 
 void tuning::on_pushButton_stream_clicked()
 {
-	qDebug() << Q_FUNC_INFO << QThread::currentThreadId();
-
 	if (mystream.server && mystream.server->isListening()) {
 		mystream.server_close();
 	} else {
+		if (mytune->status & TUNER_DEMUX) {
+			return;
+		}
 		setup_demux();
 		emit server_new();
 	}
@@ -512,13 +536,11 @@ void tuning::on_pushButton_stream_clicked()
 
 void tuning::delete_iqplot()
 {
-	qDebug() << "delete_iqplot()";
 	ui->pushButton_iqplot->setEnabled(true);
 }
 
 void tuning::on_pushButton_iqplot_clicked()
 {
-	qDebug() << "on_pushButton_iqplot_clicked()";
 	myiqplot = new iqplot;
 
 	connect(myiqplot, SIGNAL(destroyed()), this, SLOT(delete_iqplot()));
@@ -530,10 +552,34 @@ void tuning::on_pushButton_iqplot_clicked()
 	ui->pushButton_iqplot->setEnabled(false);
 }
 
-void tuning::update_status(QString text, int time = 0)
+void tuning::update_status(QString text, int time)
 {
-	if (!shutdown) {
-		mystatusbar->showMessage(text, time * 1000);
+	if (shutdown) {
+		return;
+	}
+	if (time == STATUS_CLEAR) {
+		mystatus.clear();
+	}
+	if (time == STATUS_REMOVE) {
+		if (mystatus.indexOf(text) != -1) {
+			mystatus.remove(mystatus.indexOf(text));
+		}
+	}
+	if (time == STATUS_NOEXP) {
+		mystatus.append(text);
+	}
+	if (time > 0) {
+		status_timer->setSingleShot(true);
+		connect(status_timer, SIGNAL(timeout()), &status_mapper, SLOT(map()));
+		status_mapper.setMapping(status_timer, text);
+		status_timer->start(time*1000);
+		mystatus.append(text);
+	}
+
+	if (mystatus.size()) {
+		mystatusbar->showMessage(mystatus.last(), 0);
+	} else {
+		mystatusbar->showMessage("", 0);
 	}
 }
 

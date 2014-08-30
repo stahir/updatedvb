@@ -60,6 +60,9 @@ signals:
 private:
 	void tree_create_root_wait(int *parent, QString text, int pid);
 	void tree_create_child_wait(int *parent, QString text, int pid);
+
+protected:
+	void closeEvent(QCloseEvent *event);
 };
 
 #endif // TUNING_THREAD_H

@@ -3,16 +3,12 @@
 dvr_thread::dvr_thread()
 {
 	loop	= false;
-	is_busy	= false;
+	file_fd	= 0;
 }
 
 dvr_thread::~dvr_thread()
 {
-	qDebug() << Q_FUNC_INFO;
-	while (is_busy) {
-		loop = false;
-		msleep(100);
-	}
+	loop = false;
 }
 
 void dvr_thread::run()
@@ -29,21 +25,30 @@ void dvr_thread::run()
 			msleep(100);
 		}
 	}
+	close_file();
+}
+
+void dvr_thread::close_file()
+{
+	mytune->close_dvr();
+	if (file_fd) {
+		close(file_fd);
+		file_fd = 0;
+		file_name.clear();
+	}
 }
 
 void dvr_thread::demux_file()
 {
-	if (dvr_name == "") {
-		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
-		qDebug() << "demux_file() opening" << dvr_name;
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
-		if (dvr_fd < 0) {
-			qDebug() << "Failed to open" << dvr_name;
+	if (mytune->dvr_name.isEmpty()) {
+		mytune->dvr_name = "/dev/dvb/adapter" + QString::number(mytune->adapter) + "/dvr0";
+		mytune->dvr_fd = open(mytune->dvr_name.toStdString().c_str(), O_RDONLY);
+		if (mytune->dvr_fd < 0) {
+			qDebug() << "Failed to open" << mytune->dvr_name;
 			return;
 		}
 	}
 	if (!file_fd) {
-		qDebug() << "open file_fd";
 		file_fd = open(file_name.toStdString().c_str(), O_CREAT|O_TRUNC|O_RDWR|O_NONBLOCK, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 		if (file_fd < 0) {
 			qDebug() << "Failed to open" << file_name;
@@ -51,13 +56,22 @@ void dvr_thread::demux_file()
 		}
 	}
 
+	fd_set set;
+	FD_ZERO(&set);
+	FD_SET(mytune->dvr_fd, &set);
+
+	int len;
 	char buf[LIL_BUFSIZE];
 	memset(buf, 0, LIL_BUFSIZE);
 
-	is_busy = true;
-	int len = read(dvr_fd, buf, LIL_BUFSIZE);
+	mytune->status = setbit(mytune->status, TUNER_RDING);
+	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
+		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
+	} else {
+		qDebug() << "read(dvr_fd) timeout";
+	}
 	ssize_t wlen = write(file_fd, buf, len);
-	is_busy = false;
+	mytune->status = unsetbit(mytune->status, TUNER_RDING);
 
 	emit data_size(len);
 	Q_UNUSED(wlen);
@@ -65,22 +79,30 @@ void dvr_thread::demux_file()
 
 void dvr_thread::demux_stream()
 {
-	if (dvr_name.isEmpty()) {
-		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
-		qDebug() << "demux_stream() opening" << dvr_name;
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
-		if (dvr_fd < 0) {
-			qDebug() << "Failed to open" << dvr_name;
+	if (mytune->dvr_name.isEmpty()) {
+		mytune->dvr_name = "/dev/dvb/adapter" + QString::number(mytune->adapter) + "/dvr0";
+		mytune->dvr_fd = open(mytune->dvr_name.toStdString().c_str(), O_RDONLY);
+		if (mytune->dvr_fd < 0) {
+			qDebug() << "Failed to open" << mytune->dvr_name;
 			return;
 		}
 	}
 
+	fd_set set;
+	FD_ZERO(&set);
+	FD_SET(mytune->dvr_fd, &set);
+
+	int len = -1;
 	char buf[LIL_BUFSIZE];
 	memset(buf, 0, LIL_BUFSIZE);
 
-	is_busy = true;
-	int len = read(dvr_fd, buf, LIL_BUFSIZE);
-	is_busy = false;
+	mytune->status = setbit(mytune->status, TUNER_RDING);
+	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
+		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
+	} else {
+		qDebug() << "read(dvr_fd) timeout";
+	}
+	mytune->status = unsetbit(mytune->status, TUNER_RDING);
 
 	if (len == -1 || len != LIL_BUFSIZE) {
 		qDebug() << Q_FUNC_INFO << "read issue:" << len << "of" << LIL_BUFSIZE;

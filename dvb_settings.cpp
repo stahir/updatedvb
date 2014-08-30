@@ -1,4 +1,4 @@
-/*	
+/*
  *	updateDVB, a DVB/ATSC spectrum analyzer, tuning and stream analyzing application.
  *	Copyright (C) 2013  Chris Lee (updatelee@gmail.com)
  *
@@ -154,6 +154,7 @@ dvb_settings::dvb_settings()
 	voltage.append(" V ");
 	voltage.append(" H ");
 	voltage.append(" N ");
+	voltage.append(" B ");
 
 	tone.append("ON");
 	tone.append("OFF");
@@ -350,8 +351,12 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0xFE]	= "User Defined";
 }
 
-atsc::atsc()
-{
+freq_list::freq_list() {
+	ch.clear();
+	freq.clear();
+}
+
+void freq_list::atsc() {
 	ch.clear();
 	freq.clear();
 	ch.append(2);
@@ -454,8 +459,7 @@ atsc::atsc()
 	freq.append(695028);
 }
 
-qam::qam()
-{
+void freq_list::qam() {
 	ch.clear();
 	freq.clear();
 	ch.append(2);
@@ -776,6 +780,107 @@ qam::qam()
 	freq.append(999000);
 }
 
+void freq_list::dvbt() {
+	ch.clear();
+	freq.clear();
+	ch.append(5);
+	freq.append(177500);
+	ch.append(6);
+	freq.append(184500);
+	ch.append(7);
+	freq.append(191500);
+	ch.append(8);
+	freq.append(198500);
+	ch.append(9);
+	freq.append(205500);
+	ch.append(10);
+	freq.append(212500);
+	ch.append(11);
+	freq.append(219500);
+	ch.append(12);
+	freq.append(226500);
+	ch.append(21);
+	freq.append(474000);
+	ch.append(22);
+	freq.append(482000);
+	ch.append(23);
+	freq.append(490000);
+	ch.append(24);
+	freq.append(498000);
+	ch.append(25);
+	freq.append(506000);
+	ch.append(26);
+	freq.append(514000);
+	ch.append(27);
+	freq.append(522000);
+	ch.append(28);
+	freq.append(530000);
+	ch.append(29);
+	freq.append(538000);
+	ch.append(30);
+	freq.append(546000);
+	ch.append(31);
+	freq.append(554000);
+	ch.append(32);
+	freq.append(562000);
+	ch.append(33);
+	freq.append(570000);
+	ch.append(34);
+	freq.append(578000);
+	ch.append(35);
+	freq.append(586000);
+	ch.append(36);
+	freq.append(594000);
+	ch.append(37);
+	freq.append(602000);
+	ch.append(38);
+	freq.append(610000);
+	ch.append(39);
+	freq.append(618000);
+	ch.append(40);
+	freq.append(626000);
+	ch.append(41);
+	freq.append(634000);
+	ch.append(42);
+	freq.append(642000);
+	ch.append(43);
+	freq.append(650000);
+	ch.append(44);
+	freq.append(658000);
+	ch.append(45);
+	freq.append(666000);
+	ch.append(46);
+	freq.append(674000);
+	ch.append(47);
+	freq.append(682000);
+	ch.append(48);
+	freq.append(690000);
+	ch.append(49);
+	freq.append(698000);
+	ch.append(50);
+	freq.append(706000);
+	ch.append(51);
+	freq.append(714000);
+	ch.append(52);
+	freq.append(722000);
+	ch.append(53);
+	freq.append(730000);
+	ch.append(54);
+	freq.append(738000);
+	ch.append(55);
+	freq.append(746000);
+	ch.append(56);
+	freq.append(754000);
+	ch.append(57);
+	freq.append(762000);
+	ch.append(58);
+	freq.append(770000);
+	ch.append(59);
+	freq.append(778000);
+	ch.append(60);
+	freq.append(786000);
+}
+
 bool isSatellite(int system)
 {
 	bool ret = false;
@@ -801,6 +906,17 @@ bool isATSC(int system)
 	return ret;
 }
 
+bool isVectorATSC(QVector<int> system)
+{
+	bool ret = false;
+	for (int i = 0; i < system.size(); i++) {
+		if (isATSC(system.at(i))) {
+			ret = true;
+		}
+	}
+	return ret;
+}
+
 bool isQAM(int system)
 {
 	bool ret = false;
@@ -811,10 +927,52 @@ bool isQAM(int system)
 	return ret;
 }
 
+bool isVectorQAM(QVector<int> system)
+{
+	bool ret = false;
+	for (int i = 0; i < system.size(); i++) {
+		if (isQAM(system.at(i))) {
+			ret = true;
+		}
+	}
+	return ret;
+}
+
+bool isDVBT(int system)
+{
+	bool ret = false;
+	switch(system) {
+	case SYS_DVBT:
+	case SYS_DVBT2:
+		ret = true;
+	}
+	return ret;
+}
+
+bool isVectorDVBT(QVector<int> system)
+{
+	bool ret = false;
+	for (int i = 0; i < system.size(); i++) {
+		if (isDVBT(system.at(i))) {
+			ret = true;
+		}
+	}
+	return ret;
+}
+
 int azero(int num)
 {
 	if (num < 0) {
 		num = 0;
 	}
 	return num;
+}
+
+unsigned int setbit(unsigned int var, unsigned int MASK)
+{
+	return var | MASK;
+}
+unsigned int unsetbit(unsigned int var, unsigned int MASK)
+{
+	return var & ~MASK;
 }

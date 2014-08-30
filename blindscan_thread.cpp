@@ -27,7 +27,6 @@ blindscan_thread::blindscan_thread()
 
 blindscan_thread::~blindscan_thread()
 {
-	qDebug() << "~blindscan_thread()";
 }
 
 void blindscan_thread::run()
@@ -56,6 +55,9 @@ void blindscan_thread::run()
 			smartscan();
 			loop = false;
 		}
+		if (thread_function.size() == 0) {
+			msleep(100);
+		}
 	} while (loop);
 	thread_function.clear();
 }
@@ -64,7 +66,6 @@ void blindscan_thread::smartscan()
 {
 	QTime t;
 	t.start();
-	qDebug() << "smartscan()" << mytune->tp_try.size() << "tp's";
 
 	float size = mytune->tp_try.size();
 	for(int i = 0; i < mytune->tp_try.size() && loop; i++) {
@@ -78,7 +79,7 @@ void blindscan_thread::smartscan()
 		while (!ready) {
 			msleep(10);
 		}
-		emit updateprogress(progress);
+		emit update_progress(progress);
 	}
 	ready = true;
 	qDebug() << "Total time: " << t.elapsed();
@@ -88,7 +89,6 @@ void blindscan_thread::blindscan()
 {
 	QTime t;
 	t.start();
-	qDebug() << "blindscan()";
 
 	float size = abs(mytune->tune_ops.f_start-mytune->tune_ops.f_stop) - 18;
 	float rolloff;
@@ -119,7 +119,7 @@ void blindscan_thread::blindscan()
 			mytune->tp.frequency += 18;
 		}
 		int progress = ((mytune->tp.frequency-mytune->tune_ops.f_start)/size)*100;
-		emit updateprogress(progress);
+		emit update_progress(progress);
 	}
 	ready = true;
 	qDebug() << "Total time: " << t.elapsed();

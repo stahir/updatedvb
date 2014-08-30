@@ -20,14 +20,12 @@
 
 dvbtune::dvbtune()
 {
-	dvr_name	= "";
-	dmx_name	= "";
-	sct_name	= "";
-	out_name	= "";
-	frontend_name	= "";
-	is_busy		= false;
-	is_reading	= false;
-	is_tuned	= false;
+	dvr_name.clear();
+	dmx_name.clear();
+	sct_name.clear();
+	out_name.clear();
+	frontend_name.clear();
+	status		= TUNER_AVAIL;
 	loop		= false;
 	iq_options	= 0x00;
 	adapter		= 0;
@@ -42,24 +40,24 @@ dvbtune::dvbtune()
 	fmax		= 0;
 	fstep		= 0;
 	servo		= false;
+	fd_timeout.tv_sec	= 2;
+	fd_timeout.tv_usec	= 0;
+	mydvr			= new dvr_thread;
+	mydvr->mytune	= this;
 }
 
 dvbtune::~dvbtune()
 {
-	qDebug() << "~dvbtune()";
-	
-	dvr.loop = false;
-	while (dvr.is_busy) {
-		dvr.loop = false;
+	mydvr->loop = false;
+	mydvr->quit();
+	mydvr->wait(1000);
+	while (mydvr->isRunning()) {
+		qDebug() << "mydvr->isRunning()";
 		msleep(100);
 	}
-	dvr.quit();
-	dvr.wait(1000);
-	while (dvr.isRunning()) {
-		qDebug() << "dvr.isRunning()";
-		sleep(1);
-	}
+	mydvr->deleteLater();
 
+	close_dvr();
 	stop_demux();
 	closefd();
 }
@@ -124,20 +122,23 @@ QString dvbtune::readstr(unsigned int pos, unsigned int len)
 
 void dvbtune::closefd()
 {
-	if (frontend_name == "") {
+	stop_demux();
+	close_dvr();
+
+	if (!frontend_name.isEmpty()) {
 		return;
 	}
-	while(is_reading) {
-		qDebug() << "waiting till ready to close";
-		msleep(250);
+	while(status & TUNER_RDING) {
+		qDebug() << "waiting for read() to complete";
+		msleep(100);
 	}
 	close(frontend_fd);
-	frontend_name = "";
+	frontend_name.clear();
 }
 
 void dvbtune::openfd()
 {
-	if (frontend_name == "") {
+	if (frontend_name.isEmpty()) {
 		frontend_name = "/dev/dvb/adapter" + QString::number(adapter) + "/frontend" + QString::number(frontend);
 		frontend_fd = open(frontend_name.toStdString().c_str(), O_RDWR|O_NONBLOCK);
 		if (frontend_fd < 0) {
@@ -168,24 +169,28 @@ void dvbtune::getops()
 	p_status.num = 1;
 	p_status.props = p;
 
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (ioctl(frontend_fd, FE_GET_PROPERTY, &p_status) == -1) {
 		qDebug() << "FE_GET_PROPERTY failed";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return;
-	}	
+	}
+	status = unsetbit(status, TUNER_IOCTL);
+
 	delsys.clear();
 	for (;p[0].u.buffer.len > 0; p[0].u.buffer.len--) {
 		delsys.append(p[0].u.buffer.data[p[0].u.buffer.len - 1]);
 	}
 	
 	struct dvb_frontend_info fe_info;
+	status = setbit(status, TUNER_IOCTL);
 	if (ioctl(frontend_fd, FE_GET_INFO, &fe_info) == -1) {
 		qDebug() << "FE_GET_INFO failed";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return;
 	}
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
+
 	caps	= fe_info.caps;
 	name	= fe_info.name;
 	fmin	= fe_info.frequency_min;
@@ -200,19 +205,11 @@ void dvbtune::step_motor(int direction, int steps)
 	// 0xFF = 1 step
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, (__u8)(0x68 + direction), (__u8)(0xFF - (steps-1)), 0x00, 0x00 }, 4 };
 	
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
-
-	qDebug() << "cmd:" << hex
-			 << diseqc_cmd.msg[0]
-			 << diseqc_cmd.msg[1]
-			 << diseqc_cmd.msg[2]
-			 << diseqc_cmd.msg[3]
-			 << diseqc_cmd.msg[4]
-			 << diseqc_cmd.msg[5];
 	
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
@@ -220,12 +217,11 @@ void dvbtune::step_motor(int direction, int steps)
 		}
 		msleep(20);
 	}
-
 	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
 	msleep(20);
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
 	setup_switch();
 }
@@ -265,19 +261,11 @@ void dvbtune::usals_drive(double sat_long)
 
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6e, (__u8)angle_1, (__u8)angle_2, 0x00 }, 5 };
 
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
 
-	qDebug() << "cmd:" << hex
-			 << diseqc_cmd.msg[0]
-			 << diseqc_cmd.msg[1]
-			 << diseqc_cmd.msg[2]
-			 << diseqc_cmd.msg[3]
-			 << diseqc_cmd.msg[4]
-			 << diseqc_cmd.msg[5];
-
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
@@ -290,7 +278,7 @@ void dvbtune::usals_drive(double sat_long)
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
 	msleep(20);
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
 	int howlong;
 	if (!old_position) {
@@ -308,19 +296,11 @@ void dvbtune::gotox_drive(int position)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6B, (__u8)position, 0x00, 0x00 }, 4 };
 	
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
 
-	qDebug() << "cmd:" << hex
-			 << diseqc_cmd.msg[0]
-			 << diseqc_cmd.msg[1]
-			 << diseqc_cmd.msg[2]
-			 << diseqc_cmd.msg[3]
-			 << diseqc_cmd.msg[4]
-			 << diseqc_cmd.msg[5];
-	
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
@@ -333,7 +313,7 @@ void dvbtune::gotox_drive(int position)
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}
 	msleep(20);
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
 	setup_switch();
 }
@@ -342,19 +322,11 @@ void dvbtune::gotox_save(int position)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6A, (__u8)position, 0x00, 0x00 }, 4 };
 
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
 
-	qDebug() << "cmd:" << hex
-			 << diseqc_cmd.msg[0]
-			 << diseqc_cmd.msg[1]
-			 << diseqc_cmd.msg[2]
-			 << diseqc_cmd.msg[3]
-			 << diseqc_cmd.msg[4]
-			 << diseqc_cmd.msg[5];
-	
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		if (ioctl(frontend_fd, FE_SET_TONE, SEC_TONE_OFF) == -1) {
@@ -367,7 +339,7 @@ void dvbtune::gotox_save(int position)
 		qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 	}	
 	msleep(20);
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
 	setup_switch();
 }
@@ -392,11 +364,11 @@ void dvbtune::setup_switch()
 		{ { 0xE0, 0x10, 0x39, 0xF7, 0x00, 0x00 }, 4 }
 	};
 
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
 
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (myswitch.voltage != tp.voltage) {
 		qDebug() << "Voltage:" << (tp.voltage ? "H" : "V");
 		if (ioctl(frontend_fd, FE_SET_VOLTAGE, tp.voltage) == -1) {
@@ -442,7 +414,7 @@ void dvbtune::setup_switch()
 		}
 		msleep(500);
 	}
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
 	myswitch.voltage		= tp.voltage;
 	myswitch.tone			= tune_ops.tone;
@@ -452,16 +424,16 @@ void dvbtune::setup_switch()
 
 void dvbtune::check_frontend()
 {
-	fe_status_t status;
+	fe_status_t festatus;
 
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
 
-	is_busy = true;
-	if (ioctl(frontend_fd, FE_READ_STATUS, &status) == -1) {
+	status = setbit(status, TUNER_IOCTL);
+	if (ioctl(frontend_fd, FE_READ_STATUS, &festatus) == -1) {
 		qDebug() << "FE_READ_STATUS failed";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return;
 	}
 
@@ -486,7 +458,7 @@ void dvbtune::check_frontend()
 	// get the actual parameters from the driver for that channel
 	if (ioctl(frontend_fd, FE_GET_PROPERTY, &p_status) == -1) {
 		qDebug() << "FE_GET_PROPERTY failed";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return;
 	}
 
@@ -537,10 +509,10 @@ void dvbtune::check_frontend()
 			tp.ber = 0;
 		}
 	}
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
-	tp.status		= status;
-	emit updatesignal();
+	tp.status		= festatus;
+	emit update_signal();
 }
 
 int dvbtune::tune()
@@ -560,19 +532,20 @@ int dvbtune::tune()
 	cmdseq_clear.num     = 1;
 	cmdseq_clear.props   = p_clear;
 
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if ((ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_clear)) == -1) {
 		qDebug() << "FE_SET_PROPERTY DTV_CLEAR failed";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return -1;
 	}
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
 	int i = 0;
 	struct dtv_property p_tune[13];
 	p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
 	p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
 
+	freq_list myfreq;
 	if (isSatellite(tp.system)) {
 		qDebug() << "Satellite selected";
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
@@ -586,123 +559,106 @@ int dvbtune::tune()
 		p_tune[i].cmd = DTV_PILOT;			p_tune[i++].u.data = tp.pilot;
 		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
 		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
-	} else {
-		int fr;
-		qam myqam;
-		atsc myatsc;
-
-		switch (tp.system) {
-		case SYS_DVBC_ANNEX_B:
+	} else if (isQAM(tp.system) || isATSC(tp.system) || isDVBT(tp.system)) {
+		if (isQAM(tp.system)) {
 			qDebug() << "QAM";
-			fr = tp.frequency;
-			if (fr < myqam.freq.at(0)) {
-				tp.frequency = myqam.freq.at(0);
-			} else if (fr > myqam.freq.at(myqam.freq.size()-1)) {
-				tp.frequency = myqam.freq.at(myqam.freq.size()-1);
-			} else {
-				for(int c = 0; c < myqam.freq.size()-1; c++) {
-					if (fr > myqam.freq.at(c) && fr < myqam.freq.at(c+1)) {
-						int middle = (myqam.freq.at(c) + myqam.freq.at(c+1))/2;
-						if (fr < middle) {
-							tp.frequency = myqam.freq.at(c);
-						} else {
-							tp.frequency = myqam.freq.at(c+1);
-						}
-					}
-				}
-			}
-			break;
-		case SYS_ATSC:
-		case SYS_ATSCMH:
+			myfreq.qam();
+		} else if (isATSC(tp.system)) {
 			qDebug() << "ATSC";
-			fr = tp.frequency;
-			if (fr < myatsc.freq.at(0)) {
-				tp.frequency = myatsc.freq.at(0);
-			} else if (fr > myatsc.freq.at(myatsc.freq.size()-1)) {
-				tp.frequency = myatsc.freq.at(myatsc.freq.size()-1);
-			} else {
-				for(int c = 0; c < myatsc.freq.size()-1; c++) {
-					if (fr > myatsc.freq.at(c) && fr < myatsc.freq.at(c+1)) {
-						int middle = (myatsc.freq.at(c) + myatsc.freq.at(c+1))/2;
-						if (fr < middle) {
-							tp.frequency = myatsc.freq.at(c);
-						} else {
-							tp.frequency = myatsc.freq.at(c+1);
-						}
+			myfreq.atsc();
+		} else if (isDVBT(tp.system)) {
+			qDebug() << "DVBT";
+			myfreq.dvbt();
+		}
+		int fr;
+		fr = tp.frequency;
+		if (fr < myfreq.freq.at(0)) {
+			tp.frequency = myfreq.freq.at(0);
+		} else if (fr > myfreq.freq.at(myfreq.freq.size()-1)) {
+			tp.frequency = myfreq.freq.at(myfreq.freq.size()-1);
+		} else {
+			for(int c = 0; c < myfreq.freq.size()-1; c++) {
+				if (fr > myfreq.freq.at(c) && fr < myfreq.freq.at(c+1)) {
+					int middle = (myfreq.freq.at(c) + myfreq.freq.at(c+1))/2;
+					if (fr < middle) {
+						tp.frequency = myfreq.freq.at(c);
+					} else {
+						tp.frequency = myfreq.freq.at(c+1);
 					}
 				}
 			}
-			break;
-		default:
-			qDebug() << "Invalid System";
-			return -1;
 		}
-
 		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
 		qDebug() << "tune() Frequency: " << tp.frequency;
+	} else {
+		qDebug() << "Invalid system";
 	}
+
 	p_tune[i++].cmd = DTV_TUNE;
 	
 	struct dtv_properties cmdseq_tune;
 	cmdseq_tune.num     = i;
 	cmdseq_tune.props   = p_tune;
 
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (ioctl(frontend_fd, FE_SET_PROPERTY, &cmdseq_tune) == -1) {
 		qDebug() << "FE_SET_PROPERTY TUNE failed";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return -1;
 	}
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 
 	// Keep trying for upto 2 second
 	QTime t;
 	t.start();
-	fe_status_t status;
+	fe_status_t festatus;
 	while (t.elapsed() < 2000) {
-		is_busy = true;
-		if (ioctl(frontend_fd, FE_READ_STATUS, &status) == -1) {
+		status = setbit(status, TUNER_IOCTL);
+		if (ioctl(frontend_fd, FE_READ_STATUS, &festatus) == -1) {
 			qDebug() << "FE_READ_STATUS failed";
-			is_busy = false;
+			status = unsetbit(status, TUNER_IOCTL);
 			return -1;
 		}
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 
-		if (status & FE_TIMEDOUT) {
-			qDebug() << "Tuning Failed, time:" << t.elapsed() << "status:" << hex << status;
+		if (festatus & FE_TIMEDOUT) {
+			emit update_status("", STATUS_CLEAR);
+			emit update_status("Tuning Failed, searched for: " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 2);
 			check_frontend();
 			return -1;
 		}
 		
-		if (status & FE_HAS_LOCK) {
-			qDebug() << "Tuning Locked, time:" << t.elapsed() << "status:" << hex << status;
+		if (festatus & FE_HAS_LOCK) {
+			emit update_status("", STATUS_CLEAR);
+			emit update_status("Tuning Locked, searched for: " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 1);
 			check_frontend();
-			emit updateresults();
+			emit update_results();
 			return 1;	
 		} else {
 			qDebug() << "No Lock...";
 			msleep(200);		
 		}
 	}
-	qDebug() << "Tuning Failed, time:" << t.elapsed() << "status:" << hex << status;
+	emit update_status("", STATUS_CLEAR);
+	emit update_status("Tuning Failed, searched for: " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 2);
 	check_frontend();
 	return -1;
 }
 
 void dvbtune::get_bitrate()
 {
-	qDebug() << "get_bitrate()";
-		
-	if (dvr_name == "") {
+	if (dvr_name.isEmpty()) {
 		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
-		qDebug() << "get_bitrate() opening" << dvr_name;
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
+		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);		
 		if (dvr_fd < 0) {
 			qDebug() << "Failed to open" << dvr_name;
 			return;
 		}
 	}
-	
+	fd_set set;
+	FD_ZERO(&set);
+	FD_SET(dvr_fd, &set);
+
 	QTime stime;
 	int ttime = 0;
 
@@ -712,10 +668,16 @@ void dvbtune::get_bitrate()
 	char buf[BIG_BUFSIZE];
 	memset(buf, 0, BIG_BUFSIZE);
 	
+	int len;
+
 	stime.start();
-	is_reading = true;
-	int len = read(dvr_fd, buf, BIG_BUFSIZE);
-	is_reading = false;
+	status = setbit(status, TUNER_RDING);
+	if (select(dvr_fd + 1, &set, NULL, NULL, &fd_timeout) > 0) {
+		len = read(dvr_fd, buf, BIG_BUFSIZE);
+	} else {
+		qDebug() << "read(dvr_fd) timeout";
+	}
+	status = unsetbit(status, TUNER_RDING);
 	ttime = stime.elapsed();
 
 	buffer.clear();
@@ -754,11 +716,13 @@ void dvbtune::get_bitrate()
 void dvbtune::demux_video()
 {
 	while (dmx_fd.size()) {
-		while(is_reading) {
-			qDebug() << "waiting till is_reading to close";
-			msleep(250);
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
 		}
-		ioctl(dmx_fd.last(), DMX_STOP);	
+		status = setbit(status, TUNER_IOCTL);
+		ioctl(dmx_fd.last(), DMX_STOP);
+		status = unsetbit(status, TUNER_IOCTL);
 		close(dmx_fd.last());
 		dmx_fd.pop_back();
 	}
@@ -768,52 +732,69 @@ void dvbtune::demux_video()
 	struct dmx_pes_filter_params pesFilterParams;
 	for(int a = 0; a < pids.size(); a++)
 	{
-		qDebug() << "Filtering PID:" << hex << pids[a];
-
 		int temp_fd = open(dmx_name.toStdString().c_str(), O_RDWR|O_NONBLOCK);
 		if (temp_fd < 0) {
 			qDebug() << "Failed to open" << dmx_name;
 			return;
 		}
 		dmx_fd.append(temp_fd);
+		status = setbit(status, TUNER_IOCTL);
 		ioctl(dmx_fd.last(), DMX_SET_BUFFER_SIZE, BIG_BUFSIZE);
+		status = unsetbit(status, TUNER_IOCTL);
 
 		pesFilterParams.pid = pids[a];
 		pesFilterParams.input = DMX_IN_FRONTEND;
 		pesFilterParams.output = DMX_OUT_TS_TAP;
 		pesFilterParams.pes_type = DMX_PES_OTHER;
 		pesFilterParams.flags = DMX_IMMEDIATE_START;
+
+		status = setbit(status, TUNER_IOCTL);
 		if (ioctl(dmx_fd.last(), DMX_SET_PES_FILTER, &pesFilterParams) == -1) {
 			qDebug() << "DEMUX: DMX_SET_PES_FILTER";
 		}
+		status = unsetbit(status, TUNER_IOCTL);
 	}
+	status = setbit(status, TUNER_DEMUX);
+	emit adapter_status(adapter);
 }
 
 void dvbtune::demux_stream(bool start)
 {
 	if (start) {
-		dvr.adapter	= adapter;
-		dvr.thread_function.append("demux_stream");
-		dvr.start();
+		status = setbit(status, TUNER_DEMUX);
+		mydvr->thread_function.append("demux_stream");
+		mydvr->start();
 	} else {
-		if (dvr.thread_function.indexOf("demux_stream") != -1) {
-			dvr.thread_function.remove(dvr.thread_function.indexOf("demux_stream"));
+		if (mydvr->thread_function.indexOf("demux_stream") != -1) {
+			mydvr->thread_function.remove(mydvr->thread_function.indexOf("demux_stream"));
+			while (status & TUNER_RDING) {
+				msleep(100);
+			}
+			close_dvr();
+			status = unsetbit(status, TUNER_DEMUX);
 		}
 	}
+	emit adapter_status(adapter);
 }
 
 void dvbtune::demux_file(bool start)
 {
 	if (start) {
-		dvr.adapter		= adapter;
-		dvr.file_name	= out_name;
-		dvr.thread_function.append("demux_file");
-		dvr.start();
+		status = setbit(status, TUNER_DEMUX);
+		mydvr->file_name = out_name;
+		mydvr->thread_function.append("demux_file");
+		mydvr->start();
 	} else {
-		if (dvr.thread_function.indexOf("demux_file") != -1) {
-			dvr.thread_function.remove(dvr.thread_function.indexOf("demux_file"));
+		if (mydvr->thread_function.indexOf("demux_file") != -1) {
+			mydvr->thread_function.remove(mydvr->thread_function.indexOf("demux_file"));
+			while (status & TUNER_RDING) {
+				msleep(100);
+			}
+			mydvr->close_file();
+			status = unsetbit(status, TUNER_DEMUX);
 		}
 	}
+	emit adapter_status(adapter);
 }
 
 int dvbtune::crc32()
@@ -888,19 +869,19 @@ int dvbtune::crc32()
 
 int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 {
-	if (sct_name == "") {
+	if (sct_name.isEmpty()) {
 		sct_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
-		qDebug() << "demux_packet() opening" << sct_name;
 		sct_fd = open(sct_name.toStdString().c_str(), O_RDWR);
 		if (sct_fd < 0) {
 			qDebug() << "Failed to open" << dmx_name;
 			return -1;
 		}
+		status = setbit(status, TUNER_IOCTL);
 		if (ioctl(sct_fd, DMX_SET_BUFFER_SIZE, BIG_BUFSIZE) == -1) {
 			qDebug() << "DEMUX: DMX_SET_BUFFER_SIZE";
 		}
+		status = unsetbit(status, TUNER_IOCTL);
 	}
-	qDebug().nospace() << "demux_packet(0x" << hex << pid << ", " << table << ")";
 
 	struct dmx_sct_filter_params sctfilter;
 	memset(&sctfilter, 0, sizeof(struct dmx_sct_filter_params));
@@ -912,24 +893,28 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 	sctfilter.timeout = timeout;
 	sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 
+	status = setbit(status, TUNER_IOCTL);
 	if (ioctl(sct_fd, DMX_SET_FILTER, &sctfilter) == -1) {
 		qDebug() << "DEMUX: DMX_SET_FILTER";
 	}
-	
+	status = unsetbit(status, TUNER_IOCTL);
+
 	index = 0;
 	buffer.clear();
 	char buf[BIG_BUFSIZE];
 	memset(buf, 0, BIG_BUFSIZE);
-	is_reading = true;
+	status = setbit(status, TUNER_RDING);
 	int len = read(sct_fd, buf, BIG_BUFSIZE);
-	is_reading = false;
+	status = unsetbit(status, TUNER_RDING);
 	if (len < 0) {
 		qDebug() << "demux_packet() read() error";
 		return -1;
 	}
 	buffer.append(buf, len);
 
+	status = setbit(status, TUNER_IOCTL);
 	ioctl(sct_fd, DMX_STOP);
+	status = unsetbit(status, TUNER_IOCTL);
 
 	if (len > 10 && crc32()) {
 		return 1;
@@ -940,93 +925,94 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 
 void dvbtune::close_dvr()
 {
-	if (dvr_name != "") {
-		while(is_reading) {
-			qDebug() << "waiting till ready to close";
-			msleep(250);
+	if (!dvr_name.isEmpty()) {
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
 		}
-		qDebug() << "close_dvr() closing" << dvr_name;
-		dvr_name = "";
 		close(dvr_fd);
+		dvr_fd = 0;
+		dvr_name.clear();
 	}
-	if (out_name != "") {
-		while(is_reading) {
-			qDebug() << "waiting till ready to close";
-			msleep(250);
+	if (!out_name.isEmpty()) {
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
 		}
-		qDebug() << "close_dvr() closing" << out_name;
-		out_name = "";
 		close(out_fd);
 		out_fd = 0;
+		out_name.clear();
 	}
+	status = unsetbit(status, TUNER_DEMUX);
+	emit adapter_status(adapter);
 }
 
 void dvbtune::stop_demux()
 {
 	while (dmx_fd.size()) {
-		while(is_reading) {
-			qDebug() << "waiting till ready to close";
-			msleep(250);
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
 		}
-		ioctl(dmx_fd.last(), DMX_STOP);	
-		qDebug() << "stop_demux() closing" << dmx_name;
+		status = setbit(status, TUNER_IOCTL);
+		ioctl(dmx_fd.last(), DMX_STOP);
+		status = unsetbit(status, TUNER_IOCTL);
 		close(dmx_fd.last());
 		dmx_fd.pop_back();
 	}
-	dmx_name = "";
+	dmx_name.clear();
 	
-	if (sct_name != "") {
-		while(is_reading) {
-			qDebug() << "waiting till ready to close";
-			msleep(250);
+	if (!sct_name.isEmpty()) {
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
 		}
+		status = setbit(status, TUNER_IOCTL);
 		ioctl(sct_fd, DMX_STOP);
-		qDebug() << "stop_demux() closing" << sct_name;
+		status = unsetbit(status, TUNER_IOCTL);
 		close(sct_fd);
-		sct_name = "";
+		sct_name.clear();
 	}
-	if (dvr_name != "") {
-		while(is_reading) {
-			qDebug() << "waiting till ready to close";
-			msleep(250);
+	if (!dvr_name.isEmpty()) {
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
 		}
-		qDebug() << "stop_demux() closing" << dvr_name;
 		close(dvr_fd);
-		dvr_name = "";
+		dvr_fd = 0;
+		dvr_name.clear();
 	}
-	if (out_name != "") {
-		while(is_reading) {
-			qDebug() << "waiting till ready to close";
-			msleep(250);
+	if (!out_name.isEmpty()) {
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
 		}
-		qDebug() << "stop_demux() closing" << out_name;
 		close(out_fd);
-		out_name = "";
+		out_name.clear();
 	}
+	status = unsetbit(status, TUNER_DEMUX);
+	emit adapter_status(adapter);
 }
 
 void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 {
-	QTime t;
-	t.start();
 	openfd();
 
 	if (isSatellite(tp.system)) {
 		setup_switch();	
 	}
 
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
 
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if (ioctl(frontend_fd, FE_GET_SPECTRUM_SCAN, scan) != 0) {
 		qDebug() << "Error! FE_GET_SPECTRUM_SCAN";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return;
 	}
-	is_busy = false;
-	qDebug() << "Spectrum scan time: " << t.elapsed();
+	status = unsetbit(status, TUNER_IOCTL);
 }
 
 void dvbtune::iqplot()
@@ -1037,17 +1023,17 @@ void dvbtune::iqplot()
     const_samples.samples = samples;
 	const_samples.options = iq_options;
 
-	while (is_busy) {
+	while (status & TUNER_IOCTL) {
 		msleep(10);
 	}
 
-	is_busy = true;
+	status = setbit(status, TUNER_IOCTL);
 	if ((ioctl(frontend_fd, FE_GET_CONSTELLATION_SAMPLES, &const_samples)) == -1) {
 		qDebug() << "ERROR: FE_GET_CONSTELLATION_SAMPLES";
-		is_busy = false;
+		status = unsetbit(status, TUNER_IOCTL);
 		return;
 	}
-	is_busy = false;
+	status = unsetbit(status, TUNER_IOCTL);
 	for (unsigned int i = 0 ; i < const_samples.num ; i++) {
 		while (iq_x.size() >= (int)const_samples.num * PERSISTENCE) {
 			iq_x.erase(iq_x.begin());
@@ -1248,8 +1234,6 @@ QString dvbtune::min_snr()
 
 void dvbtune::run()
 {
-	emit adapter_status(adapter, true);
-	
 	QTime check_frontend_t;
 	check_frontend_t.start();
 	QTime iqplot_t;
@@ -1273,10 +1257,9 @@ void dvbtune::run()
 			thread_function.append("check_frontend");
 			thread_function.remove(thread_function.indexOf("tune"));			
 		}
-		msleep(100);
+		if (thread_function.size() == 0) {
+			msleep(100);
+		}
 	} while(loop);
-	qDebug() << "dvbtune() run() complete";
 	thread_function.clear();
-
-	emit adapter_status(adapter, false);
 }

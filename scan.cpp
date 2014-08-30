@@ -34,7 +34,6 @@ scan::scan()
 
 scan::~scan()
 {
-	qDebug() << "~scan()";
 }
 
 void scan::run()
@@ -140,140 +139,12 @@ void scan::rescale() {
 	emit signaldraw(x, y, min, max, mytune->tp.voltage);
 }
 
-void scan::sweep_atsc()
-{
-	short unsigned int rf_levels_h[65535];
-	struct dvb_fe_spectrum_scan scan;
-
-	QVector<unsigned long int> freq;
-	atsc myatsc;
-	if (step != 1) {
-		for (int i = 0; i < myatsc.freq.size(); i++) {
-			if (myatsc.freq.at(i) >= f_start && myatsc.freq.at(i) <= f_stop) {
-				freq.append(myatsc.freq.at(i));
-			}
-		}
-	
-		scan.rf_level	= rf_levels_h;		
-		scan.num_freq	= freq.size();
-		scan.freq		= (__u32*) malloc(freq.size() * sizeof(__u32));
-		for (int i = 0; i < scan.num_freq; i++) {
-			*(scan.freq + i) = freq.at(i) * 1000;
-		}
-
-		mytune->spectrum_scan(&scan);
-
-		x.clear();
-		y.clear();
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) - 3000);
-			y.append(0);
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
-			y.append(rf_levels_h[i]);
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) + 3000);
-			y.append(0);
-		}
-	} else {
-		step = 3000;
-		scan.rf_level	= rf_levels_h;
-		scan.num_freq	= ((f_stop - f_start) / step) + 1;
-		scan.freq		= (__u32*) malloc(scan.num_freq * sizeof(__u32));
-		for (int i = 0; i < scan.num_freq; i++) {
-			*(scan.freq + i) = (f_start + (i * step)) * 1000;
-		}
-
-		mytune->spectrum_scan(&scan);
-
-		x.clear();
-		y.clear();
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
-			y.append(rf_levels_h[i]);
-		}
-	}
-	free(scan.freq);
-}
-
-void scan::sweep_qam()
-{
-	short unsigned int rf_levels_h[65535];
-	struct dvb_fe_spectrum_scan scan;
-	
-	QVector<unsigned long int> freq;
-	qam myqam;
-	if (step != 1) {
-		for (int i = 0; i < myqam.freq.size(); i++) {
-			if (myqam.freq.at(i) >= f_start && myqam.freq.at(i) <= f_stop) {
-				freq.append(myqam.freq.at(i));
-			}
-		}
-	
-		scan.rf_level	= rf_levels_h;		
-		scan.num_freq	= freq.size();
-		scan.freq		= (__u32*) malloc(freq.size() * sizeof(__u32));
-		for (int i = 0; i < scan.num_freq; i++) {
-			*(scan.freq + i) = freq.at(i) * 1000;
-		}
-	
-		mytune->spectrum_scan(&scan);
-
-		x.clear();
-		y.clear();
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) - 3000);
-			y.append(0);
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
-			y.append(rf_levels_h[i]);
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) + 3000);
-			y.append(0);
-		}
-	} else {
-		step = 3000;
-		scan.rf_level	= rf_levels_h;
-		scan.num_freq	= ((f_stop - f_start) / step) + 1;
-		scan.freq		= (__u32*) malloc(scan.num_freq * sizeof(__u32));
-		for (int i = 0; i < scan.num_freq; i++) {
-			*(scan.freq + i) = (f_start + (i * step)) * 1000;
-		}
-
-		mytune->spectrum_scan(&scan);
-
-		x.clear();
-		y.clear();
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
-			y.append(rf_levels_h[i]);
-		}
-	}
-	free(scan.freq);
-}
-
-void scan::sweep_satellite()
-{
-	short unsigned int rf_levels_h[65535];
-	struct dvb_fe_spectrum_scan scan;
-
-	scan.rf_level	= rf_levels_h;
-	scan.num_freq	= ((f_stop - f_start) / step) + 1;
-	scan.freq		= (__u32*) malloc(scan.num_freq * sizeof(__u32));
-	for (int i = 0; i < scan.num_freq; i++) {
-		*(scan.freq + i) = (f_start + (i * step)) * 1000;
-	}
-
-	mytune->spectrum_scan(&scan);
-
-	x.clear();
-	y.clear();
-	for(unsigned int i = 0; i < scan.num_freq; i++) {
-		x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
-		y.append(rf_levels_h[i]);
-	}
-	free(scan.freq);
-}
-
 void scan::sweep()
 {
-	qDebug() << "sweep() - Start:" << mytune->tune_ops.f_start << "Stop:" << mytune->tune_ops.f_stop << "lof:" << mytune->tune_ops.f_lof << "voltage:" << dvbnames.voltage[mytune->tp.voltage];	
+	qDebug() << "sweep() - Start:" << mytune->tune_ops.f_start << "Stop:" << mytune->tune_ops.f_stop << "lof:" << mytune->tune_ops.f_lof << "voltage:" << dvbnames.voltage[mytune->tp.voltage];
+
+	QTime t;
+	t.start();
 
 	if (abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof)) < abs(mytune->tune_ops.f_stop - abs(mytune->tune_ops.f_lof))) {
 		f_start	= abs(mytune->tune_ops.f_start - abs(mytune->tune_ops.f_lof));
@@ -299,20 +170,72 @@ void scan::sweep()
 		return;
 	}
 
-	emit update_status("Scanning...", 0);
-	if (isSatellite(mytune->tp.system)) {
-		sweep_satellite();
-	}
-	if (isATSC(mytune->tp.system)) {
-		sweep_atsc();
-	}
+	emit update_status("Scanning...", STATUS_NOEXP);
 
-	if (isQAM(mytune->tp.system)) {
-		sweep_qam();
+	short unsigned int rf_levels_h[65535];
+	struct dvb_fe_spectrum_scan scan;
+
+	if (isSatellite(mytune->tp.system) || step == 1) {
+		if (!isSatellite(mytune->tp.system)) {
+			step *= 1000;
+		}
+		scan.rf_level	= rf_levels_h;
+		scan.num_freq	= ((f_stop - f_start) / step) + 1;
+		scan.freq		= (__u32*) malloc(scan.num_freq * sizeof(__u32));
+		for (int i = 0; i < scan.num_freq; i++) {
+			*(scan.freq + i) = (f_start + (i * step)) * 1000;
+		}
+
+		mytune->spectrum_scan(&scan);
+
+		x.clear();
+		y.clear();
+		for(unsigned int i = 0; i < scan.num_freq; i++) {
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
+			y.append(rf_levels_h[i]);
+		}
+	} else {
+		freq_list myfreq;
+		if (isQAM(mytune->tp.system)) {
+			myfreq.qam();
+		} else if (isATSC(mytune->tp.system)) {
+			myfreq.atsc();
+		} else if (isDVBT(mytune->tp.system)) {
+			myfreq.dvbt();
+		}
+
+		QVector<unsigned long int> freq;
+		for (int i = 0; i < myfreq.freq.size(); i++) {
+			if (myfreq.freq.at(i) >= f_start && myfreq.freq.at(i) <= f_stop) {
+				freq.append(myfreq.freq.at(i));
+			}
+		}
+
+		scan.rf_level	= rf_levels_h;
+		scan.num_freq	= freq.size();
+		scan.freq		= (__u32*) malloc(freq.size() * sizeof(__u32));
+		for (int i = 0; i < scan.num_freq; i++) {
+			*(scan.freq + i) = freq.at(i) * 1000;
+		}
+
+		mytune->spectrum_scan(&scan);
+
+		x.clear();
+		y.clear();
+		for(unsigned int i = 0; i < scan.num_freq; i++) {
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) - 3000);
+			y.append(0);
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
+			y.append(rf_levels_h[i]);
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) + 3000);
+			y.append(0);
+		}
 	}
+	free(scan.freq);
+
 	rescale();
-	emit update_status("Scanning...", -1);
-	emit update_status("Done", 1);
+	emit update_status("", STATUS_CLEAR);
+	emit update_status("Completed in " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 2);
 }
 
 void scan::setup()

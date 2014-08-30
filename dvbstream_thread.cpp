@@ -20,8 +20,6 @@
 
 dvbstream_thread::dvbstream_thread()
 {
-	qDebug() << Q_FUNC_INFO;
-
 	signal(SIGPIPE, SIG_IGN);
 	mytune	= NULL;
 	server	= NULL;
@@ -32,34 +30,34 @@ dvbstream_thread::dvbstream_thread()
 
 dvbstream_thread::~dvbstream_thread()
 {
-	qDebug() << "~dvbstream_thread()";
 	server_close();
+	if (!socket.isNull()) {
+		socket->deleteLater();
+	}
+	if (!server.isNull()) {
+		server->deleteLater();
+	}
 }
 
 void dvbstream_thread::socket_new()
 {
-	qDebug() << Q_FUNC_INFO;
-
 	if (socket) {
-		qDebug() << "deleting old socket";
 		socket_close();
 	}
 	socket = server->nextPendingConnection();
 	socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 	connect(socket, SIGNAL(disconnected()), this, SLOT(socket_close()), Qt::DirectConnection);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(read_data()), Qt::DirectConnection);
-	emit update_status(QString("Streaming to %1").arg(socket->peerAddress().toString()), 0);
+	emit update_status(QString("Streaming to %1").arg(socket->peerAddress().toString()), STATUS_NOEXP);
 }
 
 void dvbstream_thread::read_data()
 {
-	qDebug() << Q_FUNC_INFO;
-
 	QString line;
 	while (socket->bytesAvailable()) {
 		line = socket->readLine();
 		if (line.section(" ", 0, 0) == "User-Agent:") {
-			emit update_status(QString("Streaming to %1 @ %2").arg(line.section(" ", 1, 1)).arg(socket->peerAddress().toString()), 0);
+			emit update_status(QString("Streaming to %1 @ %2").arg(line.section(" ", 1, 1)).arg(socket->peerAddress().toString()), STATUS_NOEXP);
 		}
 	}
 
@@ -74,36 +72,31 @@ void dvbstream_thread::read_data()
 
 void dvbstream_thread::socket_close()
 {
-	qDebug() << Q_FUNC_INFO;
-
-	if (socket) {
+	if (!socket.isNull()) {
 		mytune->demux_stream(false);
 		socket->close();
-		socket->deleteLater();
-		emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), 0);
+//		socket->deleteLater();
+		emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), STATUS_NOEXP);
 	}
 }
 
 void dvbstream_thread::server_close()
 {
-	qDebug() << Q_FUNC_INFO;
-
 	socket_close();
-	if (server) {
+	if (!server.isNull()) {
 		server->close();
-		server->deleteLater();
+//		server->deleteLater();
 	}
 	mytune->close_dvr();
 
 	IP		= QHostAddress::Null;
 	port	= 0;
-	emit update_status("Disconnected", 1);
+	emit update_status("", STATUS_CLEAR);
+	emit update_status("Disconnected", 2);
 }
 
 void dvbstream_thread::server_new()
 {
-	qDebug() << Q_FUNC_INFO;
-
 	QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
 	for (int i = 0; i < ipAddressesList.size(); ++i) {
 		if (ipAddressesList.at(i) != QHostAddress::LocalHost && ipAddressesList.at(i).toIPv4Address()) {
@@ -122,7 +115,7 @@ void dvbstream_thread::server_new()
 		return;
 	}
 	connect(server, SIGNAL(newConnection()), this, SLOT(socket_new()), Qt::DirectConnection);
-	emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), 0);
+	emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), STATUS_NOEXP);
 }
 
 void dvbstream_thread::stream(QByteArray data)

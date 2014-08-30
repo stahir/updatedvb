@@ -27,7 +27,6 @@ tuning_thread::tuning_thread()
 
 tuning_thread::~tuning_thread()
 {
-	qDebug() << "~tuning_thread()";
 }
 
 unsigned int tuning_thread::dtag_convert(unsigned int temp)
@@ -187,7 +186,6 @@ int tuning_thread::parse_descriptor(int parent)
 
 int tuning_thread::parse_psip()
 {
-	qDebug() << "parse_psip()";
 	if (mytune->read8() != 0xC8) {
 		return 0;
 	}
@@ -431,7 +429,6 @@ void tuning_thread::parsetp()
 
 	mytune->close_dvr();
 	emit parsetp_done();
-	qDebug() << "parsetp() done";
 }
 
 void tuning_thread::run()
@@ -442,7 +439,16 @@ void tuning_thread::run()
 			parsetp();
 			loop = false;
 		}
-		msleep(10);
+		if (thread_function.size() == 0) {
+			msleep(100);
+		}
 	} while (loop);
 	thread_function.clear();
+}
+
+void tuning_thread::closeEvent(QCloseEvent *event)
+{
+	Q_UNUSED(event);
+	loop = false;
+	this->deleteLater();
 }

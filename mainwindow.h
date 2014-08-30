@@ -75,7 +75,7 @@ public slots:
 	void qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
 	void markers_draw();
 	void qwtPlot_selected(QPointF pos);
-	void update_status(QString text, int time = -1);
+	void update_status(QString text, int time = STATUS_REMOVE);
 
 private slots:
 	void on_pushButton_spectrumscan_clicked();
@@ -96,7 +96,7 @@ private slots:
 	void on_checkBox_waterfall_clicked();
 	void on_actionSettings_triggered();
 	void on_actionExit_triggered();
-	void adapter_status(int adapter, bool is_busy);
+	void adapter_status(int adapter);
 	void setup_tuning_options();
 
 private:

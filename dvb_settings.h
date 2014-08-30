@@ -39,6 +39,17 @@
 #define PACKETRETRY 3
 #define PERSISTENCE 30
 
+// Status bits
+#define TUNER_AVAIL	0 // free todo anything
+#define TUNER_IOCTL	1 // busy sending ioctl
+#define TUNER_TUNED	2 // tuned
+#define TUNER_DEMUX	4 // demux'ing
+#define TUNER_RDING	8 // read()'ing
+
+#define STATUS_NOEXP   0
+#define STATUS_REMOVE -1
+#define STATUS_CLEAR  -2
+
 struct asc1_data
 {
 	QString			name;
@@ -161,25 +172,26 @@ public:
 	QVector<QString> pname;
 };
 
-class atsc
+class freq_list
 {
 public:
-	atsc();
-	QVector<int> freq;
-	QVector<int> ch;
-};
-
-class qam
-{
-public:
-	qam();
+	freq_list();
+	void qam();
+	void atsc();
+	void dvbt();
 	QVector<int> freq;
 	QVector<int> ch;
 };
 
 bool isSatellite(int system);
 bool isATSC(int system);
+bool isVectorQAM(QVector<int> system);
+bool isVectorATSC(QVector<int> system);
+bool isVectorDVBT(QVector<int> system);
 bool isQAM(int system);
+bool isDVBT(int system);
 int azero(int num);
+unsigned int setbit(unsigned int var, unsigned int MASK);
+unsigned int unsetbit(unsigned int var, unsigned int MASK);
 
 #endif // DVB_SETTINGS_H

@@ -10,6 +10,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "dvb_settings.h"
+#include "dvbtune.h"
+
+class dvbtune;
 
 class dvr_thread : public QThread
 {
@@ -19,20 +22,19 @@ public:
 	~dvr_thread();
 	void demux_file();
 	void demux_stream();
+	void close_file();
 	void run();
 	QVector<QString> thread_function;
 	bool loop;
-	bool is_busy;
-	QString dvr_name, file_name;
-	int dvr_fd, file_fd;
-	int adapter;
+	QString file_name;
+	int file_fd;
+	dvbtune *mytune;
 
 signals:
 	void data(QByteArray);
 	void data_size(int);
 
 public slots:
-
 };
 
 #endif // DVR_THREAD_H
