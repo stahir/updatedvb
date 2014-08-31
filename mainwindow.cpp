@@ -507,6 +507,12 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 	}
 
 	reload_settings();
+
+	for (int i = 0; i < mytuning.size(); i++) {
+		if (mytuning.at(i)->mytune->adapter == ui->comboBox_adapter->currentData().toUInt()) {
+			mytuning.at(i)->raise();
+		}
+	}
 }
 
 void MainWindow::on_comboBox_frontend_currentIndexChanged(int index)
