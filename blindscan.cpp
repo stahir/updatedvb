@@ -52,7 +52,7 @@ blindscan::~blindscan()
 		mytuning->deleteLater();
 	}
 
-	delete myprogress;
+	myprogress->deleteLater();
 	delete ui;
 }
 

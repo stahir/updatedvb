@@ -6,6 +6,7 @@
 #include <QProcess>
 #include <QProgressBar>
 #include <QDebug>
+#include <QPointer>
 #include "dvbtune.h"
 #include "tuning.h"
 #include "dvb_settings.h"
@@ -53,9 +54,7 @@ private:
 	QTreeWidgetItem *ctree[65535];
 	dvb_settings dvbnames;
 	QVector<tp_info> mytp_info;
-	QStatusBar *mystatus;
-	QProgressBar *myprogress;
-	QVBoxLayout *mylayout;
+	QPointer<QProgressBar> myprogress;
 
 protected:
 	void closeEvent(QCloseEvent *event);
