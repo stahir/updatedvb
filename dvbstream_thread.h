@@ -21,6 +21,8 @@
 
 #include <QThread>
 #include <QPointer>
+#include <QTcpServer>
+#include <QTcpSocket>
 #include <QNetworkInterface>
 #include "dvbtune.h"
 #include <signal.h>

@@ -5,7 +5,6 @@
 #include <QDir>
 #include <QStatusBar>
 #include "dvbtune.h"
-#include <iostream>
 
 namespace Ui {
 class demux_file;

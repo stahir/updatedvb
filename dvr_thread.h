@@ -3,10 +3,7 @@
 
 #include <QDebug>
 #include <QThread>
-#include <QVector>
 #include <QByteArray>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include "dvb_settings.h"

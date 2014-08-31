@@ -19,6 +19,7 @@
 #ifndef TUNING_THREAD_H
 #define TUNING_THREAD_H
 
+#include <QDialog>
 #include <QThread>
 #include <QtCore>
 #include <QDebug>

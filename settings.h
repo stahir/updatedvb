@@ -26,11 +26,8 @@
 #include <QThread>
 #include <QtSerialPort/QtSerialPort>
 #include <QStatusBar>
-#include <iostream>
-#include <unistd.h>
 #include "dvb_settings.h"
 #include "dvbtune.h"
-using namespace std;
 
 namespace Ui {
 class settings;

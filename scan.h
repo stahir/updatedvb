@@ -20,21 +20,10 @@
 #define scan_H
 
 #include <QDebug>
-#include <math.h>
 #include <QThread>
 #include <QVector>
-#include <QFile>
-#include <sys/ioctl.h>
-#include <linux/dvb/frontend.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string>
-#include <sstream>
 #include "dvb_settings.h"
 #include "dvbtune.h"
-#include <iostream>
-using namespace std;
 
 class scan : public QThread
 {

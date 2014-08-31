@@ -19,7 +19,6 @@
 #ifndef DVB_SETTINGS_H
 #define DVB_SETTINGS_H
 
-#include <QVector>
 #include <QString>
 #include <QDebug>
 #include <linux/dvb/frontend.h>

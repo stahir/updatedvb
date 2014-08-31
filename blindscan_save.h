@@ -28,7 +28,6 @@
 #include <QTextEdit>
 #include <QDebug>
 #include "dvb_settings.h"
-#include <unistd.h>
 
 namespace Ui {
 class blindscan_save;

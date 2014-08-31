@@ -20,30 +20,15 @@
 #define DVBTUNE_H
 
 #include <QDebug>
-#include <QDialog>
 #include <QByteArray>
-#include <QThread>
 #include <QString>
 #include <QTime>
-#include <QTcpServer>
-#include <QTcpSocket>
-#include <iostream>
-#include <iomanip>
 #include <sys/ioctl.h>
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/dmx.h>
-#include <sys/poll.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string>
-#include <sstream>
 #include <math.h>
-#include <sys/select.h>
 #include "dvb_settings.h"
 #include "dvr_thread.h"
-using namespace std;
 
 class dvr_thread;
 
