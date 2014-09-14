@@ -58,6 +58,7 @@ void dvbstream_thread::read_data()
 		line = socket->readLine();
 		if (line.section(" ", 0, 0) == "User-Agent:") {
 			emit update_status(QString("Streaming to %1 @ %2").arg(line.section(" ", 1, 1)).arg(socket->peerAddress().toString()), STATUS_NOEXP);
+			mytune->demux_stream(true);
 		}
 	}
 
@@ -66,8 +67,6 @@ void dvbstream_thread::read_data()
 	socket->write("Cache-Control : no-cache\r\n");
 	socket->write("\r\n");
 	socket->waitForBytesWritten(2000);
-
-	mytune->demux_stream(true);
 }
 
 void dvbstream_thread::socket_close()

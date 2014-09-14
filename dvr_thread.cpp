@@ -106,6 +106,7 @@ void dvr_thread::demux_stream()
 
 	if (len == -1 || len != LIL_BUFSIZE) {
 		qDebug() << Q_FUNC_INFO << "read issue:" << len << "of" << LIL_BUFSIZE;
+		msleep(100);
 		return;
 	}
 
