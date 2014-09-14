@@ -837,7 +837,12 @@ void MainWindow::markers_draw()
 
 	for (int i = 0; i < mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size(); i++) {
 		marker.append(new QwtPlotMarker);
-		QwtText text = QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency);
+		QwtText text;
+		if (isSatellite(mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system)) {
+			text = QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency);
+		} else {
+			text = mytuners.at(ui->comboBox_adapter->currentIndex())->format_freq(mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).frequency, mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).system);
+		}
 		if (mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.at(i).voltage == ui->comboBox_voltage->currentIndex()) {
 			marker.at(i)->setSymbol(new QwtSymbol(QwtSymbol::Diamond, QBrush(GREEN), QPen(GREEN), QSize(5,5)));
 			text.setColor(GREEN);

@@ -511,16 +511,59 @@ void dvbtune::check_frontend()
 	emit update_signal();
 }
 
-int dvbtune::tune()
+int dvbtune::closest_freq(int freq, int system)
 {
-	stop_demux();
-	iq_x.clear();
-	iq_y.clear();
-	openfd();
-	if (isSatellite(tp.system)) {
-		setup_switch();	
-	}
+	freq_list myfreq;
 
+	if (isQAM(system)) {
+		myfreq.qam();
+	} else if (isATSC(system)) {
+		myfreq.atsc();
+	} else if (isDVBT(system)) {
+		myfreq.dvbt();
+	}
+	int ret_freq = freq;
+	if (freq < myfreq.freq.at(0)) {
+		ret_freq = myfreq.freq.at(0);
+	} else if (freq > myfreq.freq.at(myfreq.freq.size()-1)) {
+		ret_freq = myfreq.freq.at(myfreq.freq.size()-1);
+	} else {
+		for(int c = 0; c < myfreq.freq.size()-1; c++) {
+			if (freq > myfreq.freq.at(c) && freq < myfreq.freq.at(c+1)) {
+				int middle = (myfreq.freq.at(c) + myfreq.freq.at(c+1))/2;
+				if (freq < middle) {
+					ret_freq = myfreq.freq.at(c);
+				} else {
+					ret_freq = myfreq.freq.at(c+1);
+				}
+			}
+		}
+	}
+	return ret_freq;
+}
+
+QString dvbtune::format_freq(int frequency, int system)
+{
+	QString ret_string = QString::number(frequency);
+	freq_list myfreq;
+
+	if (isATSC(system)) {
+		myfreq.atsc();
+	}
+	if (isQAM(system)) {
+		myfreq.qam();
+	}
+	if (isDVBT(system)) {
+		myfreq.dvbt();
+	}
+	if (myfreq.freq.indexOf(frequency) >= 0) {
+		ret_string = QString::number(frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(frequency)));
+	}
+	return ret_string;
+}
+
+int dvbtune::tune_clear()
+{
 	struct dtv_property p_clear[1];
 	p_clear[0].cmd = DTV_CLEAR;
 
@@ -536,12 +579,26 @@ int dvbtune::tune()
 	}
 	status = unsetbit(status, TUNER_IOCTL);
 
+	return 1;
+}
+
+int dvbtune::tune()
+{
+	stop_demux();
+	iq_x.clear();
+	iq_y.clear();
+	openfd();
+	if (isSatellite(tp.system)) {
+		setup_switch();	
+	}
+
+	tune_clear();
+
 	int i = 0;
 	struct dtv_property p_tune[13];
 	p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
 	p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
 
-	freq_list myfreq;
 	if (isSatellite(tp.system)) {
 		qDebug() << "Satellite selected";
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
@@ -556,34 +613,7 @@ int dvbtune::tune()
 		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
 		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
 	} else if (isQAM(tp.system) || isATSC(tp.system) || isDVBT(tp.system)) {
-		if (isQAM(tp.system)) {
-			qDebug() << "QAM";
-			myfreq.qam();
-		} else if (isATSC(tp.system)) {
-			qDebug() << "ATSC";
-			myfreq.atsc();
-		} else if (isDVBT(tp.system)) {
-			qDebug() << "DVBT";
-			myfreq.dvbt();
-		}
-		int fr;
-		fr = tp.frequency;
-		if (fr < myfreq.freq.at(0)) {
-			tp.frequency = myfreq.freq.at(0);
-		} else if (fr > myfreq.freq.at(myfreq.freq.size()-1)) {
-			tp.frequency = myfreq.freq.at(myfreq.freq.size()-1);
-		} else {
-			for(int c = 0; c < myfreq.freq.size()-1; c++) {
-				if (fr > myfreq.freq.at(c) && fr < myfreq.freq.at(c+1)) {
-					int middle = (myfreq.freq.at(c) + myfreq.freq.at(c+1))/2;
-					if (fr < middle) {
-						tp.frequency = myfreq.freq.at(c);
-					} else {
-						tp.frequency = myfreq.freq.at(c+1);
-					}
-				}
-			}
-		}
+		tp.frequency = closest_freq(tp.frequency, tp.system);
 		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
 		qDebug() << "tune() Frequency: " << tp.frequency;
 	} else {
@@ -661,11 +691,10 @@ void dvbtune::get_bitrate()
 	pids_rate.clear();
 	pids_rate.fill(0, 0xFFFF+1);
 
+	int len = 0;
 	char buf[BIG_BUFSIZE];
 	memset(buf, 0, BIG_BUFSIZE);
 	
-	int len;
-
 	stime.start();
 	status = setbit(status, TUNER_RDING);
 	if (select(dvr_fd + 1, &set, NULL, NULL, &fd_timeout) > 0) {
@@ -1240,12 +1269,16 @@ void dvbtune::run()
 			if (iqplot_t.elapsed() > 500) {
 				iqplot();
 				iqplot_t.restart();
+			} else {
+				msleep(100);
 			}
 		}
 		if (thread_function.indexOf("check_frontend") != -1) {
 			if (check_frontend_t.elapsed() > 2000) {
 				check_frontend();
 				check_frontend_t.restart();
+			} else {
+				msleep(100);
 			}
 		}
 		if (thread_function.indexOf("tune") != -1) {
@@ -1258,4 +1291,5 @@ void dvbtune::run()
 		}
 	} while(loop);
 	thread_function.clear();
+	tune_clear();
 }

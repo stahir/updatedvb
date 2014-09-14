@@ -32,7 +32,6 @@
 
 #define LIL_BUFSIZE (348*188)
 #define BIG_BUFSIZE (30*LIL_BUFSIZE)
-//#define TCP_BUFSIZE (1448)
 #define MAX_PES_SIZE (4*1024)
 #define DMXOFF 5
 #define PACKETRETRY 3

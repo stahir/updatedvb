@@ -60,7 +60,7 @@ void dvr_thread::demux_file()
 	FD_ZERO(&set);
 	FD_SET(mytune->dvr_fd, &set);
 
-	int len;
+	int len = 0;
 	char buf[LIL_BUFSIZE];
 	memset(buf, 0, LIL_BUFSIZE);
 

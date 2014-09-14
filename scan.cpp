@@ -85,8 +85,17 @@ void scan::rescale() {
 	min = ys[ys.size() * 0.05];
 	max = ys[ys.size() - 1];
 	int dev = (max - min);
-	min += dev * 0.10;
-	max += dev * 0.10;
+	int slope;
+	if (isSatellite(mytune->tp.system)) {
+		min += dev * 0.10;
+		max += dev * 0.10;
+		slope = 10 / step;
+	} else {
+		min += dev * 0.10;
+		max += dev * 0.40; // non-satellite needs a little extra room because of the channel number
+		slope = 1;
+	}
+
 	if (min_old > 0 && max_old > 0) {
 		if (min_old < min) {
 			min = min_old;
@@ -102,12 +111,6 @@ void scan::rescale() {
 	}
 
 	tp_info tmp;
-	int slope;
-	if (isATSC(mytune->tp.system) || isQAM(mytune->tp.system)) {
-		slope = 1;
-	} else {
-		slope = 10 / step;
-	}
 
 	unsigned int threshold = (max-min)/8;
 	unsigned int start = 0;

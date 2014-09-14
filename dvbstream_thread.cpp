@@ -41,7 +41,7 @@ dvbstream_thread::~dvbstream_thread()
 
 void dvbstream_thread::socket_new()
 {
-	if (socket) {
+	if (!socket.isNull()) {
 		socket_close();
 	}
 	socket = server->nextPendingConnection();
@@ -75,7 +75,6 @@ void dvbstream_thread::socket_close()
 	if (!socket.isNull()) {
 		mytune->demux_stream(false);
 		socket->close();
-//		socket->deleteLater();
 		emit update_status(QString("Streaming on %1:%2").arg(IP.toString()).arg(port), STATUS_NOEXP);
 	}
 }
@@ -85,7 +84,6 @@ void dvbstream_thread::server_close()
 	socket_close();
 	if (!server.isNull()) {
 		server->close();
-//		server->deleteLater();
 	}
 	mytune->close_dvr();
 

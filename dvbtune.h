@@ -76,6 +76,7 @@ public:
 	void check_frontend();
 	void get_bitrate();
 	int tune();
+	int tune_clear();
 	int demux_packet(int pid, unsigned char table = 0, int timeout = 3000);
 	void demux_file(bool start);
 	void demux_video();
@@ -99,6 +100,8 @@ public:
 	void step_motor(int direction, int steps);
 	void iqplot();
 	QString min_snr();
+	int closest_freq(int freq, int system);
+	QString format_freq(int freq, int system);
 	
 	void run();
 	bool loop;

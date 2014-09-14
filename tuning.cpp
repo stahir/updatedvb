@@ -310,25 +310,7 @@ void tuning::update_signal()
 			break;
 		}
 	} else {
-		freq_list myfreq;
-		if (isATSC(mytune->tp.system)) {
-			myfreq.atsc();
-			if (myfreq.freq.indexOf(mytune->tp.frequency) >= 0) {
-				ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
-			}
-		} else if (isQAM(mytune->tp.system)) {
-			myfreq.qam();
-			if (myfreq.freq.indexOf(mytune->tp.frequency) >= 0) {
-				ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
-			}
-		} else if (isDVBT(mytune->tp.system)) {
-			myfreq.dvbt();
-			if (myfreq.freq.indexOf(mytune->tp.frequency) >= 0) {
-				ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz, ch " + QString::number(myfreq.ch.at(myfreq.freq.indexOf(mytune->tp.frequency))));
-			}
-		} else {
-			ui->label_frequency->setText(QString::number(mytune->tp.frequency/1000) + "mhz");
-		}
+		ui->label_frequency->setText(mytune->format_freq(mytune->tp.frequency, mytune->tp.system));
 	}
 }
 
