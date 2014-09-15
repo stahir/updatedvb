@@ -198,10 +198,11 @@ void settings::on_comboBox_lnb_currentIndexChanged(int index)
 
 void settings::on_comboBox_adapter_currentIndexChanged(int index)
 {
+	Q_UNUSED(index);
 	load_settings();
 
 	ui->comboBox_frontend->clear();
-	QDir adapter_dir("/dev/dvb/adapter" + QString::number(index));
+	QDir adapter_dir("/dev/dvb/adapter" + ui->comboBox_adapter->currentData().toString());
 	adapter_dir.setFilter(QDir::System|QDir::NoDotAndDotDot);
 	QStringList frontend_entries = adapter_dir.entryList();
 	frontend_entries = frontend_entries.filter("frontend");
