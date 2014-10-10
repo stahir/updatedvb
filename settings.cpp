@@ -277,33 +277,34 @@ void settings::on_pushButton_close_clicked()
 void settings::on_checkBox_diseqc_v13_clicked()
 {
 	if (ui->checkBox_diseqc_v13->isChecked()) {
-		ui->gridWidget_cords->show();
+		ui->label_lat->show();
+		ui->lineEdit_lat->show();
+		ui->label_long->show();
+		ui->lineEdit_long->show();
 	} else {
-		ui->gridWidget_cords->hide();
+		ui->label_lat->hide();
+		ui->lineEdit_lat->hide();
+		ui->label_long->hide();
+		ui->lineEdit_long->hide();
 	}
 }
 
 void settings::on_checkBox_diseqc_v12_clicked()
 {
 	if (ui->checkBox_diseqc_v12->isChecked()) {
-		this->resize(436, 405);
 		ui->tableWidget_diseqc_v12->show();
+		ui->checkBox_asc1->show();
+		on_checkBox_asc1_clicked();
 	} else {
-		this->resize(436, 375);
 		ui->tableWidget_diseqc_v12->hide();
+		ui->checkBox_asc1->hide();
+		on_checkBox_asc1_clicked();
 	}
 }
 
 void settings::on_checkBox_asc1_clicked()
 {
-	if (ui->checkBox_diseqc_v12->isChecked()) {
-		if (ui->checkBox_asc1->isChecked()) {
-			this->resize(436, 470);
-		} else {
-			this->resize(436, 405);
-		}
-	}
-	if (ui->checkBox_asc1->isChecked()) {
+	if (ui->checkBox_asc1->isChecked() && ui->checkBox_diseqc_v12->isChecked()) {
 		ui->gridWidget_asc1->show();
 		ui->tableWidget_diseqc_v12->setColumnCount(4);
 		ui->tableWidget_diseqc_v12->setColumnWidth(0, 175);

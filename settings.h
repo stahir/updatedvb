@@ -56,7 +56,6 @@ private slots:
 	void on_pushButton_asc1_upload_clicked();
 	void on_pushButton_asc1_download_clicked();
 	void update_status(QString text, int time = STATUS_REMOVE);
-
 	void on_comboBox_frontend_currentIndexChanged(int index);
 
 private:

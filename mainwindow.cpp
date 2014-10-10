@@ -335,8 +335,8 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 		myscan->step = 1;
 	}
 
-	myscan->mytune->tune_ops = tune_ops.at(ui->comboBox_lnb->currentData().toInt());
-	myscan->mytune->tp.system = dvbnames.system.indexOf(ui->comboBox_system->currentText());
+	myscan->mytune->tune_ops	= tune_ops.at(ui->comboBox_lnb->currentData().toInt());
+	myscan->mytune->tp.system	= dvbnames.system.indexOf(ui->comboBox_system->currentText());
 	myscan->loop	= ui->checkBox_loop->isChecked();
 	myscan->setup();
 	myscan->start();
