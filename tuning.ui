@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>900</width>
-    <height>560</height>
+    <height>579</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -270,6 +270,13 @@
             </property>
            </widget>
           </item>
+          <item row="10" column="1">
+           <widget class="QLabel" name="label_ccmacm">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="17" column="0">
            <widget class="QPushButton" name="pushButton_demux">
             <property name="sizePolicy">
@@ -295,10 +302,10 @@
             </property>
            </widget>
           </item>
-          <item row="14" column="0">
-           <widget class="QLabel" name="label_4">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>BER</string>
+             <string>Modulation</string>
             </property>
            </widget>
           </item>
@@ -309,14 +316,28 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_6">
+          <item row="14" column="0">
+           <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>Modulation</string>
+             <string>BER</string>
             </property>
            </widget>
           </item>
-          <item row="19" column="0">
+          <item row="11" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>SIS/MIS</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QLabel" name="label_mis">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="20" column="0">
            <widget class="QPushButton" name="pushButton_ipcleaner">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -347,14 +368,14 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
-           <widget class="QLabel" name="label_mis">
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_10">
             <property name="text">
-             <string/>
+             <string>Pilot</string>
             </property>
            </widget>
           </item>
-          <item row="20" column="0">
+          <item row="21" column="0">
            <widget class="QPushButton" name="pushButton_stream">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -382,10 +403,10 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_10">
+          <item row="11" column="1">
+           <widget class="QLabel" name="label_sismis">
             <property name="text">
-             <string>Pilot</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -405,10 +426,10 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="1">
-           <widget class="QLabel" name="label_sismis">
+          <item row="8" column="0">
+           <widget class="QLabel" name="label_12">
             <property name="text">
-             <string/>
+             <string>MIS</string>
             </property>
            </widget>
           </item>
@@ -416,13 +437,6 @@
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Inversion</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>MIS</string>
             </property>
            </widget>
           </item>
@@ -468,13 +482,6 @@
             </property>
            </widget>
           </item>
-          <item row="10" column="1">
-           <widget class="QLabel" name="label_ccmacm">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="12" column="1">
            <widget class="QLabel" name="label_signalS">
             <property name="toolTipDuration">
@@ -499,7 +506,14 @@
             </property>
            </widget>
           </item>
-          <item row="21" column="0">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Lock</string>
+            </property>
+           </widget>
+          </item>
+          <item row="22" column="0">
            <widget class="QPushButton" name="pushButton_iqplot">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -521,22 +535,15 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="0">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>SIS/MIS</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Lock</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QLabel" name="label_lock">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="14" column="1">
+           <widget class="QLabel" name="label_ber">
             <property name="text">
              <string/>
             </property>
@@ -549,15 +556,34 @@
             </property>
            </widget>
           </item>
-          <item row="14" column="1">
-           <widget class="QLabel" name="label_ber">
+          <item row="4" column="1">
+           <widget class="QLabel" name="label_fec">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLabel" name="label_fec">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="lineWidth">
+             <number>1</number>
+            </property>
+            <property name="text">
+             <string>System</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_system">
             <property name="text">
              <string/>
             </property>
@@ -597,32 +623,6 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="lineWidth">
-             <number>1</number>
-            </property>
-            <property name="text">
-             <string>System</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="label_system">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="15" column="0">
            <spacer name="verticalSpacer">
             <property name="orientation">
@@ -635,6 +635,13 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="19" column="0">
+           <widget class="QPushButton" name="pushButton_bbframe">
+            <property name="text">
+             <string>Save BBFrame</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

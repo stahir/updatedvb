@@ -393,7 +393,7 @@ void tuning::stop_demux()
 	mytune->demux_video();
 }
 
-void tuning::setup_demux()
+void tuning::setup_demux(QString type)
 {
 	mytune->pids.clear();
 	for(int a = 0; a < list_pid.size(); a++) {
@@ -408,7 +408,11 @@ void tuning::setup_demux()
 	} else {
 		mytune->pids.append(0x2000);
 	}
-	mytune->demux_video();
+	if (type == "BBFrame") {
+		mytune->demux_bbframe();
+	} else {
+		mytune->demux_video();
+	}
 }
 
 void tuning::on_pushButton_ipcleaner_clicked()
@@ -570,4 +574,22 @@ void tuning::keyPressEvent(QKeyEvent *event)
 	if (event->key() == Qt::Key_Escape) {
 		this->close();
 	}
+}
+
+void tuning::on_pushButton_bbframe_clicked()
+{
+	if (mytune->status & TUNER_DEMUX) {
+		return;
+	}
+
+	ui->pushButton_file->setEnabled(false);
+
+	setup_demux("BBFrame");
+
+	mydemux_file = new demux_file;
+	connect(mydemux_file, SIGNAL(destroyed()), this, SLOT(delete_demux_file()));
+
+	mydemux_file->mytune = mytune;
+	mydemux_file->init();
+	mydemux_file->show();
 }

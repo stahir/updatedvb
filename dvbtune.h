@@ -80,6 +80,7 @@ public:
 	int demux_packet(int pid, unsigned char table = 0, int timeout = 3000);
 	void demux_file(bool start);
 	void demux_video();
+	void demux_bbframe();
 	void demux_stream(bool start);
 	void stop_demux();
 	void setup_switch();

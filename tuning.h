@@ -49,7 +49,7 @@ public:
 	~tuning();
 
 	void init();
-	void setup_demux();
+	void setup_demux(QString type = "TS");
 	dvbtune *mytune;
 	bool shutdown;
 
@@ -71,6 +71,7 @@ private slots:
 	void on_pushButton_expand_clicked();
 	void on_pushButton_unexpand_clicked();
 	void on_pushButton_stream_clicked();
+	void on_pushButton_bbframe_clicked();
 	void on_treeWidget_itemClicked(QTreeWidgetItem * item, int column);
 	void list_create(QString text, int pid);
 	void tree_create_root(int *parent, QString text, int pid);

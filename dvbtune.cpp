@@ -738,6 +738,51 @@ void dvbtune::get_bitrate()
 	}
 }
 
+void dvbtune::demux_bbframe()
+{
+	while (dmx_fd.size()) {
+		while(status & TUNER_RDING) {
+			qDebug() << "waiting for read() to complete";
+			msleep(100);
+		}
+		status = setbit(status, TUNER_IOCTL);
+		ioctl(dmx_fd.last(), DMX_STOP);
+		status = unsetbit(status, TUNER_IOCTL);
+		close(dmx_fd.last());
+		dmx_fd.pop_back();
+	}
+
+	dmx_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
+
+	int temp_fd = open(dmx_name.toStdString().c_str(), O_RDWR|O_NONBLOCK);
+	if (temp_fd < 0) {
+		qDebug() << "Failed to open" << dmx_name;
+		return;
+	}
+	dmx_fd.append(temp_fd);
+	status = setbit(status, TUNER_IOCTL);
+	ioctl(dmx_fd.last(), DMX_SET_BUFFER_SIZE, BIG_BUFSIZE);
+	status = unsetbit(status, TUNER_IOCTL);
+
+	struct dmx_bb_filter_params bbFilterParams;
+	memset(&bbFilterParams, 0, sizeof (struct dmx_bb_filter_params));
+
+	bbFilterParams.isi		= DMX_ISI_ALL;
+	bbFilterParams.input	= DMX_IN_FRONTEND;
+	bbFilterParams.output	= DMX_OUT_TS_TAP;
+	bbFilterParams.type		= DMX_BB_FRAME;
+	bbFilterParams.flags	= DMX_IMMEDIATE_START;
+
+	status = setbit(status, TUNER_IOCTL);
+	if (ioctl(dmx_fd.last(), DMX_SET_BB_FILTER, &bbFilterParams) == -1) {
+		qDebug() << "DEMUX: DMX_SET_BB_FILTER";
+	}
+	status = unsetbit(status, TUNER_IOCTL);
+
+	status = setbit(status, TUNER_DEMUX);
+	emit adapter_status(adapter);
+}
+
 void dvbtune::demux_video()
 {
 	while (dmx_fd.size()) {
