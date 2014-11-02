@@ -692,13 +692,13 @@ void dvbtune::get_bitrate()
 	pids_rate.fill(0, 0xFFFF+1);
 
 	int len = 0;
-	char buf[BIG_BUFSIZE];
-	memset(buf, 0, BIG_BUFSIZE);
+	char buf[BRT_BUFSIZE];
+	memset(buf, 0, BRT_BUFSIZE);
 	
 	stime.start();
 	status = setbit(status, TUNER_RDING);
 	if (select(dvr_fd + 1, &set, NULL, NULL, &fd_timeout) > 0) {
-		len = read(dvr_fd, buf, BIG_BUFSIZE);
+		len = read(dvr_fd, buf, BRT_BUFSIZE);
 	} else {
 		qDebug() << "read(dvr_fd) timeout";
 	}
