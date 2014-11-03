@@ -691,30 +691,29 @@ void dvbtune::get_bitrate()
 	pids_rate.clear();
 	pids_rate.fill(0, 0xFFFF+1);
 
-	int len = 0;
-	char buf[BRT_BUFSIZE];
-	memset(buf, 0, BRT_BUFSIZE);
-	
+	signed long len = 0;
+	char buf[LIL_BUFSIZE];
+	memset(buf, 0, LIL_BUFSIZE);
+	buffer.clear();
+
 	stime.start();
 	status = setbit(status, TUNER_RDING);
-	if (select(dvr_fd + 1, &set, NULL, NULL, &fd_timeout) > 0) {
-		len = read(dvr_fd, buf, BRT_BUFSIZE);
-	} else {
-		qDebug() << "read(dvr_fd) timeout";
+	for (signed long i; i < BRT_BUFSIZE; i += LIL_BUFSIZE) {
+		if (select(dvr_fd + 1, &set, NULL, NULL, &fd_timeout) > 0) {
+			len = read(dvr_fd, buf, LIL_BUFSIZE);
+		}
+		buffer.append(buf, len);
 	}
 	status = unsetbit(status, TUNER_RDING);
 	ttime = stime.elapsed();
-
-	buffer.clear();
-	buffer.append(buf, len);
 
 	if (buffer.size() < 188) {
 		qDebug() << "read size too small," << buffer.size() << " bytes";
 		return;
 	}
 		
-	int i = 0;
-	int p = 0;
+	signed long i = 0;
+	signed int p = 0;
 	while (i < buffer.size()) {
 		if (buffer.at(i) != 0x47) {
 			qDebug() << "desync";
