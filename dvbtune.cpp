@@ -679,7 +679,13 @@ void dvbtune::get_bitrate()
 		if (dvr_fd < 0) {
 			qDebug() << "Failed to open" << dvr_name;
 			return;
+		} else {
+			qDebug() << "opened " << dvr_name;
 		}
+
+		pids.clear();
+		pids.append(0x2000);
+		demux_video();
 	}
 	fd_set set;
 	FD_ZERO(&set);
@@ -691,20 +697,28 @@ void dvbtune::get_bitrate()
 	pids_rate.clear();
 	pids_rate.fill(0, 0xFFFF+1);
 
-	signed long len = 0;
+	int len = 0;
 	char buf[LIL_BUFSIZE];
-	memset(buf, 0, LIL_BUFSIZE);
 	buffer.clear();
 
 	stime.start();
-	status = setbit(status, TUNER_RDING);
-	for (signed long i; i < BRT_BUFSIZE; i += LIL_BUFSIZE) {
-		if (select(dvr_fd + 1, &set, NULL, NULL, &fd_timeout) > 0) {
+	for (unsigned long i; i < BIG_BUFSIZE; i += len) {
+		len = 0;
+		memset(buf, 0, LIL_BUFSIZE);
+		status = setbit(status, TUNER_RDING);
+		if (select(FD_SETSIZE, &set, NULL, NULL, &fd_timeout) > 0) {
 			len = read(dvr_fd, buf, LIL_BUFSIZE);
+			if (len > 0) {
+				buffer.append(buf, len);
+			} else {
+				len = 0;
+			}
+		} else {
+			qDebug() << "not ready to read";
+			len = LIL_BUFSIZE;
 		}
-		buffer.append(buf, len);
+		status = unsetbit(status, TUNER_RDING);
 	}
-	status = unsetbit(status, TUNER_RDING);
 	ttime = stime.elapsed();
 
 	if (buffer.size() < 188) {
@@ -799,6 +813,8 @@ void dvbtune::demux_video()
 	dmx_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
 
 	struct dmx_pes_filter_params pesFilterParams;
+	memset(&pesFilterParams, 0, sizeof(pesFilterParams));
+
 	for(int a = 0; a < pids.size(); a++)
 	{
 		int temp_fd = open(dmx_name.toStdString().c_str(), O_RDWR|O_NONBLOCK);
@@ -946,7 +962,7 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 			return -1;
 		}
 		status = setbit(status, TUNER_IOCTL);
-		if (ioctl(sct_fd, DMX_SET_BUFFER_SIZE, BIG_BUFSIZE) == -1) {
+		if (ioctl(sct_fd, DMX_SET_BUFFER_SIZE, LIL_BUFSIZE) == -1) {
 			qDebug() << "DEMUX: DMX_SET_BUFFER_SIZE";
 		}
 		status = unsetbit(status, TUNER_IOCTL);
@@ -969,17 +985,17 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 	status = unsetbit(status, TUNER_IOCTL);
 
 	index = 0;
+	int len = 0;
+	char buf[LIL_BUFSIZE];
 	buffer.clear();
-	char buf[BIG_BUFSIZE];
-	memset(buf, 0, BIG_BUFSIZE);
+
+	memset(buf, 0, LIL_BUFSIZE);
 	status = setbit(status, TUNER_RDING);
-	int len = read(sct_fd, buf, BIG_BUFSIZE);
-	status = unsetbit(status, TUNER_RDING);
-	if (len < 0) {
-		qDebug() << "demux_packet() read() error";
-		return -1;
+	len = read(sct_fd, buf, LIL_BUFSIZE);
+	if (len > 0) {
+		buffer.append(buf, len);
 	}
-	buffer.append(buf, len);
+	status = unsetbit(status, TUNER_RDING);
 
 	status = setbit(status, TUNER_IOCTL);
 	ioctl(sct_fd, DMX_STOP);
@@ -988,7 +1004,6 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 	if (len > 10 && crc32()) {
 		return 1;
 	}
-	qDebug() << "Failed to get correct CRC, giving up...";
 	return -1;
 }
 
@@ -1042,23 +1057,8 @@ void dvbtune::stop_demux()
 		close(sct_fd);
 		sct_name.clear();
 	}
-	if (!dvr_name.isEmpty()) {
-		while(status & TUNER_RDING) {
-			qDebug() << "waiting for read() to complete";
-			msleep(100);
-		}
-		close(dvr_fd);
-		dvr_fd = 0;
-		dvr_name.clear();
-	}
-	if (!out_name.isEmpty()) {
-		while(status & TUNER_RDING) {
-			qDebug() << "waiting for read() to complete";
-			msleep(100);
-		}
-		close(out_fd);
-		out_name.clear();
-	}
+
+	close_dvr();
 	status = unsetbit(status, TUNER_DEMUX);
 	emit adapter_status(adapter);
 }

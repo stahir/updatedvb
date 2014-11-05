@@ -427,7 +427,7 @@ void tuning_thread::parsetp()
 		}
 	}
 
-	mytune->close_dvr();
+	mytune->stop_demux();
 	emit parsetp_done();
 }
 
