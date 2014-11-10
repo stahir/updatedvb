@@ -18,4 +18,5 @@
 - if you cant open an adapter, we shouldnt list it as an option. It should be listed, but as BUSY
 - test the threaded ability of demux, try recording numerous demux's at once
 - Start documenting stuff, its way over due
+- Bar widget for signal Qal/Lvl with text and max SNR and dbvm etc
 - clear up this TODO :)

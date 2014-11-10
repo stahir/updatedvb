@@ -366,7 +366,6 @@ void dvbtune::setup_switch()
 
 	status = setbit(status, TUNER_IOCTL);
 	if (myswitch.voltage != tp.voltage) {
-		qDebug() << "Voltage:" << (tp.voltage ? "H" : "V");
 		if (ioctl(frontend_fd, FE_SET_VOLTAGE, tp.voltage) == -1) {
 			qDebug() << "FE_SET_VOLTAGE ERROR!";
 		}
@@ -381,7 +380,6 @@ void dvbtune::setup_switch()
 			}
 			msleep(20);
 		}
-		qDebug() << "Uncommitted:" << tune_ops.uncommitted;
 		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &uncommitted_switch_cmds[tune_ops.uncommitted-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 		}
@@ -396,7 +394,6 @@ void dvbtune::setup_switch()
 			}
 			msleep(20);
 		}
-		qDebug() << "Committed:" << tune_ops.committed;
 		if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &committed_switch_cmds[tune_ops.committed-1]) == -1) {
 			qDebug() << "FE_DISEQC_SEND_MASTER_CMD ERROR!";
 		}
@@ -404,7 +401,6 @@ void dvbtune::setup_switch()
 	}
 
 	if (myswitch.tone != tune_ops.tone) {
-		qDebug() << "Tone:" << (tune_ops.tone ? "on" : "off");
 		if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
 		}
@@ -600,7 +596,6 @@ int dvbtune::tune()
 	p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
 
 	if (isSatellite(tp.system)) {
-		qDebug() << "Satellite selected";
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
 		p_tune[i].cmd = DTV_VOLTAGE;		p_tune[i++].u.data = tp.voltage;
 		p_tune[i].cmd = DTV_SYMBOL_RATE;	p_tune[i++].u.data = tp.symbolrate * 1000;
@@ -679,8 +674,6 @@ void dvbtune::get_bitrate()
 		if (dvr_fd < 0) {
 			qDebug() << "Failed to open" << dvr_name;
 			return;
-		} else {
-			qDebug() << "opened " << dvr_name;
 		}
 
 		pids.clear();
