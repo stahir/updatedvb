@@ -389,12 +389,23 @@ void tuning_thread::parsetp()
 			}
 		}
 
-		if (!loop) return;
-		if (mytune->pids_rate[mypat.pid[i]] && mytune->demux_packet(mypat.pid[i], 0x02, 500) <= 0) {
+		if (mytune->pids_rate[mypat.pid[i]]) {
+			for (int a  = 0; a < 5; a++) {
+				if (!loop) return;
+				if (mytune->demux_packet(mypat.pid[i], 0x02, 500) <= 0) {
+					a = 5;
+				}
+				mytune->index = 3;
+				if (mytune->read16() == mypat.number[i]) {
+					a = 5;
+				}
+			}
+		}
+		if (mytune->buffer.size() <= 0) {
 			continue;
 		}
-		if (!loop) return;
 
+		mytune->index = 0;
 		mytune->index += 1;
 		int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
 		mytune->index += 5;

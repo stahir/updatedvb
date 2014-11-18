@@ -996,8 +996,10 @@ int dvbtune::demux_packet(int pid, unsigned char table, int timeout)
 
 	if (len > 10 && crc32()) {
 		return 1;
+	} else {
+		buffer.clear();
+		return -1;
 	}
-	return -1;
 }
 
 void dvbtune::close_dvr()

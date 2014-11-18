@@ -19,4 +19,5 @@
 - test the threaded ability of demux, try recording numerous demux's at once
 - Start documenting stuff, its way over due
 - Bar widget for signal Qal/Lvl with text and max SNR and dbvm etc
+- scan channels and display SDT info along with FTA flag on blindscan
 - clear up this TODO :)
