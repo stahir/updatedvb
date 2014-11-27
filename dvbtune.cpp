@@ -592,11 +592,11 @@ int dvbtune::tune()
 
 	int i = 0;
 	struct dtv_property p_tune[13];
-	p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
-	p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
 
 	if (isSatellite(tp.system)) {
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
+		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;p_tune[i++].u.data = tp.system;
+		p_tune[i].cmd = DTV_MODULATION;		p_tune[i++].u.data = tp.modulation;
 		p_tune[i].cmd = DTV_VOLTAGE;		p_tune[i++].u.data = tp.voltage;
 		p_tune[i].cmd = DTV_SYMBOL_RATE;	p_tune[i++].u.data = tp.symbolrate * 1000;
 		p_tune[i].cmd = DTV_TONE;			p_tune[i++].u.data = !tune_ops.tone;
@@ -607,9 +607,24 @@ int dvbtune::tune()
 		p_tune[i].cmd = DTV_PILOT;			p_tune[i++].u.data = tp.pilot;
 		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
 		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
-	} else if (isQAM(tp.system) || isATSC(tp.system) || isDVBT(tp.system)) {
+	} else if (isQAM(tp.system) || isATSC(tp.system)) {
 		tp.frequency = closest_freq(tp.frequency, tp.system);
 		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
+		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;p_tune[i++].u.data = tp.system;
+		p_tune[i].cmd = DTV_MODULATION;		p_tune[i++].u.data = tp.modulation;
+		qDebug() << "tune() Frequency: " << tp.frequency;
+	} else if (isDVBT(tp.system)) {
+		tp.frequency = closest_freq(tp.frequency, tp.system);
+		p_tune[i].cmd = DTV_FREQUENCY;			p_tune[i++].u.data = tp.frequency * 1000;
+		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
+		p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
+		p_tune[i].cmd = DTV_INVERSION;			p_tune[i++].u.data = INVERSION_AUTO;
+		p_tune[i].cmd = DTV_BANDWIDTH_HZ;		p_tune[i++].u.data = 8000000;
+		p_tune[i].cmd = DTV_CODE_RATE_HP;		p_tune[i++].u.data = FEC_AUTO;
+		p_tune[i].cmd = DTV_CODE_RATE_LP;		p_tune[i++].u.data = FEC_AUTO;
+		p_tune[i].cmd = DTV_GUARD_INTERVAL;		p_tune[i++].u.data = GUARD_INTERVAL_AUTO;
+		p_tune[i].cmd = DTV_TRANSMISSION_MODE;	p_tune[i++].u.data = TRANSMISSION_MODE_AUTO;
+		p_tune[i].cmd = DTV_HIERARCHY;			p_tune[i++].u.data = HIERARCHY_AUTO;
 		qDebug() << "tune() Frequency: " << tp.frequency;
 	} else {
 		qDebug() << "Invalid system";
