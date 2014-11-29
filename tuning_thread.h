@@ -23,6 +23,7 @@
 #include <QThread>
 #include <QtCore>
 #include <QDebug>
+#include <QDate>
 #include "dvbtune.h"
 #include "dvb_settings.h"
 
@@ -39,6 +40,7 @@ public:
 	int parse_pmt();
 	int parse_sdt();
 	int parse_cat();
+	int parse_eit();
 	int parse_psip();
 	int parse_descriptor(int parent);
 

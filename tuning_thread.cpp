@@ -159,6 +159,15 @@ int tuning_thread::parse_descriptor(int parent)
 			tree_create_child_wait(&parent_t, QString("Provider Name: %1").arg(mysdt.pname.last()));
 		}
 		break;
+	case 0x4d:
+		tree_create_child_wait(&parent, QString("Descriptor: 0x%1 - %2 Descriptor").arg(desc_tag,2,16,QChar('0')).arg(dvbnames.dvb_descriptortag[desc_tag]));
+		parent_t = parent;
+		tree_create_child_wait(&parent_t, QString("Language: %1").arg(mytune->readstr(mytune->index, 3)));
+		parent_t = parent;
+		tree_create_child_wait(&parent_t, QString("Event Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
+		parent_t = parent;
+		tree_create_child_wait(&parent_t, QString("Text: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
+		break;
 	case 0xA0: // extended_channel_name_descriptor
 	{
 		tree_create_child_wait(&parent, QString("Descriptor: 0x%1 - %2 Descriptor").arg(desc_tag,2,16,QChar('0')).arg(dvbnames.dvb_descriptortag[desc_tag]));
@@ -222,6 +231,43 @@ int tuning_thread::parse_psip()
 	while (mytune->index < additional_descriptors_length) {
 		parent_t = parent;
 		parse_descriptor(parent_t);
+	}
+	return 1;
+}
+
+int tuning_thread::parse_eit()
+{
+	if (mytune->read8() != 0x4e) {
+		return -1;
+	}
+
+	int parent, parent_1, parent_2;
+
+	tree_create_root_wait(&parent, "EIT pid: 0x12", 0x12);
+	emit setcolor(parent, Qt::green);
+	int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
+	parent_1 = parent;
+	tree_create_child_wait(&parent_1, QString("Program Number: %1").arg(mytune->read16()));
+	mytune->index += 9;
+	while (mytune->index < section_length) {
+		parent_2 = parent_1;
+		tree_create_child_wait(&parent_2, QString("Event ID: %1").arg(mytune->read16()));
+		__u16 t1 = mytune->read16();
+		__u8  t2 = mytune->read8();
+		__u8  t3 = mytune->read8();
+		__u8  t4 = mytune->read8();
+		__u8  t5 = mytune->read8();
+		__u8  t6 = mytune->read8();
+		__u8  t7 = mytune->read8();
+		parent_2 = parent_1;
+		tree_create_child_wait(&parent_2, QString("Start Date/Time: %1 %2:%3:%4").arg(QDate::fromJulianDay(t1 + 2400000.5).toString()).arg(dtag_convert(t2), 2, 10, QChar('0')).arg(dtag_convert(t3), 2, 10, QChar('0')).arg(dtag_convert(t4), 2, 10, QChar('0')));
+		parent_2 = parent_1;
+		tree_create_child_wait(&parent_2, QString("Duration: %1:%2:%3").arg(dtag_convert(t5), 2, 10, QChar('0')).arg(dtag_convert(t6), 2, 10, QChar('0')).arg(dtag_convert(t7), 2, 10, QChar('0')));
+
+		int descriptors_loop_length = mytune->read16(0x0FFF) + mytune->index;
+		while (mytune->index < descriptors_loop_length) {
+			parse_descriptor(parent_2);
+		}
 	}
 	return 1;
 }
@@ -330,6 +376,12 @@ void tuning_thread::parsetp()
 	if (mytune->pids_rate[0x01] && mytune->demux_packet(0x01, 0x01) > 0) {
 		if (!loop) return;
 		parse_cat();
+	}
+
+	if (!loop) return;
+	if (mytune->pids_rate[0x12] && mytune->demux_packet(0x12, 0x4e, 5000) > 0) {
+		if (!loop) return;
+		parse_eit();
 	}
 
 	if (!loop) return;

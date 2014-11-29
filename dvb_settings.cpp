@@ -315,6 +315,8 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0x48]	= "Service";
 	dvb_descriptortag[0x49]	= "Country Availibility";
 	dvb_descriptortag[0x4A]	= "Linkage";
+	dvb_descriptortag[0x4D]	= "Short Event";
+	dvb_descriptortag[0x50]	= "Component";
 	dvb_descriptortag[0x52]	= "Stream Identifier";
 	dvb_descriptortag[0x53]	= "CA Identifier";
 	dvb_descriptortag[0x56]	= "Teletext";

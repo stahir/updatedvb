@@ -40,7 +40,7 @@ dvbtune::dvbtune()
 	fmax		= 0;
 	fstep		= 0;
 	servo		= false;
-	fd_timeout.tv_sec	= 2;
+	fd_timeout.tv_sec	= 4;
 	fd_timeout.tv_usec	= 0;
 	mydvr			= new dvr_thread;
 	mydvr->mytune	= this;
@@ -62,55 +62,113 @@ dvbtune::~dvbtune()
 	closefd();
 }
 
-unsigned int dvbtune::maskbits(unsigned int value, unsigned int mask)
+__u64 dvbtune::maskbits(__u64 value, __u64 mask)
 {
 	value = value & mask;
-	for(int i = 0; i < 32 && !((mask >> i) & 0x01); i++) {
+	for(int i = 0; i < 64 && !((mask >> i) & 0x01); i++) {
 		value = value >> 1;
 	}
 	return value;
 }
 
-unsigned int dvbtune::read32(unsigned int mask)
+__u64 dvbtune::read64(__u64 mask)
+{
+	if (index+7 >= buffer.size()) {
+		return 0;
+	}
+
+	return ((__u64)read8((mask & 0xFF00000000000000) >> 56) << 56) +
+		   ((__u64)read8((mask & 0x00FF000000000000) >> 48) << 48) +
+		   ((__u64)read8((mask & 0x0000FF0000000000) >> 40) << 40) +
+		   ((__u64)read8((mask & 0x000000FF00000000) >> 32) << 32) +
+		   ((__u32)read8((mask & 0x00000000FF000000) >> 24) << 24) +
+		   ((__u32)read8((mask & 0x0000000000FF0000) >> 16) << 16) +
+		   ((__u16)read8((mask & 0x000000000000FF00) >>  8) <<  8) +
+				   read8((mask & 0x00000000000000FF));
+}
+
+__u64 dvbtune::read56(__u64 mask)
+{
+	if (index+6 >= buffer.size()) {
+		return 0;
+	}
+
+	return ((__u64)read8((mask & 0x00FF000000000000) >> 48) << 48) +
+		   ((__u64)read8((mask & 0x0000FF0000000000) >> 40) << 40) +
+		   ((__u64)read8((mask & 0x000000FF00000000) >> 32) << 32) +
+		   ((__u32)read8((mask & 0x00000000FF000000) >> 24) << 24) +
+		   ((__u32)read8((mask & 0x0000000000FF0000) >> 16) << 16) +
+		   ((__u16)read8((mask & 0x000000000000FF00) >>  8) <<  8) +
+				   read8((mask & 0x00000000000000FF));
+}
+
+__u64 dvbtune::read48(__u64 mask)
+{
+	if (index+5 >= buffer.size()) {
+		return 0;
+	}
+
+	return ((__u64)read8((mask & 0x0000FF0000000000) >> 40) << 40) +
+		   ((__u64)read8((mask & 0x000000FF00000000) >> 32) << 32) +
+		   ((__u32)read8((mask & 0x00000000FF000000) >> 24) << 24) +
+		   ((__u32)read8((mask & 0x0000000000FF0000) >> 16) << 16) +
+		   ((__u16)read8((mask & 0x000000000000FF00) >>  8) <<  8) +
+				   read8((mask & 0x00000000000000FF));
+}
+
+__u64 dvbtune::read40(__u64 mask)
+{
+	if (index+4 >= buffer.size()) {
+		return 0;
+	}
+
+	return ((__u64)read8((mask & 0x000000FF00000000) >> 32) << 32) +
+		   ((__u32)read8((mask & 0x00000000FF000000) >> 24) << 24) +
+		   ((__u32)read8((mask & 0x0000000000FF0000) >> 16) << 16) +
+		   ((__u16)read8((mask & 0x000000000000FF00) >>  8) <<  8) +
+				   read8((mask & 0x00000000000000FF));
+}
+
+__u32 dvbtune::read32(__u32 mask)
 {
 	if (index+3 >= buffer.size()) {
 		return 0;
 	}
-	unsigned int ret = ((unsigned char)buffer.at(index) << 24) + ((unsigned char)buffer.at(index+1) << 16) + ((unsigned char)buffer.at(index+2) << 8) + (unsigned char)buffer.at(index+3);
-	index += 4;
-	return maskbits(ret, mask);
+
+	return ((__u32)read8((mask & 0xFF000000) >> 24) << 24) +
+		   ((__u32)read8((mask & 0x00FF0000) >> 16) << 16) +
+		   ((__u16)read8((mask & 0x0000FF00) >>  8) <<  8) +
+				   read8((mask & 0x000000FF));
 }
 
-unsigned int dvbtune::read24(unsigned int mask)
+__u32 dvbtune::read24(__u32 mask)
 {
 	if (index+2 >= buffer.size()) {
 		return 0;
 	}
-	unsigned int ret = ((unsigned char)buffer.at(index) << 16) + ((unsigned char)buffer.at(index+1) << 8) + (unsigned char)buffer.at(index+2);
-	index += 3;
-	return maskbits(ret, mask);
+
+	return ((__u32)read8((mask & 0x00FF0000) >> 16) << 16) +
+		   ((__u16)read8((mask & 0x0000FF00) >>  8) <<  8) +
+				   read8((mask & 0x000000FF));
 }
 
-unsigned int dvbtune::read16(unsigned int mask)
+__u16 dvbtune::read16(__u16 mask)
 {
 	if (index+1 >= buffer.size()) {
 		return 0;
 	}
 
-	unsigned int ret = ((unsigned char)buffer.at(index) << 8) + (unsigned char)buffer.at(index+1);
-	index += 2;
-	return maskbits(ret, mask);
+	return ((__u16)read8((mask & 0xFF00) >> 8) << 8) +
+				   read8((mask & 0x00FF));
 }
 
-unsigned int dvbtune::read8(unsigned int mask)
+__u8 dvbtune::read8(__u8 mask)
 {
 	if (index >= buffer.size()) {
 		return 0;
 	}
 
-	unsigned int ret = (unsigned char)buffer.at(index);
-	index += 1;
-	return maskbits(ret, mask);
+	return (unsigned char)buffer.at(index++) & mask;
 }
 
 QString dvbtune::readstr(unsigned int pos, unsigned int len)
@@ -690,11 +748,11 @@ void dvbtune::get_bitrate()
 			qDebug() << "Failed to open" << dvr_name;
 			return;
 		}
-
 		pids.clear();
 		pids.append(0x2000);
 		demux_video();
 	}
+
 	fd_set set;
 	FD_ZERO(&set);
 	FD_SET(dvr_fd, &set);
@@ -710,7 +768,7 @@ void dvbtune::get_bitrate()
 	buffer.clear();
 
 	stime.start();
-	for (unsigned long i; i < BIG_BUFSIZE; i += len) {
+	for (unsigned long i; i < BIG_BUFSIZE * 5; i += len) {
 		len = 0;
 		memset(buf, 0, LIL_BUFSIZE);
 		status = setbit(status, TUNER_RDING);
