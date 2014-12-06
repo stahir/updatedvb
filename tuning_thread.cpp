@@ -207,6 +207,11 @@ int tuning_thread::parse_psip()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
+	if (pid_parent[0x1FFB] == -1) {
+		tree_create_root_wait(&pid_parent[0x1FFB], "PSIP pid: 0x1FFB", 0x1FFB);
+		emit setcolor(pid_parent[0x1FFB], Qt::green);
+	}
+
 	int parent = pid_parent[0x1FFB];
 	int parent_t;
 
@@ -250,6 +255,11 @@ int tuning_thread::parse_eit()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
+	if (pid_parent[0x12] == -1) {
+		tree_create_root_wait(&pid_parent[0x12], "EIT pid: 0x12", 0x12);
+		emit setcolor(pid_parent[0x12], Qt::green);
+	}
+
 	int parent = pid_parent[0x12];
 	int parent_1, parent_2;
 
@@ -288,6 +298,11 @@ int tuning_thread::parse_sdt()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
+	if (pid_parent[0x11] == -1) {
+		tree_create_root_wait(&pid_parent[0x11], "SDT pid: 0x11", 0x11);
+		emit setcolor(pid_parent[0x11], Qt::green);
+	}
+
 	mysdt.sid.clear();
 	mysdt.sname.clear();
 	mysdt.pname.clear();
@@ -320,6 +335,11 @@ int tuning_thread::parse_pat()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
+	if (pid_parent[0x00] == -1) {
+		tree_create_root_wait(&pid_parent[0x00], "PAT pid: 0x00", 0x00);
+		emit setcolor(pid_parent[0x00], Qt::green);
+	}
+
 	mypat.number.clear();
 	mypat.pid.clear();
 
@@ -339,6 +359,10 @@ int tuning_thread::parse_cat()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
+	if (pid_parent[0x01] == -1) {
+		tree_create_root_wait(&pid_parent[0x01], "CAT pid: 0x01", 0x01);
+		emit setcolor(pid_parent[0x01], Qt::red);
+	}
 	int parent = pid_parent[0x01];
 
 	int section_length = mytune->read16(0x0FFF) - 4;
@@ -356,6 +380,11 @@ int tuning_thread::parse_nit()
 		return -1;
 	}
 	mytune->packet_processed.append(mytune->buffer);
+
+	if (pid_parent[0x10] == -1) {
+		tree_create_root_wait(&pid_parent[0x10], "NIT pid: 0x10", 0x10);
+		emit setcolor(pid_parent[0x10], Qt::green);
+	}
 
 	int section_length = mytune->read16(0x0FFF);
 
@@ -446,25 +475,38 @@ int tuning_thread::parse_pmt()
 	return 1;
 }
 
+int tuning_thread::parse_tdt()
+{
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
+	}
+	mytune->packet_processed.append(mytune->buffer);
+
+	if (pid_parent[0x14] == -1) {
+		tree_create_root_wait(&pid_parent[0x14], "TDT pid: 0x14", 0x14);
+		emit setcolor(pid_parent[0x14], Qt::green);
+	}
+	int parent = pid_parent[0x14];
+	int parent_t;
+
+	mytune->index += 2;
+//	int section_length = mytune->read16(0x0FFF) - 4;
+	__u16 t1 = mytune->read16();
+	__u8  t2 = mytune->read8();
+	__u8  t3 = mytune->read8();
+	__u8  t4 = mytune->read8();
+	parent_t = parent;
+	tree_create_child_wait(&parent_t, QString("UTC Date/Time: %1 %2:%3:%4").arg(QDate::fromJulianDay(t1 + 2400000.5).toString()).arg(dtag_convert(t2), 2, 10, QChar('0')).arg(dtag_convert(t3), 2, 10, QChar('0')).arg(dtag_convert(t4), 2, 10, QChar('0')), 0x14);
+
+	return 1;
+}
+
 void tuning_thread::parsetp()
 {
 	parsetp_running = true;
 
 	mytune->get_bitrate();
 	emit list_create();
-
-	tree_create_root_wait(&pid_parent[0x01], "CAT pid: 0x01", 0x01);
-	emit setcolor(pid_parent[0x01], Qt::red);
-	tree_create_root_wait(&pid_parent[0x11], "SDT pid: 0x11", 0x11);
-	emit setcolor(pid_parent[0x11], Qt::green);
-	tree_create_root_wait(&pid_parent[0x1FFB], "PSIP pid: 0x1FFB", 0x1FFB);
-	emit setcolor(pid_parent[0x1FFB], Qt::green);
-	tree_create_root_wait(&pid_parent[0x12], "EIT pid: 0x12", 0x12);
-	emit setcolor(pid_parent[0x12], Qt::green);
-	tree_create_root_wait(&pid_parent[0x10], "NIT pid: 0x10", 0x10);
-	emit setcolor(pid_parent[0x10], Qt::green);
-	tree_create_root_wait(&pid_parent[0x00], "PAT pid: 0x00", 0x00);
-	emit setcolor(pid_parent[0x00], Qt::green);
 
 	parsetp_loop = true;
 	while (parsetp_loop) {
@@ -475,6 +517,7 @@ void tuning_thread::parsetp()
 		fpids.append(0x12);
 		fpids.append(0x10);
 		fpids.append(0x00);
+		fpids.append(0x14);
 		for (int i = 0; i < mypat.pid.size(); i++) {
 			if (!fpids.contains(mypat.pid.at(i))) {
 				fpids.append(mypat.pid.at(i));
@@ -485,7 +528,7 @@ void tuning_thread::parsetp()
 		while (!mytune->packet_buffer.isEmpty()) {
 			mytune->buffer = mytune->packet_buffer.first();
 			mytune->index = 0;
-			switch (mytune->read8()) {
+			switch (mytune->read8()) { // Table ID
 			case 0x4E:
 				parse_eit();
 				break;
@@ -506,6 +549,9 @@ void tuning_thread::parsetp()
 				break;
 			case 0x02:
 				parse_pmt();
+				break;
+			case 0x70:
+				parse_tdt();
 				break;
 			}
 			mytune->packet_buffer.removeFirst();

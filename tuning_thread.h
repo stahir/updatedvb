@@ -43,6 +43,7 @@ public:
 	int parse_eit();
 	int parse_nit();
 	int parse_psip();
+	int parse_tdt();
 	int parse_descriptor(int parent);
 
 	dvb_settings dvbnames;

@@ -344,6 +344,7 @@ void tuning::tree_create_root(int *parent, QString text, int pid)
 	if (pid >= 0 && mytune->pids_rate.at(pid) == 0) {
 		mytune->pids_rate[pid] = 1;
 	}
+
 	tree_pid.append(pid);
 	tree_item.append(new QTreeWidgetItem(ui->treeWidget));
 	tree_item.last()->setText(0, text);
@@ -357,6 +358,12 @@ void tuning::tree_create_child(int *parent, QString text, int pid)
 	if (pid >= 0 && mytune->pids_rate.at(pid) == 0) {
 		mytune->pids_rate[pid] = 1;
 	}
+	if (pid == 0x14 && tree_item.at(*parent)->childCount()) { // TDT is an exception, we only want to display the current UTC
+		for (int i = 0; i < tree_item.at(*parent)->childCount(); i++) {
+			tree_item.at(*parent)->removeChild(tree_item.at(*parent)->child(i));
+		}
+	}
+
 	tree_pid.append(pid);
 	tree_item.append(new QTreeWidgetItem());
 	tree_item.last()->setText(0, text);
