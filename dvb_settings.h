@@ -30,6 +30,7 @@
 #define DGREEN QColor(0,100,0)
 #define GREEN QColor(0,255,0)
 
+#define TNY_BUFSIZE (20*188)
 #define LIL_BUFSIZE (348*188)
 #define BIG_BUFSIZE (30*LIL_BUFSIZE)
 #define MAX_PES_SIZE (4*1024)
@@ -157,8 +158,10 @@ class dvb_pmt
 public:
 	unsigned int pcr;
 	dvb_ca myca;
-	QVector<unsigned int> type;
-	QVector<unsigned int> pid;
+	unsigned int pmt_pid;
+	unsigned int pmt_num;
+	QVector<unsigned int> desc_type;
+	QVector<unsigned int> desc_pid;
 	QVector<dvb_descriptor> tag;
 };
 

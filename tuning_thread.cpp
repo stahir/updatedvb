@@ -23,10 +23,17 @@ tuning_thread::tuning_thread()
 	mytune	= NULL;
 	loop	= false;
 	ready	= false;
+	parsetp_loop	= false;
+	parsetp_running	= false;
+	pid_parent.fill(-1, 0x2000);
 }
 
 tuning_thread::~tuning_thread()
 {
+	parsetp_loop	= false;
+	while (parsetp_running) {
+		QThread::msleep(100);
+	}
 }
 
 unsigned int tuning_thread::dtag_convert(unsigned int temp)
@@ -45,7 +52,7 @@ unsigned int tuning_thread::dtag_convert(unsigned int temp)
 
 void tuning_thread::tree_create_root_wait(int *parent, QString text, int pid = -1)
 {
-	if (!loop) {
+	if (!loop || *parent != -1) {
 		return;
 	}
 	
@@ -195,12 +202,13 @@ int tuning_thread::parse_descriptor(int parent)
 
 int tuning_thread::parse_psip()
 {
-	if (mytune->read8() != 0xC8) {
-		return 0;
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
 	}
+	mytune->packet_processed.append(mytune->buffer);
 
-	int parent, parent_t;
-	tree_create_root_wait(&parent, "PSIP(TVCT) pid: 0x1FFB", 0x1FFB);
+	int parent = pid_parent[0x1FFB];
+	int parent_t;
 
 	int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
 	Q_UNUSED(section_length);
@@ -237,13 +245,14 @@ int tuning_thread::parse_psip()
 
 int tuning_thread::parse_eit()
 {
-	if (mytune->read8() != 0x4e) {
+	if (mytune->packet_processed.contains(mytune->buffer)) {
 		return -1;
 	}
+	mytune->packet_processed.append(mytune->buffer);
 
-	int parent, parent_1, parent_2;
+	int parent = pid_parent[0x12];
+	int parent_1, parent_2;
 
-	tree_create_root_wait(&parent, "EIT pid: 0x12", 0x12);
 	emit setcolor(parent, Qt::green);
 	int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
 	parent_1 = parent;
@@ -274,17 +283,18 @@ int tuning_thread::parse_eit()
 
 int tuning_thread::parse_sdt()
 {
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
+	}
+	mytune->packet_processed.append(mytune->buffer);
+
 	mysdt.sid.clear();
 	mysdt.sname.clear();
 	mysdt.pname.clear();
 
-	if (mytune->read8() != 0x42) {
-		return -1;
-	}
+	int parent = pid_parent[0x11];
+	int parent_t;
 
-	int parent, parent_t;
-
-	tree_create_root_wait(&parent, "SDT pid: 0x11", 0x11);
 	emit setcolor(parent, Qt::green);
 	int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
 	mytune->index += 8;
@@ -305,31 +315,31 @@ int tuning_thread::parse_sdt()
 
 int tuning_thread::parse_pat()
 {
-	mypat.number.clear();
-	mypat.pid.clear();
-	mytune->index = 0;
-	if (mytune->read8() != 0x00) {
+	if (mytune->packet_processed.contains(mytune->buffer)) {
 		return -1;
 	}
+	mytune->packet_processed.append(mytune->buffer);
+
+	mypat.number.clear();
+	mypat.pid.clear();
 
 	int section_length = mytune->read16(0x0FFF) - 4;
-	mytune->index = 8;
-	do {
+	mytune->index += 5;
+	while (mytune->index < section_length) {
 		mypat.number.append(mytune->read16());
 		mypat.pid.append(mytune->read16(0x1FFF));
-	} while (mytune->index < section_length);
+	}
 	return 1;
 }
 
 int tuning_thread::parse_cat()
 {
-	mytune->index = 0;
-	if (mytune->read8() != 0x01) {
+	if (mytune->packet_processed.contains(mytune->buffer)) {
 		return -1;
 	}
+	mytune->packet_processed.append(mytune->buffer);
 
-	int parent;
-	tree_create_root_wait(&parent, "CAT pid: 0x01", 0x01);
+	int parent = pid_parent[0x01];
 
 	int section_length = mytune->read16(0x0FFF) - 4;
 	mytune->index += 5;
@@ -340,157 +350,171 @@ int tuning_thread::parse_cat()
 	return 1;
 }
 
+int tuning_thread::parse_nit()
+{
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
+	}
+	mytune->packet_processed.append(mytune->buffer);
+
+	int section_length = mytune->read16(0x0FFF);
+
+	int parent = pid_parent[0x10];
+	int parent_t, parent_2;
+
+	emit setcolor(parent, Qt::green);
+	parent_t = parent;
+	tree_create_child_wait(&parent_t, QString("Network ID: 0x%1").arg(mytune->read16(),4,16,QChar('0')));
+
+	mytune->index += 3;
+	int network_desc_length = mytune->read16(0x0FFF) + mytune->index;
+	while (mytune->index < network_desc_length && mytune->index < section_length) {
+		parse_descriptor(parent);
+	}
+
+	int transport_stream_loop_length = mytune->read16(0x0FFF) + mytune->index;
+	while (mytune->index < transport_stream_loop_length) {
+		int transport_stream_id = mytune->read16();
+		int original_network_id = mytune->read16();
+		int transport_desc_length = mytune->read16(0x0FFF) + mytune->index;
+
+		parent_2 = parent;
+		tree_create_child_wait(&parent_2, QString("Transport Stream ID: 0x%1, Original Network ID: 0x%2").arg(transport_stream_id,4,16,QChar('0')).arg(original_network_id,4,16,QChar('0')));
+		while (mytune->index < transport_desc_length && mytune->index < section_length) {
+			parse_descriptor(parent_2);
+		}
+	}
+	return 1;
+}
+
+int tuning_thread::parse_pmt()
+{
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
+	}
+	mytune->packet_processed.append(mytune->buffer);
+
+	int parent_1 = pid_parent[0x00];
+	int parent_2;
+
+	int section_length = mytune->read16(0x0FFF);
+	section_length += mytune->index - 4;
+	unsigned int pmt_num = mytune->read16();
+
+	unsigned int pmt_pid;
+	for (int i = 0; i < mypat.number.size(); i++) {
+		if (mypat.number.at(i) == pmt_num) {
+			pmt_pid = mypat.pid.at(i);
+		}
+	}
+
+	tree_create_child_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2").arg(pmt_pid,4,16,QChar('0')).arg(pmt_num,4,10,QChar(' ')), pmt_pid);
+	emit setcolor(parent_1, Qt::green);
+
+//	if (mytune->tp.system == SYS_DCII) {
+//		if (mytune->pids_rate[mypat.pid[i]] && mytune->demux_packet(mypat.pid[i], 0xC1) > 0) {
+//			parent_2 = parent_1;
+//			tree_create_child_wait(&parent_2, "SDT");
+//			mytune->index += 15;
+//			parent_2 = parent_1;
+//			tree_create_child_wait(&parent_2, QString("Service Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
+//		}
+//	}
+
+	mytune->index += 3;
+	unsigned int pmt_pcr = mytune->read16(0x1FFF);
+	parent_2 = parent_1;
+	tree_create_child_wait(&parent_2, QString("PCR: 0x%1").arg(pmt_pcr,4,16,QChar('0')), pmt_pcr);
+
+	int program_info_length = mytune->read16(0x0FFF) + mytune->index;
+	while (mytune->index < program_info_length) {
+		parse_descriptor(parent_1);
+	}
+
+	while (mytune->index < section_length) {
+		unsigned int desc_type	= mytune->read8();
+		unsigned int desc_pid	= mytune->read16(0x1FFF);
+
+		parent_2 = parent_1;
+		tree_create_child_wait(&parent_2, QString("Stream PID: 0x%1, 0x%2 - %3").arg(desc_pid,4,16,QChar('0')).arg(desc_type,2,16,QChar('0')).arg(dvbnames.stream_type[desc_type]), desc_pid);
+
+		int ES_info_length = mytune->read16(0x0FFF) + mytune->index;
+		while (mytune->index < ES_info_length) {
+			parse_descriptor(parent_2);
+		}
+	}
+	return 1;
+}
+
 void tuning_thread::parsetp()
 {
-	int parent_1 = 0;
-	int parent_2 = 0;
-	int parent_t = 0;
+	parsetp_running = true;
 
 	mytune->get_bitrate();
+	emit list_create();
 
-	if (isATSC(mytune->tp.system)) {
-		for (int i = 0; i < 5; i++) {
-			if (!loop) return;
-			if (mytune->demux_packet(0x1FFB, 0xC8) > 0) {
-				if (!loop) return;
-				if (parse_psip()) {
-					i = 5;
-				}
+	tree_create_root_wait(&pid_parent[0x01], "CAT pid: 0x01", 0x01);
+	emit setcolor(pid_parent[0x01], Qt::red);
+	tree_create_root_wait(&pid_parent[0x11], "SDT pid: 0x11", 0x11);
+	emit setcolor(pid_parent[0x11], Qt::green);
+	tree_create_root_wait(&pid_parent[0x1FFB], "PSIP pid: 0x1FFB", 0x1FFB);
+	emit setcolor(pid_parent[0x1FFB], Qt::green);
+	tree_create_root_wait(&pid_parent[0x12], "EIT pid: 0x12", 0x12);
+	emit setcolor(pid_parent[0x12], Qt::green);
+	tree_create_root_wait(&pid_parent[0x10], "NIT pid: 0x10", 0x10);
+	emit setcolor(pid_parent[0x10], Qt::green);
+	tree_create_root_wait(&pid_parent[0x00], "PAT pid: 0x00", 0x00);
+	emit setcolor(pid_parent[0x00], Qt::green);
+
+	parsetp_loop = true;
+	while (parsetp_loop) {
+		QVector<unsigned int> fpids;
+		fpids.append(0x01);
+		fpids.append(0x11);
+		fpids.append(0x1FFB);
+		fpids.append(0x12);
+		fpids.append(0x10);
+		fpids.append(0x00);
+		for (int i = 0; i < mypat.pid.size(); i++) {
+			if (!fpids.contains(mypat.pid.at(i))) {
+				fpids.append(mypat.pid.at(i));
 			}
 		}
-	}
+		mytune->demux_packets(fpids);
 
-	if (!loop) return;
-	if (mytune->pids_rate[0x11] && mytune->demux_packet(0x11, 0x42) > 0) {
-		if (!loop) return;
-		parse_sdt();
-	}
-
-	if (!loop) return;
-	if (mytune->pids_rate[0x00] && mytune->demux_packet(0x00, 0x00) > 0) {
-		if (!loop) return;
-		parse_pat();
-	}
-
-	if (!loop) return;
-	if (mytune->pids_rate[0x01] && mytune->demux_packet(0x01, 0x01) > 0) {
-		if (!loop) return;
-		parse_cat();
-	}
-
-	if (!loop) return;
-	if (mytune->pids_rate[0x12] && mytune->demux_packet(0x12, 0x4e, 5000) > 0) {
-		if (!loop) return;
-		parse_eit();
-	}
-
-	if (!loop) return;
-	if (mytune->pids_rate[0x10] && mytune->demux_packet(0x10, 0x40) > 0) {
-		if (!loop) return;
-		mytune->index = 0;
-		if (mytune->read8() == 0x40) {
-			int section_length = mytune->read16(0x0FFF);
-
-			tree_create_root_wait(&parent_1, "NIT pid: 0x10", 0x10);
-			emit setcolor(parent_1, Qt::green);
-			parent_t = parent_1;
-			tree_create_child_wait(&parent_t, QString("Network ID: 0x%1").arg(mytune->read16(),4,16,QChar('0')));
-
-			mytune->index += 3;
-			int network_desc_length = mytune->read16(0x0FFF) + mytune->index;
-			while (mytune->index < network_desc_length && mytune->index < section_length) {
-				parse_descriptor(parent_1);
+		while (!mytune->packet_buffer.isEmpty()) {
+			mytune->buffer = mytune->packet_buffer.first();
+			mytune->index = 0;
+			switch (mytune->read8()) {
+			case 0x4E:
+				parse_eit();
+				break;
+			case 0x42:
+				parse_sdt();
+				break;
+			case 0xC8:
+				parse_psip();
+				break;
+			case 0x00:
+				parse_pat();
+				break;
+			case 0x01:
+				parse_cat();
+				break;
+			case 0x40:
+				parse_nit();
+				break;
+			case 0x02:
+				parse_pmt();
+				break;
 			}
-
-			int transport_stream_loop_length = mytune->read16(0x0FFF) + mytune->index;
-			while (mytune->index < transport_stream_loop_length) {
-				int transport_stream_id = mytune->read16();
-				int original_network_id = mytune->read16();
-				int transport_desc_length = mytune->read16(0x0FFF) + mytune->index;
-
-				parent_2 = parent_1;
-				tree_create_child_wait(&parent_2, QString("Transport Stream ID: 0x%1, Original Network ID: 0x%2").arg(transport_stream_id,4,16,QChar('0')).arg(original_network_id,4,16,QChar('0')));
-				while (mytune->index < transport_desc_length && mytune->index < section_length) {
-					parse_descriptor(parent_2);
-				}
-			}
+			mytune->packet_buffer.removeFirst();
 		}
+		mytune->get_bitrate();
+		emit list_create();
 	}
-
-	for(int i = 0; i < mypat.number.size(); i++) {
-		QString sdt_name = "";
-		if (mysdt.sid.indexOf(mypat.number[i]) != -1) {
-			if (mysdt.sid.indexOf(mypat.number[i]) < mysdt.sname.size() && mysdt.sname.at(mysdt.sid.indexOf(mypat.number[i])) != "") {
-				sdt_name += mysdt.sname.at(mysdt.sid.indexOf(mypat.number[i]));
-			} else if (mysdt.sid.indexOf(mypat.number[i]) < mysdt.pname.size() && mysdt.pname.at(mysdt.sid.indexOf(mypat.number[i])) != "") {
-				sdt_name += mysdt.pname.at(mysdt.sid.indexOf(mypat.number[i]));
-			}
-		}
-
-		tree_create_root_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2 %3").arg(mypat.pid[i],4,16,QChar('0')).arg(mypat.number[i],4,10,QChar(' ')).arg(sdt_name), mypat.pid[i]);
-		emit setcolor(parent_1, Qt::green);
-
-		if (mytune->tp.system == SYS_DCII) {
-			if (!loop) return;
-			if (mytune->pids_rate[mypat.pid[i]] && mytune->demux_packet(mypat.pid[i], 0xC1) > 0) {
-				parent_2 = parent_1;
-				tree_create_child_wait(&parent_2, "SDT");
-				mytune->index += 15;
-				parent_t = parent_2;
-				tree_create_child_wait(&parent_t, QString("Service Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
-			}
-		}
-
-		if (mytune->pids_rate[mypat.pid[i]]) {
-			for (int a  = 0; a < 5; a++) {
-				if (!loop) return;
-				if (mytune->demux_packet(mypat.pid[i], 0x02, 500) <= 0) {
-					a = 5;
-				}
-				mytune->index = 3;
-				if (mytune->read16() == mypat.number[i]) {
-					a = 5;
-				}
-			}
-		}
-		if (mytune->buffer.size() <= 0) {
-			continue;
-		}
-
-		mytune->index = 0;
-		mytune->index += 1;
-		int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
-		mytune->index += 5;
-
-		int pcr_pid = mytune->read16(0x1FFF);
-		parent_t = parent_1;
-		tree_create_child_wait(&parent_t, QString("PCR: 0x%1").arg(pcr_pid,4,16,QChar('0')), pcr_pid);
-
-		int program_info_length = mytune->read16(0x0FFF) + mytune->index;
-		while (mytune->index < program_info_length) {
-			parse_descriptor(parent_1);
-		}
-
-		while (mytune->index < section_length) {
-			int pmt_type = mytune->read8();
-			int pmt_pid = mytune->read16(0x1FFF);
-
-			parent_2 = parent_1;
-			tree_create_child_wait(&parent_2, QString("Stream PID: 0x%1, 0x%2 - %3").arg(pmt_pid,4,16,QChar('0')).arg(pmt_type,2,16,QChar('0')).arg(dvbnames.stream_type[pmt_type]), pmt_pid);
-
-			int ES_info_length = mytune->read16(0x0FFF) + mytune->index;
-			while (mytune->index < ES_info_length) {
-				parse_descriptor(parent_2);
-			}
-		}
-	}
-	for (int i = 0; i <= 0xFFFF; i++) {
-		if (mytune->pids_rate[i] > 0) {
-			emit list_create(QString("0x%1 - %2 kbit/s").arg(i,4,16,QChar('0')).arg(mytune->pids_rate[i],5,10,QChar(' ')), i);
-		}
-	}
-
 	mytune->stop_demux();
+	parsetp_running = false;
 	emit parsetp_done();
 }
 
@@ -498,11 +522,11 @@ void tuning_thread::run()
 {
 	loop = true;
 	do {
-		if (thread_function.indexOf("parsetp") != -1) {
+		if (thread_function.contains("parsetp")) {
+			thread_function.remove(thread_function.indexOf("parsetp"));
 			parsetp();
-			loop = false;
 		}
-		if (thread_function.size() == 0) {
+		if (thread_function.isEmpty()) {
 			msleep(100);
 		}
 	} while (loop);

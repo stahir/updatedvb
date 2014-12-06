@@ -33,7 +33,6 @@ void demux_file::on_pushButton_start_clicked()
 	ui->pushButton_stop->setEnabled(true);
 	ui->pushButton_start->setEnabled(false);
 	bytes_wrote = 0;
-	mytune->close_dvr();
 	mytune->out_name = ui->lineEdit_filename->text();
 	mytune->demux_file(true);
 }
@@ -43,7 +42,6 @@ void demux_file::on_pushButton_stop_clicked()
 	ui->pushButton_start->setEnabled(true);
 	ui->pushButton_stop->setEnabled(false);
 	mytune->demux_file(false);
-	mytune->close_dvr();
 }
 
 void demux_file::demux_status(int bytes)

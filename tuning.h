@@ -63,7 +63,6 @@ public slots:
 private slots:
 	void update_signal();
 	void update_results();
-	void stop_demux();
 	void on_pushButton_play_clicked();
 	void on_pushButton_ipcleaner_clicked();
 	void on_pushButton_demux_clicked();
@@ -73,15 +72,17 @@ private slots:
 	void on_pushButton_stream_clicked();
 	void on_pushButton_bbframe_clicked();
 	void on_treeWidget_itemClicked(QTreeWidgetItem * item, int column);
-	void list_create(QString text, int pid);
+	void list_create();
 	void tree_create_root(int *parent, QString text, int pid);
 	void tree_create_child(int *parent, QString text, int pid);
+	void tree_select_children(QTreeWidgetItem * item);
 	void setcolor(int index, QColor color);
 	void on_listWidget_itemClicked(QListWidgetItem *item);
 	void delete_iqplot();
 	void delete_demux_file();
 	void on_pushButton_iqplot_clicked();
 	void parsetp_done();
+	void parsetp_start();
 	void myProcess_finished();
 
 private:

@@ -84,7 +84,6 @@ void dvbstream_thread::server_close()
 	if (!server.isNull()) {
 		server->close();
 	}
-	mytune->close_dvr();
 
 	IP		= QHostAddress::Null;
 	port	= 0;

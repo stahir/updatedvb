@@ -33,7 +33,7 @@ void blindscan_thread::run()
 {
 	loop = true;
 	do {
-		if (thread_function.indexOf("blindscan") != -1) {
+		if (thread_function.contains("blindscan")) {
 			switch(mytune->tune_ops.voltage) {
 			case 0:
 			case 1:
@@ -51,11 +51,11 @@ void blindscan_thread::run()
 				break;
 			}
 		}
-		if (thread_function.indexOf("smartscan") != -1) {
+		if (thread_function.contains("smartscan")) {
 			smartscan();
 			loop = false;
 		}
-		if (thread_function.size() == 0) {
+		if (thread_function.isEmpty()) {
 			msleep(100);
 		}
 	} while (loop);

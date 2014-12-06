@@ -216,16 +216,16 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 
 		waterfall_x->prepend(x);
 		if (waterfall_x->size() > max_waterfall) {
-			waterfall_x->pop_back();
+			waterfall_x->removeLast();
 		}
 		waterfall_y->prepend(y);
 		if (waterfall_y->size() > max_waterfall) {
-			waterfall_y->pop_back();
+			waterfall_y->removeLast();
 		}
 		waterfall_curve->prepend(new QwtPlotCurve());
 		if (waterfall_curve->size() > max_waterfall) {
 			waterfall_curve->last()->detach();
-			waterfall_curve->pop_back();
+			waterfall_curve->removeLast();
 		}
 		waterfall_curve->first()->setItemAttribute(QwtPlotItem::Legend, true);
 		waterfall_curve->first()->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
@@ -296,7 +296,7 @@ void MainWindow::update_status(QString text, int time)
 		mystatus.clear();
 	}
 	if (time == STATUS_REMOVE) {
-		if (mystatus.indexOf(text) != -1) {
+		if (mystatus.contains(text)) {
 			mystatus.remove(mystatus.indexOf(text));
 		}
 	}
@@ -410,7 +410,7 @@ void MainWindow::on_pushButton_blindscan_clicked()
 				if (myscan->y.at(i) <= myscan->min || myscan->x.at(i) < f_start || myscan->x.at(i) > f_stop) {
 					continue;
 				}
-				if (myfreq.freq.indexOf(myscan->x.at(i)) != -1) { // Quick search
+				if (myfreq.freq.contains(myscan->x.at(i))) { // Quick search
 					tp.frequency = myscan->x.at(i);
 					mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.append(tp);
 				} else { // Long search
@@ -541,7 +541,7 @@ void MainWindow::on_comboBox_lnb_currentIndexChanged(int index)
 void MainWindow::on_comboBox_voltage_currentIndexChanged(int index)
 {
 	Q_UNUSED(index);
-	if (mytuners.size() == 0) {
+	if (mytuners.isEmpty()) {
 		return;
 	}
 	set_colors();
@@ -651,10 +651,10 @@ void MainWindow::setup_tuning_options()
 	}
 
 	ui->comboBox_modulation->clear();
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSC) != -1 || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_ATSCMH) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_ATSC) || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_ATSCMH)) {
 		add_comboBox_modulation("VSB 8");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_A) != -1) { // DVB-C
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBC_ANNEX_A)) { // DVB-C
 		add_comboBox_modulation("QAM 16");
 		add_comboBox_modulation("QAM 32");
 		add_comboBox_modulation("QAM 64");
@@ -662,32 +662,32 @@ void MainWindow::setup_tuning_options()
 		add_comboBox_modulation("QAM 256");
 		add_comboBox_modulation("QAM AUTO");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBC_ANNEX_B) != -1) { // NA Cable
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBC_ANNEX_B)) { // NA Cable
 		add_comboBox_modulation("QAM 64");
 		add_comboBox_modulation("QAM 256");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBT) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBT)) {
 		add_comboBox_modulation("QPSK");
 		add_comboBox_modulation("QAM 16");
 		add_comboBox_modulation("QAM 64");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBT2) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBT2)) {
 		add_comboBox_modulation("QPSK");
 		add_comboBox_modulation("QAM 16");
 		add_comboBox_modulation("QAM 64");
 		add_comboBox_modulation("QAM 256");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DCII) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DCII)) {
 		add_comboBox_modulation("C QPSK");
 		add_comboBox_modulation("I QPSK");
 		add_comboBox_modulation("Q QPSK");
 		add_comboBox_modulation("C OQPSK");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBS2) != -1 || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_TURBO) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBS2) || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_TURBO)) {
 		add_comboBox_modulation("QPSK");
 		add_comboBox_modulation("8PSK");
 	}
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.indexOf(SYS_DVBS) != -1) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBS)) {
 		add_comboBox_modulation("QPSK");
 	}
 

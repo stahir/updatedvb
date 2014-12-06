@@ -3,7 +3,7 @@
 dvr_thread::dvr_thread()
 {
 	loop	= false;
-	file_fd	= 0;
+	file_fd	= -1;
 }
 
 dvr_thread::~dvr_thread()
@@ -15,13 +15,13 @@ void dvr_thread::run()
 {
 	loop = true;
 	while (loop) {
-		if (thread_function.indexOf("demux_file") != -1) {
+		if (thread_function.contains("demux_file")) {
 			demux_file();
 		}
-		if (thread_function.indexOf("demux_stream") != -1) {
+		if (thread_function.contains("demux_stream")) {
 			demux_stream();
 		}
-		if (thread_function.size() == 0) {
+		if (thread_function.isEmpty()) {
 			msleep(100);
 		}
 	}
@@ -30,10 +30,9 @@ void dvr_thread::run()
 
 void dvr_thread::close_file()
 {
-	mytune->close_dvr();
-	if (file_fd) {
+	if (file_fd >= 0) {
 		close(file_fd);
-		file_fd = 0;
+		file_fd = -1;
 		file_name.clear();
 	}
 }
@@ -48,7 +47,7 @@ void dvr_thread::demux_file()
 			return;
 		}
 	}
-	if (!file_fd) {
+	if (file_fd < 0) {
 		file_fd = open(file_name.toStdString().c_str(), O_CREAT|O_TRUNC|O_RDWR|O_NONBLOCK, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 		if (file_fd < 0) {
 			qDebug() << "Failed to open" << file_name;
@@ -67,14 +66,16 @@ void dvr_thread::demux_file()
 	mytune->status = setbit(mytune->status, TUNER_RDING);
 	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
 		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
+		if (len > 0) {
+			ssize_t wlen = write(file_fd, buf, len);
+			Q_UNUSED(wlen);
+		}
 	} else {
 		qDebug() << "read(dvr_fd) timeout";
 	}
-	ssize_t wlen = write(file_fd, buf, len);
 	mytune->status = unsetbit(mytune->status, TUNER_RDING);
 
 	emit data_size(len);
-	Q_UNUSED(wlen);
 }
 
 void dvr_thread::demux_stream()
@@ -99,16 +100,14 @@ void dvr_thread::demux_stream()
 	mytune->status = setbit(mytune->status, TUNER_RDING);
 	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
 		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
-	} else {
-		qDebug() << "read(dvr_fd) timeout";
+		if (len > 0) {
+			emit data(QByteArray(buf, len));
+		}
 	}
 	mytune->status = unsetbit(mytune->status, TUNER_RDING);
 
 	if (len == -1 || len != LIL_BUFSIZE) {
 		qDebug() << Q_FUNC_INFO << "read issue:" << len << "of" << LIL_BUFSIZE;
 		msleep(100);
-		return;
 	}
-
-	emit data(QByteArray(buf, len));
 }

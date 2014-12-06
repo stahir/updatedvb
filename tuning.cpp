@@ -47,10 +47,25 @@ tuning::tuning(QWidget *parent) :
 	ui->treeWidget->setPalette(black_palette);
 
 	status_timer = new QTimer;
+
+	list_pid.clear();
+	list_item.clear();
+	for (int i = 0; i <= 0x2000; i++) {
+		list_pid.append(0);
+		list_item.append(new QListWidgetItem(ui->listWidget));
+		list_item.last()->setHidden(true);
+	}
 }
 
 tuning::~tuning()
 {
+	mythread.ready			= true;
+	mythread.loop			= false;
+	mythread.parsetp_loop	= false;
+	while (mythread.parsetp_running) {
+		QThread::msleep(100);
+	}
+
 	if (!myiqplot.isNull()) {
 		myiqplot->deleteLater();
 	}
@@ -66,13 +81,11 @@ tuning::~tuning()
 		QThread::msleep(100);
 	}
 
-	mythread.ready	= true;
-	mythread.loop	= false;
 	mythread.quit();
 	mythread.wait(1000);
 	while (mythread.isRunning()) {
-		mythread.ready	= true;
-		mythread.loop	= false;
+		mythread.ready			= true;
+		mythread.loop			= false;
 		QThread::msleep(100);
 	}
 
@@ -80,6 +93,9 @@ tuning::~tuning()
 	emit adapter_status(mytune->adapter);
 
 	mytune->loop		= false;
+	mytune->stop_demux();
+	mytune->close_demux();
+	mytune->close_dvr();
 	mytune->quit();
 	mytune->wait(1000);
 	while (mytune->isRunning()) {
@@ -109,7 +125,7 @@ void tuning::init()
 	connect(mytune, SIGNAL(update_signal()), this, SLOT(update_signal()));
 	connect(mytune, SIGNAL(update_results()), this, SLOT(update_results()));
 	connect(mytune, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
-	connect(&mythread, SIGNAL(list_create(QString, int)), this, SLOT(list_create(QString, int)));
+	connect(&mythread, SIGNAL(list_create()), this, SLOT(list_create()));
 	connect(&mythread, SIGNAL(tree_create_root(int *, QString, int)), this, SLOT(tree_create_root(int *, QString, int)));
 	connect(&mythread, SIGNAL(tree_create_child(int *, QString, int)), this, SLOT(tree_create_child(int *, QString, int)));
 	connect(&mythread, SIGNAL(setcolor(int,QColor)), this, SLOT(setcolor(int,QColor)));
@@ -144,33 +160,32 @@ void tuning::init()
 
 void tuning::myProcess_finished()
 {
-	mytune->close_dvr();
+	parsetp_start();
+}
+
+void tuning::tree_select_children(QTreeWidgetItem *item)
+{
+	for(int a = 0; a < item->childCount(); a++) {
+		item->child(a)->setSelected(item->isSelected());
+		tree_select_children(item->child(a));
+	}
 }
 
 void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
 {
-	Q_UNUSED(item);
 	Q_UNUSED(column);
-
-	// If mythread is running, dont click on tree items
-	if (mythread.loop) {
-		return;
-	}
 
 	for(int a = 0; a < list_item.size(); a++) {
 		list_item.at(a)->setSelected(false);
 	}
 
+	tree_select_children(item);
+
 	for(int a = 0; a < tree_item.size(); a++) {
 		if (tree_item.at(a)->isSelected()) {
-			for (int i = 0; i < tree_item.at(a)->childCount(); i++) {
-				tree_item.at(a)->child(i)->setSelected(true);
+			if (tree_pid.at(a) != -1) {
+				list_item.at(tree_pid.at(a))->setSelected(item->isSelected());
 			}
-			if (tree_pid.at(a) < 0) {
-				tree_item.at(a)->setSelected(false);
-				continue;
-			}
-			list_item.at(list_pid.indexOf(tree_pid.at(a)))->setSelected(true);
 		}
 	}
 }
@@ -179,24 +194,16 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 {
 	Q_UNUSED(item);
 
-	// If mythread is running, dont click on tree items
-	if (mythread.loop) {
-		return;
-	}
-
 	for(int a = 0; a < tree_item.size(); a++) {
 		tree_item.at(a)->setSelected(false);
 	}
 
 	for (int a = 0; a < list_item.size(); a++) {
 		if (list_item.at(a)->isSelected()) {
-			if (list_pid.at(a) < 0)
-				continue;
-			int i = 0;
-			while (tree_pid.indexOf(list_pid.at(a), i) != -1) {
-				i = tree_pid.indexOf(list_pid.at(a), i);
-				tree_item.at(i)->setSelected(true);
-				i++;
+			for (int i = 0; i < list_item.size(); i++) {
+				if (tree_pid.indexOf(a, i) != -1) {
+					tree_item.at(tree_pid.indexOf(a, i))->setSelected(true);
+				}
 			}
 		}
 	}
@@ -205,7 +212,7 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 void tuning::parsetp_done()
 {
 	update_status("", STATUS_CLEAR);
-	update_status("Parsing transponder done", 2);
+	update_status("Parsing transponder done");
 }
 
 void tuning::update_signal()
@@ -314,17 +321,21 @@ void tuning::update_signal()
 	}
 }
 
-void tuning::list_create(QString text, int pid)
+void tuning::list_create()
 {
-	list_pid.append(pid);
-	list_item.append(new QListWidgetItem(ui->listWidget));
-	list_item.last()->setText(text);
-	list_item.last()->setTextColor(QColor(Qt::gray));
-	if (pid == 0x00 || pid == 0x11 || pid == 0x1fff) {
-		list_item.last()->setTextColor(QColor(Qt::green));
-	}
-	if (tree_pid.indexOf(pid) != -1) {
-		list_item.last()->setTextColor(tree_item.at(tree_pid.indexOf(pid))->textColor(0));
+	for (int i = 0; i < list_pid.size(); i++) {
+		if (mytune->pids_rate.at(i) > 0) {
+			list_pid[i] = mytune->pids_rate.at(i);
+			list_item.at(i)->setHidden(false);
+			list_item.at(i)->setText(QString("0x%1 - %2 kbit/s").arg(i,4,16,QChar('0')).arg(mytune->pids_rate.at(i),5,10,QChar(' ')));
+			list_item.at(i)->setTextColor(QColor(Qt::gray));
+			if (i == 0x00 || i == 0x11 || i == 0x1fff) {
+				list_item.at(i)->setTextColor(QColor(Qt::green));
+			}
+			if (tree_pid.contains(i)) {
+				list_item.at(i)->setTextColor(tree_item.at(tree_pid.indexOf(i))->textColor(0));
+			}
+		}
 	}
 }
 
@@ -385,20 +396,12 @@ void tuning::update_results()
 	update_status("Parsing transponder...", STATUS_NOEXP);
 }
 
-void tuning::stop_demux()
-{
-	setup_demux();
-	mytune->pids.clear();
-	mytune->pids.append(0x2000);
-	mytune->demux_video();
-}
-
 void tuning::setup_demux(QString type)
 {
 	mytune->pids.clear();
 	for(int a = 0; a < list_pid.size(); a++) {
 		if (list_item.at(a)->isSelected()) {
-			mytune->pids.append(list_pid.at(a));
+			mytune->pids.append(a);
 		}
 	}
 
@@ -417,27 +420,31 @@ void tuning::setup_demux(QString type)
 
 void tuning::on_pushButton_ipcleaner_clicked()
 {
-	if (mytune->status & TUNER_DEMUX) {
-		return;
+	while (mythread.parsetp_running) {
+		mythread.parsetp_loop = false;
+		QThread::msleep(100);
 	}
 	if (myProcess.pid()) {
 		myProcess.terminate();
 		myProcess.waitForFinished();
 	}
 
+	mytune->close_dvr();
 	setup_demux();
 	QString cmd = mysettings->value("cmd_ipcleaner").toString();
 	cmd.replace("{}", QString::number(mytune->adapter));
 	myProcess.start(cmd);
 
-	return;
+	parsetp_start();
 }
 
 void tuning::on_pushButton_play_clicked()
 {
-	if (mytune->status & TUNER_DEMUX) {
-		return;
+	while (mythread.parsetp_running) {
+		mythread.parsetp_loop = false;
+		QThread::msleep(100);
 	}
+
 	if (myProcess.pid()) {
 		qDebug() << "stopping previous player first...";
 		myProcess.kill();
@@ -455,6 +462,11 @@ void tuning::on_pushButton_play_clicked()
 
 void tuning::on_pushButton_demux_clicked()
 {
+	while (mythread.parsetp_running) {
+		mythread.parsetp_loop = false;
+		QThread::msleep(100);
+	}
+
 	mytune->close_dvr();
 	setup_demux();
 
@@ -463,22 +475,20 @@ void tuning::on_pushButton_demux_clicked()
 	demux_dvr_dialog.updatetxt("Saving data to /dev/dvb/adapter"+QString::number(mytune->adapter)+"/dvr0");
 	demux_dvr_dialog.exec();
 
-	stop_demux();
-	mytune->close_dvr();
+	parsetp_start();
 }
 
 void tuning::delete_demux_file()
 {
 	ui->pushButton_file->setEnabled(true);
-
-	stop_demux();
-	mytune->close_dvr();
+	parsetp_start();
 }
 
 void tuning::on_pushButton_file_clicked()
 {
-	if (mytune->status & TUNER_DEMUX) {
-		return;
+	while (mythread.parsetp_running) {
+		mythread.parsetp_loop = false;
+		QThread::msleep(100);
 	}
 
 	ui->pushButton_file->setEnabled(false);
@@ -509,12 +519,15 @@ void tuning::on_pushButton_unexpand_clicked()
 
 void tuning::on_pushButton_stream_clicked()
 {
+	while (mythread.parsetp_running) {
+		mythread.parsetp_loop = false;
+		QThread::msleep(100);
+	}
+
 	if (mystream.server && mystream.server->isListening()) {
 		mystream.server_close();
+		parsetp_start();
 	} else {
-		if (mytune->status & TUNER_DEMUX) {
-			return;
-		}
 		setup_demux();
 		emit server_new();
 	}
@@ -538,6 +551,11 @@ void tuning::on_pushButton_iqplot_clicked()
 	ui->pushButton_iqplot->setEnabled(false);
 }
 
+void tuning::parsetp_start()
+{
+	mythread.thread_function.append("parsetp");
+}
+
 void tuning::update_status(QString text, int time)
 {
 	if (shutdown) {
@@ -547,7 +565,7 @@ void tuning::update_status(QString text, int time)
 		mystatus.clear();
 	}
 	if (time == STATUS_REMOVE) {
-		if (mystatus.indexOf(text) != -1) {
+		if (mystatus.contains(text)) {
 			mystatus.remove(mystatus.indexOf(text));
 		}
 	}

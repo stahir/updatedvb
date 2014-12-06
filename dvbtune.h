@@ -57,13 +57,16 @@ public:
 
 	int index;
 	QByteArray buffer;
+	QVector<QByteArray> packet_buffer;
+	QVector<QByteArray> packet_processed;
 
-	int frontend_fd, dvr_fd, sct_fd, out_fd;
+	int frontend_fd, dvr_fd, out_fd;
 	QVector<int> dmx_fd;
-	QString frontend_name, dvr_name, dmx_name, sct_name, out_name;
+	QVector<int> sec_fd;
+	QString frontend_name, dvr_name, dmx_name, sec_name, out_name;
 	struct timeval fd_timeout;
-	QVector<int> pids;
-	QVector<int> pids_rate;
+	QVector<unsigned int> pids;
+	QVector<unsigned int> pids_rate;
 	double old_position;
 
 	unsigned char iq_options;
@@ -77,12 +80,13 @@ public:
 	void get_bitrate();
 	int tune();
 	int tune_clear();
-	int demux_packet(int pid, unsigned char table = 0, int timeout = 3000);
+	int demux_packets(QVector<unsigned int> filter_pids);
 	void demux_file(bool start);
 	void demux_video();
 	void demux_bbframe();
 	void demux_stream(bool start);
 	void stop_demux();
+	void close_demux();
 	void setup_switch();
 	void spectrum_scan(dvb_fe_spectrum_scan *scan);
 	void openfd();

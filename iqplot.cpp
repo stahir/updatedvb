@@ -118,7 +118,7 @@ void iqplot::iqdraw(QVector<short int> x, QVector<short int> y)
 
 void iqplot::on_pushButton_onoff_clicked()
 {
-	if (mytune->thread_function.indexOf("iqplot") != -1) {
+	if (mytune->thread_function.contains("iqplot")) {
 		mytune->thread_function.remove(mytune->thread_function.indexOf("iqplot"));
 		ui->pushButton_onoff->setText("Start");
 	} else {

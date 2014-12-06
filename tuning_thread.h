@@ -41,6 +41,7 @@ public:
 	int parse_sdt();
 	int parse_cat();
 	int parse_eit();
+	int parse_nit();
 	int parse_psip();
 	int parse_descriptor(int parent);
 
@@ -50,12 +51,15 @@ public:
 	dvb_sdt mysdt;
 
 	bool loop;
+	bool parsetp_loop;
+	bool parsetp_running;
 	bool ready;
 	QVector<QString> thread_function;
+	QVector<int> pid_parent;
 	
 signals:
 	void setcolor(int parent, QColor color);
-	void list_create(QString text, int pid);
+	void list_create();
 	void tree_create_root(int *parent, QString text, int pid);
 	void tree_create_child(int *parent, QString text, int pid);
 	void parsetp_done();

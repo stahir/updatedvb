@@ -348,7 +348,7 @@ void settings::on_pushButton_asc1_upload_clicked()
 	data.clear();
 	myserial.waitForReadyRead(1000);
 	data += myserial.readAll();
-	while (data.size() == 0 || (data.at(0) != 0x4b && t.elapsed() < 1000)) {
+	while (data.isEmpty() || (data.at(0) != 0x4b && t.elapsed() < 1000)) {
 		QThread::msleep(10);
 		myserial.waitForReadyRead(1000);
 		data += myserial.readAll();
@@ -381,7 +381,7 @@ void settings::on_pushButton_asc1_upload_clicked()
 		data.clear();
 		myserial.waitForReadyRead(1000);
 		data += myserial.readAll();
-		while (data.size() == 0 || (data.at(0) != 0x4b && t.elapsed() < 1000)) {
+		while (data.isEmpty() || (data.at(0) != 0x4b && t.elapsed() < 1000)) {
 			QThread::msleep(10);
 			myserial.waitForReadyRead(1000);
 			data += myserial.readAll();
@@ -478,7 +478,7 @@ void settings::update_status(QString text, int time)
 		mystatus.clear();
 	}
 	if (time == STATUS_REMOVE) {
-		if (mystatus.indexOf(text) != -1) {
+		if (mystatus.contains(text)) {
 			mystatus.remove(mystatus.indexOf(text));
 		}
 	}
