@@ -748,8 +748,14 @@ void dvbtune::get_bitrate()
 	QTime stime;
 	int ttime = 0;
 
-	pids_rate.clear();
-	pids_rate.fill(0, 0x2000+1);
+	QVector<unsigned int> new_rate;
+	new_rate.clear();
+	new_rate.fill(0, 0x2000+1);
+
+	if (pids_rate.isEmpty()) {
+		pids_rate.clear();
+		pids_rate.fill(0, 0x2000+1);
+	}
 
 	int len;
 	char buf[LIL_BUFSIZE];
@@ -801,14 +807,17 @@ void dvbtune::get_bitrate()
 			continue;
 		}
 		p = (((unsigned char)buffer.at(i+1) << 8) | (unsigned char)buffer.at(i+2)) & 0x00001FFF;
-		pids_rate[p]++;
-		pids_rate[0x2000]++;
+		new_rate[p]++;
+		new_rate[0x2000]++;
 		i += 188;
 	}
 	
 	for (i = 0; i <= 0x2000; i++) {
 		if (pids_rate[i] > 0) {
-			pids_rate[i] = (pids_rate[i]*188*8)/ttime;
+			pids_rate[i] += (new_rate[i]*188*8)/ttime;
+			pids_rate[i] /= 2;
+		} else {
+			pids_rate[i] = (new_rate[i]*188*8)/ttime;
 		}
 	}
 }
