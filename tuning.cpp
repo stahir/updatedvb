@@ -63,6 +63,9 @@ tuning::~tuning()
 	mythread.loop			= false;
 	mythread.parsetp_loop	= false;
 	while (mythread.parsetp_running) {
+		mythread.ready			= true;
+		mythread.loop			= false;
+		mythread.parsetp_loop	= false;
 		QThread::msleep(100);
 	}
 

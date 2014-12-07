@@ -39,7 +39,7 @@ dvbtune::dvbtune()
 	fmax		= 0;
 	fstep		= 0;
 	servo		= false;
-	fd_timeout.tv_sec	= 4;
+	fd_timeout.tv_sec	= 1;
 	fd_timeout.tv_usec	= 0;
 	mydvr			= new dvr_thread;
 	mydvr->mytune	= this;
