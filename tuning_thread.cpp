@@ -612,24 +612,38 @@ void tuning_thread::parsetp()
 	parsetp_loop = true;
 	while (parsetp_loop) {
 		dvb_pids fpids;
-		fpids.pid.append(0x01);
-		fpids.tbl.append(0x01);
-		fpids.pid.append(0x11);
-		fpids.tbl.append(0x42);
-		fpids.pid.append(0x1FFB);
-		fpids.tbl.append(0xCB);
-		fpids.pid.append(0x1FFB);
-		fpids.tbl.append(0xC8);
-		fpids.pid.append(0x1FFB);
-		fpids.tbl.append(0xCD);
-		fpids.pid.append(0x12);
-		fpids.tbl.append(0x4E);
-		fpids.pid.append(0x10);
-		fpids.tbl.append(0x40);
-		fpids.pid.append(0x00);
-		fpids.tbl.append(0x00);
-		fpids.pid.append(0x14);
-		fpids.tbl.append(0x70);
+		if (mytune->pids_rate.at(0x01) > 0) {
+			fpids.pid.append(0x01);
+			fpids.tbl.append(0x01);
+		}
+		if (mytune->pids_rate.at(0x11) > 0) {
+			fpids.pid.append(0x11);
+			fpids.tbl.append(0x42);
+		}
+		if (mytune->pids_rate.at(0x1FFB) > 0) {
+			fpids.pid.append(0x1FFB);
+			fpids.tbl.append(0xCB);
+			fpids.pid.append(0x1FFB);
+			fpids.tbl.append(0xC8);
+			fpids.pid.append(0x1FFB);
+			fpids.tbl.append(0xCD);
+		}
+		if (mytune->pids_rate.at(0x12) > 0) {
+			fpids.pid.append(0x12);
+			fpids.tbl.append(0x4E);
+		}
+		if (mytune->pids_rate.at(0x10) > 0) {
+			fpids.pid.append(0x10);
+			fpids.tbl.append(0x40);
+		}
+		if (mytune->pids_rate.at(0x00) > 0) {
+			fpids.pid.append(0x00);
+			fpids.tbl.append(0x00);
+		}
+		if (mytune->pids_rate.at(0x14) > 0) {
+			fpids.pid.append(0x14);
+			fpids.tbl.append(0x70);
+		}
 
 		for (int i = 0; i < mypat.pid.size(); i++) {
 			if (!fpids.pid.contains(mypat.pid.at(i))) {
