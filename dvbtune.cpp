@@ -745,6 +745,16 @@ int dvbtune::tune()
 
 void dvbtune::get_bitrate()
 {
+	QTime stime;
+	int ttime = 0;
+
+	pids_rate.clear();
+	pids_rate.fill(0, 0x2000+1);
+
+	int len;
+	char buf[LIL_BUFSIZE];
+	buffer.clear();
+
 	pids.clear();
 	pids.append(0x2000);
 	demux_video();
@@ -757,18 +767,6 @@ void dvbtune::get_bitrate()
 			return;
 		}
 	}
-
-	QTime stime;
-	int ttime = 0;
-
-	pids_rate.clear();
-	pids_rate.fill(0, 0x2000+1);
-
-	int len;
-	char buf[LIL_BUFSIZE];
-	buffer.clear();
-
-	msleep(100);
 
 	status = setbit(status, TUNER_RDING);
 	stime.start();
