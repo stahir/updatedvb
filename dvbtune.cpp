@@ -815,12 +815,12 @@ void dvbtune::get_bitrate()
 	}
 }
 
-int dvbtune::demux_packets(QVector<unsigned int> filter_pids)
+int dvbtune::demux_packets(dvb_pids mypids)
 {
 	stop_demux();
 	sec_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
 
-	while (sec_fd.size() < filter_pids.size()) {
+	while (sec_fd.size() < mypids.pid.size()) {
 		int temp_fd = open(sec_name.toStdString().c_str(), O_RDWR);
 		if (temp_fd < 0) {
 			qDebug() << "Failed to open" << dmx_name;
@@ -831,11 +831,13 @@ int dvbtune::demux_packets(QVector<unsigned int> filter_pids)
 		ioctl(sec_fd.last(), DMX_SET_BUFFER_SIZE, BIG_BUFSIZE);
 		status = unsetbit(status, TUNER_IOCTL);
 	}
-	for(int a = 0; a < filter_pids.size(); a++)
+	for(int a = 0; a < mypids.pid.size(); a++)
 	{
 		struct dmx_sct_filter_params sctfilter;
 		memset(&sctfilter, 0, sizeof(struct dmx_sct_filter_params));
-		sctfilter.pid = filter_pids.at(a);
+		sctfilter.pid = mypids.pid.at(a);
+		sctfilter.filter.filter[0] = mypids.tbl.at(a);
+		sctfilter.filter.mask[0] = 0xFF;
 		sctfilter.timeout = 500;
 		sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 

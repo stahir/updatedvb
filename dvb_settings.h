@@ -140,6 +140,13 @@ public:
 	QVector<unsigned int> pid;
 };
 
+class dvb_pids
+{
+public:
+	QVector<unsigned int> pid;
+	QVector<unsigned int> tbl;
+};
+
 class dvb_ca
 {
 public:

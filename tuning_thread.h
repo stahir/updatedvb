@@ -43,7 +43,9 @@ public:
 	int parse_cat();
 	int parse_eit();
 	int parse_nit();
-	int parse_psip();
+	int parse_psip_eit();
+	int parse_psip_stt();
+	int parse_psip_tvct();
 	int parse_tdt();
 	int parse_descriptor(int parent);
 
