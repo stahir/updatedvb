@@ -860,7 +860,7 @@ int dvbtune::demux_packets(dvb_pids mypids)
 	char buf[TNY_BUFSIZE];
 
 	status = setbit(status, TUNER_RDING);
-	for (int i = 0; i < sec_fd.size(); i++) {
+	for (int i = 0; i < mypids.pid.size(); i++) {
 		len = 0;
 		memset(buf, 0, TNY_BUFSIZE);
 		len = read(sec_fd.at(i), buf, TNY_BUFSIZE);
