@@ -83,7 +83,7 @@ int tuning_thread::parse_descriptor(int parent)
 	int desc_end = desc_len + mytune->index;
 	if (dvbnames.dvb_descriptortag.at(desc_tag) == "") {
 		tree_create_child_wait(&parent, QString("Unknown descriptor: 0x%1").arg(desc_tag,2,16,QChar('0')));
-		qDebug() << "Unkown descriptor:" << desc_tag;
+		qDebug().nospace() << "Unkown descriptor: 0x" << hex << desc_tag;
 		mytune->index = desc_end;
 		return 0;
 	}
@@ -490,7 +490,6 @@ int tuning_thread::parse_tdt()
 	int parent_t;
 
 	mytune->index += 2;
-//	int section_length = mytune->read16(0x0FFF) - 4;
 	__u16 t1 = mytune->read16();
 	__u8  t2 = mytune->read8();
 	__u8  t3 = mytune->read8();

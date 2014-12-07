@@ -412,10 +412,7 @@ void tuning::setup_demux(QString type)
 		}
 	}
 
-	if (mytune->pids.size()) {
-		mytune->pids.append(0x00);
-		mytune->pids.append(0x10);
-	} else {
+	if (mytune->pids.isEmpty()) {
 		mytune->pids.append(0x2000);
 	}
 	if (type == "BBFrame") {
