@@ -440,16 +440,6 @@ int tuning_thread::parse_pmt()
 	tree_create_child_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2").arg(pmt_pid,4,16,QChar('0')).arg(pmt_num,4,10,QChar(' ')), pmt_pid);
 	emit setcolor(parent_1, Qt::green);
 
-//	if (mytune->tp.system == SYS_DCII) {
-//		if (mytune->pids_rate[mypat.pid[i]] && mytune->demux_packet(mypat.pid[i], 0xC1) > 0) {
-//			parent_2 = parent_1;
-//			tree_create_child_wait(&parent_2, "SDT");
-//			mytune->index += 15;
-//			parent_2 = parent_1;
-//			tree_create_child_wait(&parent_2, QString("Service Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
-//		}
-//	}
-
 	mytune->index += 3;
 	unsigned int pmt_pcr = mytune->read16(0x1FFF);
 	parent_2 = parent_1;
@@ -498,6 +488,17 @@ int tuning_thread::parse_tdt()
 	tree_create_child_wait(&parent_t, QString("UTC Date/Time: %1 %2:%3:%4").arg(QDate::fromJulianDay(t1 + 2400000.5).toString()).arg(dtag_convert(t2), 2, 10, QChar('0')).arg(dtag_convert(t3), 2, 10, QChar('0')).arg(dtag_convert(t4), 2, 10, QChar('0')), 0x14);
 
 	return 1;
+}
+
+int tuning_thread::parse_dcii_sdt()
+{
+	return -1; // I need to tune a DCII tp to test this before adding it again
+
+//	parent_2 = parent_1;
+//	tree_create_child_wait(&parent_2, "SDT");
+//	mytune->index += 15;
+//	parent_2 = parent_1;
+//	tree_create_child_wait(&parent_2, QString("Service Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
 }
 
 void tuning_thread::parsetp()
@@ -552,6 +553,8 @@ void tuning_thread::parsetp()
 			case 0x70:
 				parse_tdt();
 				break;
+			case 0xC1:
+				parse_dcii_sdt();
 			}
 			mytune->packet_buffer.removeFirst();
 		}

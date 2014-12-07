@@ -39,6 +39,7 @@ public:
 	int parse_pat();
 	int parse_pmt();
 	int parse_sdt();
+	int parse_dcii_sdt();
 	int parse_cat();
 	int parse_eit();
 	int parse_nit();
