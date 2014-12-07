@@ -362,7 +362,15 @@ void tuning::tree_create_child(int *parent, QString text, int pid)
 		mytune->pids_rate[pid] = 1;
 	}
 	// Exceptions: we only want to display the current packet/time
-	if (text.contains("STT - System Time Table") || text.contains("UTC Date/Time:")) {
+	for (int a = 0; a < tree_item.size(); a++) {
+		if (text == "STT - System Time Table" && tree_item.at(a)->text(0) == "STT - System Time Table") {
+			*parent = a;
+			mythread.ready = true;
+			return;
+		}
+	}
+	// Exceptions: we only want to display the current packet/time
+	if (text.contains("System Time:") || text.contains("UTC Date/Time:")) {
 		for (int i = 0; i < tree_item.at(*parent)->childCount(); i++) {
 			tree_item.at(*parent)->removeChild(tree_item.at(*parent)->child(i));
 		}
