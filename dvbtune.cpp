@@ -644,6 +644,7 @@ int dvbtune::tune()
 	close_dvr();
 
 	pids_rate.clear();
+	packet_processed.clear();
 
 	iq_x.clear();
 	iq_y.clear();
