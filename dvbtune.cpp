@@ -643,6 +643,8 @@ int dvbtune::tune()
 	close_demux();
 	close_dvr();
 
+	pids_rate.clear();
+
 	iq_x.clear();
 	iq_y.clear();
 	openfd();
