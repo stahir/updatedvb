@@ -619,6 +619,10 @@ QString dvbtune::format_freq(int frequency, int system)
 
 int dvbtune::tune_clear()
 {
+	pids_rate.clear();
+	packet_buffer.clear();
+	packet_processed.clear();
+
 	struct dtv_property p_clear[1];
 	p_clear[0].cmd = DTV_CLEAR;
 
@@ -642,9 +646,6 @@ int dvbtune::tune()
 	stop_demux();
 	close_demux();
 	close_dvr();
-
-	pids_rate.clear();
-	packet_processed.clear();
 
 	iq_x.clear();
 	iq_y.clear();
