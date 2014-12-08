@@ -767,7 +767,7 @@ void dvbtune::get_bitrate()
 
 	if (dvr_name.isEmpty()) {
 		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);		
+		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
 		if (dvr_fd < 0) {
 			qDebug() << "Failed to open" << dvr_name;
 			return;
@@ -1097,25 +1097,19 @@ void dvbtune::close_demux()
 		qDebug() << "waiting for read() to complete";
 		msleep(100);
 	}
-	if (!dmx_name.isEmpty()) {
-		dmx_name.clear();
-	}
 	while (!dmx_fd.isEmpty()) {
-		status = setbit(status, TUNER_IOCTL);
-		ioctl(dmx_fd.last(), DMX_STOP);
-		status = unsetbit(status, TUNER_IOCTL);
 		close(dmx_fd.last());
 		dmx_fd.removeLast();
 	}
-	if (!sec_name.isEmpty()) {
-		sec_name.clear();
+	if (!dmx_name.isEmpty()) {
+		dmx_name.clear();
 	}
 	while (!sec_fd.isEmpty()) {
-		status = setbit(status, TUNER_IOCTL);
-		ioctl(sec_fd.last(), DMX_STOP);
-		status = unsetbit(status, TUNER_IOCTL);
 		close(sec_fd.last());
 		sec_fd.removeLast();
+	}
+	if (!sec_name.isEmpty()) {
+		sec_name.clear();
 	}
 }
 
