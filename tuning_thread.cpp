@@ -410,7 +410,7 @@ int tuning_thread::parse_psip_mgt()
 		} else if (table_type == 0x0000) {
 			filter_pids(table_pid, 0xC8);
 		} else {
-			qDebug() << Q_FUNC_INFO << hex << table_pid << table_type;
+			qDebug() << Q_FUNC_INFO << "Unkown Table_type:" << hex << table_pid << table_type;
 		}
 
 		unsigned int desc_len	= mytune->read16(0x0FFF);
@@ -788,6 +788,7 @@ void tuning_thread::parsetp()
 				parse_dcii_sdt();
 				break;
 			default:
+				qDebug() << Q_FUNC_INFO << "Unkown TableID:" << hex << mytune->dvbdata.first().pid << mytune->dvbdata.first().table;
 				break;
 			}
 			mytune->dvbdata.removeFirst();
