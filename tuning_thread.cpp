@@ -125,9 +125,11 @@ int tuning_thread::parse_descriptor(int parent)
 		break;
 	case 0x41: // service_list_descriptor
 		tree_create_child_wait(&parent, QString("Descriptor: 0x%1 - %2 Descriptor").arg(desc_tag,2,16,QChar('0')).arg(dvbnames.dvb_descriptortag[desc_tag]));
-		while(mytune->index < desc_len) {
+		while(mytune->index < desc_end) {
 			parent_t = parent;
-			tree_create_child_wait(&parent_t, QString("Service ID: %1 - %2").arg(mytune->read16()).arg(dvbnames.stream_type[mytune->read8()]));
+			unsigned int sid = mytune->read16();
+			unsigned int type = mytune->read8();
+			tree_create_child_wait(&parent_t, QString("Service ID: %1 - %2").arg(sid).arg(dvbnames.stream_type[type]));
 		}
 		break;
 	case 0x43: //satellite_delivery_system_descriptor
