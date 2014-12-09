@@ -45,8 +45,11 @@ public:
 	int parse_nit();
 	int parse_psip_eit();
 	int parse_psip_stt();
+	int parse_psip_ett();
+	int parse_psip_mgt();
 	int parse_psip_tvct();
 	int parse_tdt();
+	int parse_etm(int parent);
 	int parse_descriptor(int parent);
 
 	dvb_settings dvbnames;
@@ -60,6 +63,9 @@ public:
 	bool ready;
 	QVector<QString> thread_function;
 	QVector<int> pid_parent;
+	dvb_pids fpids;
+
+	void filter_pids(unsigned int pid, unsigned int table = 0xFFFF);
 	
 signals:
 	void setcolor(int parent, QColor color);

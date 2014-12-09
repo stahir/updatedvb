@@ -147,6 +147,14 @@ public:
 	QVector<unsigned int> tbl;
 };
 
+class dvb_data
+{
+public:
+	unsigned int pid;
+	unsigned int table;
+	QByteArray buffer;
+};
+
 class dvb_ca
 {
 public:

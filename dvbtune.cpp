@@ -175,7 +175,6 @@ QString dvbtune::readstr(unsigned int pos, unsigned int len)
 {
 	index += len;
 	return buffer.mid(pos, len);
-
 }
 
 void dvbtune::closefd()
@@ -620,7 +619,7 @@ QString dvbtune::format_freq(int frequency, int system)
 int dvbtune::tune_clear()
 {
 	pids_rate.clear();
-	packet_buffer.clear();
+	dvbdata.clear();
 	packet_processed.clear();
 
 	struct dtv_property p_clear[1];
@@ -847,8 +846,10 @@ int dvbtune::demux_packets(dvb_pids mypids)
 		struct dmx_sct_filter_params sctfilter;
 		memset(&sctfilter, 0, sizeof(struct dmx_sct_filter_params));
 		sctfilter.pid = mypids.pid.at(a);
-		sctfilter.filter.filter[0] = mypids.tbl.at(a);
-		sctfilter.filter.mask[0] = 0xFF;
+		if (mypids.tbl.at(a) != 0xFFFF) {
+			sctfilter.filter.filter[0] = (unsigned int)mypids.tbl.at(a);
+			sctfilter.filter.mask[0] = 0xFF;
+		}
 		sctfilter.timeout = 500;
 		sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 
@@ -871,13 +872,14 @@ int dvbtune::demux_packets(dvb_pids mypids)
 		if (len > 0) {
 			buffer.clear();
 			buffer.append(buf, len);
-			packet_buffer.append(buffer);
+			dvb_data tmp;
+			tmp.pid		= mypids.pid.at(i);
+			tmp.table	= mypids.tbl.at(i);
+			tmp.buffer	= buffer;
+			dvbdata.append(tmp);
 		}
 	}
 	status = unsetbit(status, TUNER_RDING);
-	if (packet_buffer.isEmpty()) {
-		qDebug() << Q_FUNC_INFO << "Empty Buffer";
-	}
 	stop_demux();
 
 	return 1;

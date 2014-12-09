@@ -57,7 +57,7 @@ public:
 
 	int index;
 	QByteArray buffer;
-	QVector<QByteArray> packet_buffer;
+	QVector<dvb_data> dvbdata;
 	QVector<QByteArray> packet_processed;
 
 	int frontend_fd, dvr_fd, out_fd;

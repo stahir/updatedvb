@@ -76,6 +76,32 @@ void tuning_thread::tree_create_child_wait(int *parent, QString text, int pid = 
 	}
 }
 
+int tuning_thread::parse_etm(int parent)
+{
+	int parent_t;
+
+	unsigned int num_str = mytune->read8();
+	for (unsigned int i = 0; i < num_str; i++) {
+		QString lang = mytune->readstr(mytune->index, 3);
+		unsigned int num_seg = mytune->read8();
+		for (unsigned int j = 0; j < num_seg; j++) {
+			unsigned int compression_type = mytune->read8();
+			unsigned int mode = mytune->read8();
+			unsigned int num_bytes = mytune->read8();
+			QString msg = mytune->readstr(mytune->index, num_bytes);
+			parent_t = parent;
+			tree_create_child_wait(&parent_t, QString("Language: %1").arg(lang));
+			parent_t = parent;
+			tree_create_child_wait(&parent_t, QString("Compression Type: 0x%1").arg(compression_type,2,16,QChar('0')));
+			parent_t = parent;
+			tree_create_child_wait(&parent_t, QString("Mode: 0x%1").arg(mode,2,16,QChar('0')));
+			parent_t = parent;
+			tree_create_child_wait(&parent_t, QString("Text: %1").arg(msg));
+		}
+	}
+	return 1;
+}
+
 int tuning_thread::parse_descriptor(int parent)
 {
 	int desc_tag = mytune->read8();
@@ -207,12 +233,13 @@ int tuning_thread::parse_psip_tvct()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
-	if (pid_parent[0x1FFB] == -1) {
-		tree_create_root_wait(&pid_parent[0x1FFB], "PSIP pid: 0x1FFB", 0x1FFB);
-		emit setcolor(pid_parent[0x1FFB], Qt::green);
+	unsigned int pid = mytune->dvbdata.first().pid;
+	if (pid_parent[pid] == -1) {
+		tree_create_root_wait(&pid_parent[pid], QString("PSIP pid: 0x%1").arg(pid,4,16,QChar('0')), pid);
+		emit setcolor(pid_parent[pid], Qt::green);
 	}
 
-	int parent = pid_parent[0x1FFB];
+	int parent = pid_parent[pid];
 	int parent_1, parent_2;
 
 	parent_1 = parent;
@@ -258,13 +285,14 @@ int tuning_thread::parse_psip_eit()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
-	if (pid_parent[0x1FFB] == -1) {
-		tree_create_root_wait(&pid_parent[0x1FFB], "PSIP pid: 0x1FFB", 0x1FFB);
-		emit setcolor(pid_parent[0x1FFB], Qt::green);
+	unsigned int pid = mytune->dvbdata.first().pid;
+	if (pid_parent[pid] == -1) {
+		tree_create_root_wait(&pid_parent[pid], QString("PSIP pid: 0x%1").arg(pid,4,16,QChar('0')), pid);
+		emit setcolor(pid_parent[pid], Qt::green);
 	}
 
-	int parent = pid_parent[0x1FFB];
-	int parent_1, parent_2;
+	int parent = pid_parent[pid];
+	int parent_1, parent_2, parent_3, parent_4;
 
 	parent_1 = parent;
 	tree_create_child_wait(&parent_1, QString("EIT - Event Information Table"));
@@ -273,12 +301,16 @@ int tuning_thread::parse_psip_eit()
 	Q_UNUSED(section_length);
 
 	unsigned int sourceID = mytune->read16();
+	parent_2 = parent_1;
+	tree_create_child_wait(&parent_2, QString("SourceID: %1").arg(sourceID,2,16,QChar('0')));
 
 	mytune->index += 4;
 
 	int num_channels_in_section = mytune->read8();
 	for (int i = 0; i < num_channels_in_section; i++) {
-		mytune->index += 2;
+		unsigned int event_id = mytune->read16(0x3FFF);
+		parent_3 = parent_2;
+		tree_create_child_wait(&parent_3, QString("Event ID: 0x%1").arg(event_id,4,16,QChar('0')));
 
 		__u32 stime = mytune->read32();
 		__u32 dtime = mytune->read24(0x0FFF);
@@ -286,25 +318,23 @@ int tuning_thread::parse_psip_eit()
 		unsigned int short_name_length = mytune->read8();
 		QString short_name = mytune->readstr(mytune->index, short_name_length);
 
-		parent_2 = parent_1;
-		tree_create_child_wait(&parent_2, QString("Name: %1").arg(short_name));
-		parent_2 = parent_1;
+		parent_4 = parent_3;
+		tree_create_child_wait(&parent_4, QString("Name: %1").arg(short_name));
 		QDateTime start_time = QDateTime::fromTime_t(stime + 315964800);
-		tree_create_child_wait(&parent_2, QString("Start Time: %1").arg(start_time.toString()));
-		parent_2 = parent_1;
-		QTime duration = QTime(0, 0, dtime);
-		tree_create_child_wait(&parent_2, QString("Duration: %1").arg(duration.toString()));
+		parent_4 = parent_3;
+		tree_create_child_wait(&parent_4, QString("Start Time: %1").arg(start_time.toString()));
+		unsigned int h = dtime/60/60;
+		unsigned int m = dtime/60 - (h*60);
+		unsigned int s = dtime - (h*60*60) - (m*60);
+		QTime duration = QTime(h, m, s);
+		parent_4 = parent_3;
+		tree_create_child_wait(&parent_4, QString("Duration: %1").arg(duration.toString()));
 
 		int descriptors_length = mytune->index + mytune->read16(0xFFF);
 		while (mytune->index < descriptors_length) {
-			parent_2 = parent_1;
-			parse_descriptor(parent_2);
+			parent_4 = parent_3;
+			parse_descriptor(parent_4);
 		}
-	}
-	int additional_descriptors_length = mytune->index + mytune->read16(0x3FF);
-	while (mytune->index < additional_descriptors_length) {
-		parent_2 = parent_1;
-		parse_descriptor(parent_2);
 	}
 	return 1;
 }
@@ -316,12 +346,13 @@ int tuning_thread::parse_psip_stt()
 	}
 	mytune->packet_processed.append(mytune->buffer);
 
-	if (pid_parent[0x1FFB] == -1) {
-		tree_create_root_wait(&pid_parent[0x1FFB], "PSIP pid: 0x1FFB", 0x1FFB);
-		emit setcolor(pid_parent[0x1FFB], Qt::green);
+	unsigned int pid = mytune->dvbdata.first().pid;
+	if (pid_parent[pid] == -1) {
+		tree_create_root_wait(&pid_parent[pid], QString("PSIP pid: 0x%1").arg(pid,4,16,QChar('0')), pid);
+		emit setcolor(pid_parent[pid], Qt::green);
 	}
 
-	int parent = pid_parent[0x1FFB];
+	int parent = pid_parent[pid];
 	int parent_1, parent_2;
 
 	parent_1 = parent;
@@ -345,6 +376,95 @@ int tuning_thread::parse_psip_stt()
 		parent_2 = parent_1;
 		parse_descriptor(parent_2);
 	}
+	return 1;
+}
+
+int tuning_thread::parse_psip_mgt()
+{
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
+	}
+	mytune->packet_processed.append(mytune->buffer);
+
+	unsigned int pid = mytune->dvbdata.first().pid;
+	if (pid_parent[pid] == -1) {
+		tree_create_root_wait(&pid_parent[pid], QString("PSIP pid: 0x%1").arg(pid,4,16,QChar('0')), pid);
+		emit setcolor(pid_parent[pid], Qt::green);
+	}
+
+	int parent = pid_parent[pid];
+	int parent_1, parent_2;
+
+	parent_1 = parent;
+	tree_create_child_wait(&parent_1, QString("MGT - Master Guide Table"));
+
+	int section_length = mytune->read16(0x0FFF) + mytune->index - 4;
+	Q_UNUSED(section_length);
+
+	mytune->index += 6;
+
+	unsigned int num_tables = mytune->read16();
+	for (unsigned int i = 0; i < num_tables; i++) {
+		unsigned int table_type	= mytune->read16();
+		unsigned int table_pid	= mytune->read16(0x1FFF);
+		mytune->index++;
+		__u32 table_size		= mytune->read32();
+		parent_2 = parent_1;
+		tree_create_child_wait(&parent_2, QString("Table Type/PID/Size: 0x%1 / 0x%2 / 0x%3").arg(table_type,4,16,QChar('0')).arg(table_pid,4,16,QChar('0')).arg(table_size));
+
+		if (table_type >= 0x0100 && table_type <= 0x17F) {
+			filter_pids(table_pid, 0xCB);
+		} else if ((table_type >= 0x0200 && table_type <= 0x27F) || table_type == 0x0004) {
+			filter_pids(table_pid, 0xCC);
+		} else if (table_type == 0x0000) {
+			filter_pids(table_pid, 0xC8);
+		} else {
+			qDebug() << Q_FUNC_INFO << hex << table_pid << table_type;
+		}
+
+		unsigned int desc_len	= mytune->read16(0x0FFF);
+		for (unsigned int a = 0; a < desc_len; a++) {
+			parent_2 = parent_1;
+			parse_descriptor(parent_2);
+		}
+	}
+	unsigned int desc_len	= mytune->read16(0x0FFF);
+	for (unsigned int a = 0; a < desc_len; a++) {
+		parent_2 = parent_1;
+		parse_descriptor(parent_2);
+	}
+	return 1;
+}
+
+int tuning_thread::parse_psip_ett()
+{
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
+	}
+	mytune->packet_processed.append(mytune->buffer);
+
+	unsigned int pid = mytune->dvbdata.first().pid;
+	if (pid_parent[pid] == -1) {
+		tree_create_root_wait(&pid_parent[pid], QString("PSIP pid: 0x%1").arg(pid,4,16,QChar('0')), pid);
+		emit setcolor(pid_parent[pid], Qt::green);
+	}
+
+	int parent = pid_parent[pid];
+	int parent_1;
+
+	unsigned int section_length		= mytune->read16(0x0FFF) + mytune->index - 4;
+	Q_UNUSED(section_length);
+	unsigned int ETT_table_id_ext	= mytune->read16();
+
+	mytune->index += 4;
+
+	unsigned int ETM_id = mytune->read32();
+
+	parent_1 = parent;
+	tree_create_child_wait(&parent_1, QString("ETT Table Ext/ID : 0x%1 - 0x%2").arg(ETT_table_id_ext,4,16,QChar('0')).arg(ETM_id,8,16,QChar('0')));
+
+	parse_etm(parent_1);
+
 	return 1;
 }
 
@@ -529,13 +649,7 @@ int tuning_thread::parse_pmt()
 	int section_length = mytune->read16(0x0FFF);
 	section_length += mytune->index - 4;
 	unsigned int pmt_num = mytune->read16();
-
-	unsigned int pmt_pid;
-	for (int i = 0; i < mypat.number.size(); i++) {
-		if (mypat.number.at(i) == pmt_num) {
-			pmt_pid = mypat.pid.at(i);
-		}
-	}
+	unsigned int pmt_pid = mytune->dvbdata.first().pid;
 
 	tree_create_child_wait(&parent_1, QString("PMT PID: 0x%1 - Program: %2").arg(pmt_pid,4,16,QChar('0')).arg(pmt_num,4,10,QChar(' ')), pmt_pid);
 	emit setcolor(parent_1, Qt::green);
@@ -602,6 +716,19 @@ int tuning_thread::parse_dcii_sdt()
 //	tree_create_child_wait(&parent_2, QString("Service Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
 }
 
+void tuning_thread::filter_pids(unsigned int pid, unsigned int table)
+{
+	if (mytune->pids_rate.at(pid) > 0) {
+		for (int i = 0; i < fpids.pid.size(); i++) {
+			if (fpids.pid.at(i) == pid && fpids.tbl.at(i) == table) {
+				return;
+			}
+		}
+		fpids.pid.append(pid);
+		fpids.tbl.append(table);
+	}
+}
+
 void tuning_thread::parsetp()
 {
 	parsetp_running = true;
@@ -611,50 +738,23 @@ void tuning_thread::parsetp()
 
 	parsetp_loop = true;
 	while (parsetp_loop) {
-		dvb_pids fpids;
-		if (mytune->pids_rate.at(0x01) > 0) {
-			fpids.pid.append(0x01);
-			fpids.tbl.append(0x01);
-		}
-		if (mytune->pids_rate.at(0x11) > 0) {
-			fpids.pid.append(0x11);
-			fpids.tbl.append(0x42);
-		}
-		if (mytune->pids_rate.at(0x1FFB) > 0) {
-			fpids.pid.append(0x1FFB);
-			fpids.tbl.append(0xCB);
-			fpids.pid.append(0x1FFB);
-			fpids.tbl.append(0xC8);
-			fpids.pid.append(0x1FFB);
-			fpids.tbl.append(0xCD);
-		}
-		if (mytune->pids_rate.at(0x12) > 0) {
-			fpids.pid.append(0x12);
-			fpids.tbl.append(0x4E);
-		}
-		if (mytune->pids_rate.at(0x10) > 0) {
-			fpids.pid.append(0x10);
-			fpids.tbl.append(0x40);
-		}
-		if (mytune->pids_rate.at(0x00) > 0) {
-			fpids.pid.append(0x00);
-			fpids.tbl.append(0x00);
-		}
-		if (mytune->pids_rate.at(0x14) > 0) {
-			fpids.pid.append(0x14);
-			fpids.tbl.append(0x70);
-		}
-
+		filter_pids(0x01, 0x01);
+		filter_pids(0x11, 0x42);
+		filter_pids(0x1FFB, 0xC7);
+		filter_pids(0x1FFB, 0xC8);
+		filter_pids(0x1FFB, 0xCB);
+		filter_pids(0x1FFB, 0xCD);
+		filter_pids(0x12, 0x4E);
+		filter_pids(0x10, 0x40);
+		filter_pids(0x00, 0x00);
+		filter_pids(0x14, 0x70);
 		for (int i = 0; i < mypat.pid.size(); i++) {
-			if (!fpids.pid.contains(mypat.pid.at(i))) {
-				fpids.pid.append(mypat.pid.at(i));
-				fpids.tbl.append(0x02);
-			}
+			filter_pids(mypat.pid.at(i), 0x02);
 		}
 		mytune->demux_packets(fpids);
 
-		while (!mytune->packet_buffer.isEmpty()) {
-			mytune->buffer = mytune->packet_buffer.first();
+		while (!mytune->dvbdata.isEmpty()) {
+			mytune->buffer = mytune->dvbdata.first().buffer;
 			mytune->index = 0;
 			switch (mytune->read8()) { // Table ID
 			case 0x4E:
@@ -666,8 +766,14 @@ void tuning_thread::parsetp()
 			case 0xCB:
 				parse_psip_eit();
 				break;
+			case 0xC7:
+				parse_psip_mgt();
+				break;
 			case 0xC8:
 				parse_psip_tvct();
+				break;
+			case 0xCC:
+				parse_psip_ett();
 				break;
 			case 0xCD:
 				parse_psip_stt();
@@ -689,8 +795,11 @@ void tuning_thread::parsetp()
 				break;
 			case 0xC1:
 				parse_dcii_sdt();
+				break;
+			default:
+				break;
 			}
-			mytune->packet_buffer.removeFirst();
+			mytune->dvbdata.removeFirst();
 		}
 		mytune->get_bitrate();
 		emit list_create();
