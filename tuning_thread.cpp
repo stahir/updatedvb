@@ -85,16 +85,11 @@ int tuning_thread::parse_etm(int parent)
 		QString lang = mytune->readstr(mytune->index, 3);
 		unsigned int num_seg = mytune->read8();
 		for (unsigned int j = 0; j < num_seg; j++) {
-			unsigned int compression_type = mytune->read8();
-			unsigned int mode = mytune->read8();
+			mytune->index += 2;
 			unsigned int num_bytes = mytune->read8();
 			QString msg = mytune->readstr(mytune->index, num_bytes);
 			parent_t = parent;
 			tree_create_child_wait(&parent_t, QString("Language: %1").arg(lang));
-			parent_t = parent;
-			tree_create_child_wait(&parent_t, QString("Compression Type: 0x%1").arg(compression_type,2,16,QChar('0')));
-			parent_t = parent;
-			tree_create_child_wait(&parent_t, QString("Mode: 0x%1").arg(mode,2,16,QChar('0')));
 			parent_t = parent;
 			tree_create_child_wait(&parent_t, QString("Text: %1").arg(msg));
 		}
@@ -315,11 +310,11 @@ int tuning_thread::parse_psip_eit()
 		__u32 stime = mytune->read32();
 		__u32 dtime = mytune->read24(0x0FFF);
 
-		unsigned int short_name_length = mytune->read8();
-		QString short_name = mytune->readstr(mytune->index, short_name_length);
+		mytune->index++;
 
 		parent_4 = parent_3;
-		tree_create_child_wait(&parent_4, QString("Name: %1").arg(short_name));
+		parse_etm(parent_4);
+
 		QDateTime start_time = QDateTime::fromTime_t(stime + 315964800);
 		parent_4 = parent_3;
 		tree_create_child_wait(&parent_4, QString("Start Time: %1").arg(start_time.toString()));
