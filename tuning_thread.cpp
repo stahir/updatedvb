@@ -76,7 +76,7 @@ void tuning_thread::tree_create_child_wait(int *parent, QString text, int pid = 
 	}
 }
 
-int tuning_thread::parse_etm(int parent)
+int tuning_thread::parse_etm(int parent, QString desc)
 {
 	int parent_t;
 
@@ -91,7 +91,7 @@ int tuning_thread::parse_etm(int parent)
 			parent_t = parent;
 			tree_create_child_wait(&parent_t, QString("Language: %1").arg(lang));
 			parent_t = parent;
-			tree_create_child_wait(&parent_t, QString("Text: %1").arg(msg));
+			tree_create_child_wait(&parent_t, QString("%1: %2").arg(desc).arg(msg));
 		}
 	}
 	return 1;
@@ -309,7 +309,7 @@ int tuning_thread::parse_psip_eit()
 		mytune->index++;
 
 		parent_4 = parent_3;
-		parse_etm(parent_4);
+		parse_etm(parent_4, "Channel Name");
 
 		QDateTime start_time = QDateTime::fromTime_t(stime + 315964800);
 		parent_4 = parent_3;
@@ -407,6 +407,8 @@ int tuning_thread::parse_psip_mgt()
 			filter_pids(table_pid, 0xCB);
 		} else if ((table_type >= 0x0200 && table_type <= 0x27F) || table_type == 0x0004) {
 			filter_pids(table_pid, 0xCC);
+		} else if ((table_type >= 0x0301 && table_type <= 0x3FF)) {
+			filter_pids(table_pid, 0xCA);
 		} else if (table_type == 0x0000) {
 			filter_pids(table_pid, 0xC8);
 		} else {
@@ -454,7 +456,59 @@ int tuning_thread::parse_psip_ett()
 	parent_1 = parent;
 	tree_create_child_wait(&parent_1, QString("ETT Table Ext/ID : 0x%1 - 0x%2").arg(ETT_table_id_ext,4,16,QChar('0')).arg(ETM_id,8,16,QChar('0')));
 
-	parse_etm(parent_1);
+	parse_etm(parent_1, "Text");
+
+	return 1;
+}
+
+int tuning_thread::parse_psip_rrt()
+{
+	if (mytune->packet_processed.contains(mytune->buffer)) {
+		return -1;
+	}
+	mytune->packet_processed.append(mytune->buffer);
+
+	unsigned int pid = mytune->dvbdata.first().pid;
+	if (pid_parent[pid] == -1) {
+		tree_create_root_wait(&pid_parent[pid], QString("PSIP pid: 0x%1").arg(pid,4,16,QChar('0')), pid);
+		emit setcolor(pid_parent[pid], Qt::green);
+	}
+
+	int parent = pid_parent[pid];
+	int parent_1, parent_2;
+
+	parent_1 = parent;
+	tree_create_child_wait(&parent_1, QString("Rating Region Table"));
+
+	unsigned int section_length		= mytune->read16(0x0FFF) + mytune->index - 4;
+	Q_UNUSED(section_length);
+
+	mytune->index += 7;
+
+	parent_2 = parent_1;
+	parse_etm(parent_2, "Rating Region Name");
+
+	unsigned int dimensions_defined = mytune->read8();
+	for (unsigned int i = 0; i < dimensions_defined; i++) {
+		mytune->index++;
+		parent_2 = parent_1;
+		parse_etm(parent_2, "Dimension Name");
+
+		unsigned int values_defined = mytune->read8(0x0F);
+		for (unsigned int j = 0; j < values_defined; j++) {
+			mytune->index++;
+			parent_2 = parent_1;
+			parse_etm(parent_2, "Abbreviated Rating Name");
+			mytune->index++;
+			parent_2 = parent_1;
+			parse_etm(parent_2, "Rating Name");
+		}
+	}
+
+	int descriptors_loop_length = mytune->read16(0x03FF) + mytune->index;
+	while (mytune->index < descriptors_loop_length) {
+		parse_descriptor(parent_2);
+	}
 
 	return 1;
 }
@@ -735,6 +789,7 @@ void tuning_thread::parsetp()
 		filter_pids(0x1FFB, 0xC8);
 		filter_pids(0x1FFB, 0xCB);
 		filter_pids(0x1FFB, 0xCD);
+		filter_pids(0x1FFB, 0xCA);
 		filter_pids(0x12, 0x4E);
 		filter_pids(0x10, 0x40);
 		filter_pids(0x00, 0x00);
@@ -762,6 +817,9 @@ void tuning_thread::parsetp()
 				break;
 			case 0xC8:
 				parse_psip_tvct();
+				break;
+			case 0xCA:
+				parse_psip_rrt();
 				break;
 			case 0xCC:
 				parse_psip_ett();

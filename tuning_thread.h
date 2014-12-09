@@ -47,9 +47,10 @@ public:
 	int parse_psip_stt();
 	int parse_psip_ett();
 	int parse_psip_mgt();
+	int parse_psip_rrt();
 	int parse_psip_tvct();
 	int parse_tdt();
-	int parse_etm(int parent);
+	int parse_etm(int parent, QString desc = "Text");
 	int parse_descriptor(int parent);
 
 	dvb_settings dvbnames;
