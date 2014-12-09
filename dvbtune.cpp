@@ -171,10 +171,27 @@ __u8 dvbtune::read8(__u8 mask)
 	return (unsigned char)buffer.at(index++) & mask;
 }
 
-QString dvbtune::readstr(unsigned int pos, unsigned int len)
+QString dvbtune::readstr(unsigned int len)
 {
+	unsigned int tmp = index;
 	index += len;
-	return buffer.mid(pos, len);
+	return buffer.mid(tmp, len);
+}
+
+QString dvbtune::readstr16(unsigned int len)
+{
+	QString tmp_s;
+
+	len *= 2;
+	len += index;
+	while ((unsigned int)index < len) {
+		index++;
+		__u8 tmp_c = read8();
+		if (tmp_c != 0x00) {
+			tmp_s.append(tmp_c);
+		}
+	}
+	return tmp_s;
 }
 
 void dvbtune::closefd()

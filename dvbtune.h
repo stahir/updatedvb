@@ -102,7 +102,8 @@ public:
 	__u32 read24(__u32 mask = 0x00FFFFFF);
 	__u16 read16(__u16 mask = 0xFFFF);
 	__u8 read8(__u8 mask = 0xFF);
-	QString readstr(unsigned int pos, unsigned int len);
+	QString readstr(unsigned int len);
+	QString readstr16(unsigned int len);
 	void usals_drive(double sat_long);
 	void gotox_drive(int position);
 	void gotox_save(int position);

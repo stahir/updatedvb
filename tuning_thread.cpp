@@ -82,12 +82,12 @@ int tuning_thread::parse_etm(int parent)
 
 	unsigned int num_str = mytune->read8();
 	for (unsigned int i = 0; i < num_str; i++) {
-		QString lang = mytune->readstr(mytune->index, 3);
+		QString lang = mytune->readstr(3);
 		unsigned int num_seg = mytune->read8();
 		for (unsigned int j = 0; j < num_seg; j++) {
 			mytune->index += 2;
 			unsigned int num_bytes = mytune->read8();
-			QString msg = mytune->readstr(mytune->index, num_bytes);
+			QString msg = mytune->readstr(num_bytes);
 			parent_t = parent;
 			tree_create_child_wait(&parent_t, QString("Language: %1").arg(lang));
 			parent_t = parent;
@@ -121,7 +121,7 @@ int tuning_thread::parse_descriptor(int parent)
 		tree_create_child_wait(&parent, QString("CA PID: 0x%1 - system_id: 0x%2 (%3)").arg(tmp[1],4,16,QChar('0')).arg(tmp[0],4,16,QChar('0')).arg(dvbnames.ca_name[tmp[0]]), tmp[1]);
 		break;
 	case 0x40: // network_name_descriptor
-		tree_create_child_wait(&parent, QString("Network Name: %1").arg(mytune->readstr(mytune->index, desc_len)));
+		tree_create_child_wait(&parent, QString("Network Name: %1").arg(mytune->readstr(desc_len)));
 		break;
 	case 0x41: // service_list_descriptor
 		tree_create_child_wait(&parent, QString("Descriptor: 0x%1 - %2 Descriptor").arg(desc_tag,2,16,QChar('0')).arg(dvbnames.dvb_descriptortag[desc_tag]));
@@ -176,8 +176,8 @@ int tuning_thread::parse_descriptor(int parent)
 		break;
 	case 0x48: // service_descriptor
 		mytune->index += 1;
-		mysdt.pname.append(mytune->readstr(mytune->index, mytune->read8()));
-		mysdt.sname.append(mytune->readstr(mytune->index, mytune->read8()));
+		mysdt.pname.append(mytune->readstr(mytune->read8()));
+		mysdt.sname.append(mytune->readstr(mytune->read8()));
 		if (mysdt.sname.last() != "") {
 			parent_t = parent;
 			tree_create_child_wait(&parent_t, QString("Service Name: %1").arg(mysdt.sname.last()));
@@ -190,11 +190,11 @@ int tuning_thread::parse_descriptor(int parent)
 	case 0x4d:
 		tree_create_child_wait(&parent, QString("Descriptor: 0x%1 - %2 Descriptor").arg(desc_tag,2,16,QChar('0')).arg(dvbnames.dvb_descriptortag[desc_tag]));
 		parent_t = parent;
-		tree_create_child_wait(&parent_t, QString("Language: %1").arg(mytune->readstr(mytune->index, 3)));
+		tree_create_child_wait(&parent_t, QString("Language: %1").arg(mytune->readstr(3)));
 		parent_t = parent;
-		tree_create_child_wait(&parent_t, QString("Event Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
+		tree_create_child_wait(&parent_t, QString("Event Name: %1").arg(mytune->readstr(mytune->read8())));
 		parent_t = parent;
-		tree_create_child_wait(&parent_t, QString("Text: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
+		tree_create_child_wait(&parent_t, QString("Text: %1").arg(mytune->readstr(mytune->read8())));
 		break;
 	case 0xA0: // extended_channel_name_descriptor
 	{
@@ -207,7 +207,7 @@ int tuning_thread::parse_descriptor(int parent)
 				for (int a = 0; a < number_segments; a++) {
 					mytune->index += 2;
 					parent_t = parent;
-					tree_create_child_wait(&parent_t, QString("Long Channel Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
+					tree_create_child_wait(&parent_t, QString("Long Channel Name: %1").arg(mytune->readstr(mytune->read8())));
 				}
 			}
 		}
@@ -247,11 +247,7 @@ int tuning_thread::parse_psip_tvct()
 
 	int num_channels_in_section = mytune->read8();
 	for (int i = 0; i < num_channels_in_section; i++) {
-		QString short_name;
-		for (int a = 0; a < 7; a++) {
-			mytune->index += 1;
-			short_name.append(mytune->read8());
-		}
+		QString short_name = mytune->readstr16(7);
 		parent_2 = parent_1;
 		tree_create_child_wait(&parent_2, QString("Name: %1").arg(short_name));
 		parent_2 = parent_1;
@@ -708,7 +704,7 @@ int tuning_thread::parse_dcii_sdt()
 //	tree_create_child_wait(&parent_2, "SDT");
 //	mytune->index += 15;
 //	parent_2 = parent_1;
-//	tree_create_child_wait(&parent_2, QString("Service Name: %1").arg(mytune->readstr(mytune->index, mytune->read8())));
+//	tree_create_child_wait(&parent_2, QString("Service Name: %1").arg(mytune->readstr(mytune->read8())));
 }
 
 void tuning_thread::filter_pids(unsigned int pid, unsigned int table)
