@@ -311,7 +311,7 @@ int tuning_thread::parse_psip_eit()
 		mytune->index++;
 
 		parent_4 = parent_3;
-		parse_etm(parent_4, "Channel Name");
+		parse_etm(parent_4, "Event Name");
 
 		QDateTime start_time = QDateTime::fromTime_t(stime + 315964800);
 		parent_4 = parent_3;
