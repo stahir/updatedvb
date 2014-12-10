@@ -627,12 +627,14 @@ void tuning_thread::parse_nit()
 	unsigned int pid = mytune->dvbdata.first().pid;
 	tree_item *item = new tree_item;
 	item->pid		= pid;
+	item->text		= QString("NIT pid: %1").arg(tohex(pid,4));
+	tree_create_wait(item);
+	item->pid		= 0xFFFF;
 
 	unsigned int section_length = mytune->read16(0x0FFF);
 
 	item->text = QString("Network ID: %1").arg(tohex(mytune->read16(),4));
 	tree_create_wait(item);
-	item->pid			= 0xFFFF;
 	item->return_parent = false;
 
 	mytune->index += 3;
