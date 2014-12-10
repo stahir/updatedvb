@@ -762,6 +762,7 @@ void tuning_thread::parse_tdt()
 	unsigned int pid = mytune->dvbdata.first().pid;
 	tree_item *item = new tree_item;
 	item->pid		= pid;
+	item->expanded	= false;
 	item->text	= QString("TDT pid: %1").arg(tohex(pid,4));
 	tree_create_wait(item);
 	item->pid			= 0xFFFF;

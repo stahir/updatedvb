@@ -84,14 +84,14 @@ ac3_desc::ac3_desc()
 	priority.append("Other Audio");
 	priority.append("Not Specified");
 
-	bsmode.append("main audio service: complete main (CM)");
-	bsmode.append("main audio service: music & effects (ME)");
-	bsmode.append("associated service: visually impaired (VI)");
-	bsmode.append("associated service: hearing impaired (HI)");
-	bsmode.append("associated service: dialogue (D)");
-	bsmode.append("associated service: commentary (C)");
-	bsmode.append("associated service: emergency (E)");
-	bsmode.append("associated service: voice over (VO)");
+	bsmode.append("main audio service - complete main (CM)");
+	bsmode.append("main audio service - music & effects (ME)");
+	bsmode.append("associated service - visually impaired (VI)");
+	bsmode.append("associated service - hearing impaired (HI)");
+	bsmode.append("associated service - dialogue (D)");
+	bsmode.append("associated service - commentary (C)");
+	bsmode.append("associated service - emergency (E)");
+	bsmode.append("associated service - voice over (VO)");
 }
 
 tp_info::tp_info()
