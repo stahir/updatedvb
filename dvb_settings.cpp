@@ -192,9 +192,11 @@ dvb_settings::dvb_settings()
 	stream_type[0x04] = "ISO/IEC 13818-3 Audio";
 	stream_type[0x05] = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 private sections";
 	stream_type[0x06] = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 PES packets containing private data";
+	stream_type[0x0B] = "DSM-CC sections containing A/90 [17] asynchronous data";
 	stream_type[0x0C] = "Data Broadcast Service";
 	stream_type[0x0D] = "ISO/IEC 13818-6 Sections (any type, including private data)";
 	stream_type[0x0F] = "ISO/IEC 13818-7 Audio with ADTS transport syntax";
+	stream_type[0x14] = "DSM-CC sections containing non-streaming, synchronized data per A/90 [17]";
 	stream_type[0x1B] = "AVC video stream as defined in ITU-T Rec. H.264";
 	stream_type[0x56] = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 reserved";
 	stream_type[0x80] = "User private";
@@ -207,9 +209,10 @@ dvb_settings::dvb_settings()
 	stream_type[0x87] = "User private";
 	stream_type[0x88] = "User private";
 	stream_type[0x89] = "User private";
+	stream_type[0x95] = "Sections conveying A/90 [17] Data Service Table, Network Resources Table";
 	stream_type[0xC0] = "User private";
 	stream_type[0xC1] = "User private";
-	stream_type[0xC2] = "User private";
+	stream_type[0xC2] = "PES packets containing A/90 [17] streaming, synchronous data";
 	stream_type[0xE0] = "User private";
 
 	table_name.fill("", 0xFF + 1);

@@ -190,7 +190,6 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 		break;
 	case 0xA0: // extended_channel_name_descriptor
-	{
 		while (mytune->index < desc_end) {
 			int number_strings = mytune->read8();
 			for (int i = 0; i < number_strings; i++) {
@@ -204,7 +203,20 @@ void tuning_thread::parse_descriptor(tree_item *item)
 			}
 		}
 		break;
+	case 0xA1: // service_location_descriptor
+	{
+		item->text	= QString("PCR: %1").arg(tohex(mytune->read16(0x1FFF),4));
+		tree_create_wait(item);
+		unsigned int number_elements = mytune->read8();
+		for (unsigned int i = 0; i < number_elements; i++) {
+			unsigned int stream_type = mytune->read8();
+			item->text	= QString("Stream PID: %1, Type: %2 - %3").arg(tohex(mytune->read16(0x1FFF),4)).arg(tohex(stream_type,2)).arg(dvbnames.stream_type[stream_type]);
+			tree_create_wait(item);
+			item->text = QString("Language: %1").arg(mytune->readstr(3));
+			tree_create_wait(item);
+		}
 	}
+		break;
 	default:
 		qDebug() << Q_FUNC_INFO << "Unkown Descriptor" << tohex(desc_tag,2);
 		break;
@@ -690,7 +702,7 @@ void tuning_thread::parse_pmt()
 		unsigned int desc_pid	= mytune->read16(0x1FFF);
 
 		item->pid	= desc_pid;
-		item->text	= QString("Stream PID: %1, Type: %2 - %3").arg(tohex(desc_pid,4)).arg(tohex(desc_type,4)).arg(dvbnames.stream_type[desc_type]);
+		item->text	= QString("Stream PID: %1, Type: %2 - %3").arg(tohex(desc_pid,4)).arg(tohex(desc_type,2)).arg(dvbnames.stream_type[desc_type]);
 		tree_create_wait(item);
 		item->pid	= 0xFFFF;
 
