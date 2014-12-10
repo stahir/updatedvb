@@ -200,6 +200,31 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Text: %1").arg(mytune->readstr(mytune->read8()));
 		tree_create_wait(item);
 		break;
+	case 0x81: // AC-3_audio_stream_descriptor
+	{
+		ac3_desc ac3;
+		unsigned int tmp;
+		tmp = mytune->read8();
+		item->text = QString("Sample Rate: %1").arg(ac3.sample_rate_code.at(mytune->maskbits(tmp,0xE0)));
+		tree_create_wait(item);
+		item->text = QString("BSID: %1").arg(mytune->maskbits(tmp,0x1F));
+		tree_create_wait(item);
+		tmp = mytune->read8();
+		item->text = QString("Bit Rate: %1 %2").arg(ac3.bit_rate_code.at(mytune->maskbits(tmp,0x7C))).arg(mytune->maskbits(tmp,0x80) ? "Upper Limit" : "Exact Rate");
+		tree_create_wait(item);
+		item->text = QString("Surround Mode: %1").arg(ac3.dsurmod.at(mytune->maskbits(tmp,0xC0)));
+		tree_create_wait(item);
+		tmp = mytune->read8();
+		unsigned int bsmod = mytune->maskbits(tmp,0x38);
+		item->text = QString("Bit Stream Mode: %1").arg(ac3.bsmode.at(bsmod));
+		tree_create_wait(item);
+		unsigned int num_channels = mytune->maskbits(tmp,0x1E);
+		item->text = QString("Num Channels: %1").arg(ac3.num_channels.at(num_channels));
+		tree_create_wait(item);
+		item->text = QString("Full Service: %1").arg(mytune->maskbits(tmp,0x01) ? "Yes" : "No");
+		tree_create_wait(item);
+	}
+		break;
 	case 0xA0: // extended_channel_name_descriptor
 		while (mytune->index < desc_end) {
 			int number_strings = mytune->read8();
@@ -232,7 +257,7 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		parse_etm(item, "Component Name");
 		break;
 	default:
-		qDebug() << Q_FUNC_INFO << "Unkown Descriptor" << tohex(desc_tag,2);
+		qDebug() << Q_FUNC_INFO << "Unknown Descriptor" << tohex(desc_tag,2);
 		break;
 	}
 	item->parent		= orig.parent;
@@ -417,7 +442,7 @@ void tuning_thread::parse_psip_mgt()
 		} else if (table_type == 0x0000) {
 			filter_pids(table_pid, 0xC8);
 		} else {
-			qDebug() << Q_FUNC_INFO << "Unkown PID:" << tohex(table_pid,4) << "& table_type:" << tohex(table_type,4);
+			qDebug() << Q_FUNC_INFO << "Unknown PID:" << tohex(table_pid,4) << "& table_type:" << tohex(table_type,4);
 		}
 
 		unsigned int desc_len = mytune->read16(0x0FFF);
@@ -850,7 +875,7 @@ void tuning_thread::parsetp()
 				parse_dcii_sdt();
 				break;
 			default:
-				qDebug() << Q_FUNC_INFO << "Unkown TableID:" << hex << mytune->dvbdata.first().pid << mytune->dvbdata.first().table;
+				qDebug() << Q_FUNC_INFO << "Unknown TableID:" << hex << mytune->dvbdata.first().pid << mytune->dvbdata.first().table;
 				break;
 			}
 			mytune->dvbdata.removeFirst();

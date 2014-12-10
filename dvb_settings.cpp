@@ -26,6 +26,74 @@ switch_settings::switch_settings()
 	uncommitted	= -1;
 }
 
+ac3_desc::ac3_desc()
+{
+	sample_rate_code.append("48 khz");
+	sample_rate_code.append("44.1 khz");
+	sample_rate_code.append("32 khz");
+	sample_rate_code.append("Reserved");
+	sample_rate_code.append("48 or 44.1khz");
+	sample_rate_code.append("48 or 32khz");
+	sample_rate_code.append("44.1 or 32khz");
+	sample_rate_code.append("48 or 44.1 or 32khz");
+
+	bit_rate_code.append("32 kbit/sec");
+	bit_rate_code.append("40 kbit/sec");
+	bit_rate_code.append("48 kbit/sec");
+	bit_rate_code.append("56 kbit/sec");
+	bit_rate_code.append("64 kbit/sec");
+	bit_rate_code.append("80 kbit/sec");
+	bit_rate_code.append("96 kbit/sec");
+	bit_rate_code.append("112 kbit/sec");
+	bit_rate_code.append("128 kbit/sec");
+	bit_rate_code.append("160 kbit/sec");
+	bit_rate_code.append("192 kbit/sec");
+	bit_rate_code.append("224 kbit/sec");
+	bit_rate_code.append("256 kbit/sec");
+	bit_rate_code.append("320 kbit/sec");
+	bit_rate_code.append("384 kbit/sec");
+	bit_rate_code.append("448 kbit/sec");
+	bit_rate_code.append("512 kbit/sec");
+	bit_rate_code.append("576 kbit/sec");
+	bit_rate_code.append("640 kbit/sec");
+
+	dsurmod.append("Not Indicated");
+	dsurmod.append("Not Dolby Suround Encoded");
+	dsurmod.append("Dolby Suround Encoded");
+	dsurmod.append("Reserved");
+
+	num_channels.append("1+1");
+	num_channels.append("1/0");
+	num_channels.append("2/0");
+	num_channels.append("3/0");
+	num_channels.append("2/1");
+	num_channels.append("3/1");
+	num_channels.append("2/2");
+	num_channels.append("3/2");
+	num_channels.append("1");
+	num_channels.append("<=2");
+	num_channels.append("<=3");
+	num_channels.append("<=4");
+	num_channels.append("<=5");
+	num_channels.append("<=6");
+	num_channels.append("Reserved");
+	num_channels.append("Reserved");
+
+	priority.append("Reserved");
+	priority.append("Primary Audio");
+	priority.append("Other Audio");
+	priority.append("Not Specified");
+
+	bsmode.append("main audio service: complete main (CM)");
+	bsmode.append("main audio service: music & effects (ME)");
+	bsmode.append("associated service: visually impaired (VI)");
+	bsmode.append("associated service: hearing impaired (HI)");
+	bsmode.append("associated service: dialogue (D)");
+	bsmode.append("associated service: commentary (C)");
+	bsmode.append("associated service: emergency (E)");
+	bsmode.append("associated service: voice over (VO)");
+}
+
 tp_info::tp_info()
 {
 	frequency	= 950;

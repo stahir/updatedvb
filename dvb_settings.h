@@ -70,6 +70,18 @@ public:
 	switch_settings();
 };
 
+class ac3_desc
+{
+public:
+	ac3_desc();
+	QVector<QString> sample_rate_code;
+	QVector<QString> bit_rate_code;
+	QVector<QString> dsurmod;
+	QVector<QString> num_channels;
+	QVector<QString> priority;
+	QVector<QString> bsmode;
+};
+
 class tp_info
 {
 public:
