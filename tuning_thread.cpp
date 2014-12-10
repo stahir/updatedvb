@@ -224,6 +224,9 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 	}
 		break;
+	case 0xA3: // component_name_descriptor
+		parse_etm(item, "Component Name");
+		break;
 	default:
 		qDebug() << Q_FUNC_INFO << "Unkown Descriptor" << tohex(desc_tag,2);
 		break;
