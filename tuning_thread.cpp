@@ -104,6 +104,10 @@ void tuning_thread::parse_descriptor(tree_item *item)
 	item->return_parent	= false;
 
 	switch(desc_tag) {
+	case 0x05: // registration_descriptor
+		item->text = QString("Format Identifier: %1").arg(mytune->readstr(4));
+		tree_create_wait(item);
+		break;
 	case 0x09: // CA Descriptor
 	{
 		unsigned int sys = mytune->read16();
