@@ -200,6 +200,10 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Text: %1").arg(mytune->readstr(mytune->read8()));
 		tree_create_wait(item);
 		break;
+	case 0x52: // stream_identifier_descriptor
+		item->text = QString("Component Tag: %1").arg(mytune->read8());
+		tree_create_wait(item);
+		break;
 	case 0x81: // AC-3_audio_stream_descriptor
 	{
 		ac3_desc ac3;
