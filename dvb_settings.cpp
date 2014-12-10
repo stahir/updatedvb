@@ -63,6 +63,18 @@ tuning_options::tuning_options()
 	site_long	= 0;
 }
 
+tree_item::tree_item()
+{
+	text.clear();
+	parent			= -1;
+	current			= -1;
+	color			= QColor(Qt::green);
+	expanded		= true;
+	return_parent	= true;
+	pid				= 0xFFFF;
+	table			= 0xFFFF;
+}
+
 dvb_settings::dvb_settings()
 {
 	fec.append("None");
@@ -978,3 +990,9 @@ unsigned int unsetbit(unsigned int var, unsigned int MASK)
 {
 	return var & ~MASK;
 }
+
+QString tohex(unsigned long int val, int length)
+{
+	return QString("0x%1").arg(val, length, 16, QChar('0'));
+}
+

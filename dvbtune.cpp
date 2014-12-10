@@ -73,7 +73,7 @@ __u64 dvbtune::maskbits(__u64 value, __u64 mask)
 
 __u64 dvbtune::read64(__u64 mask)
 {
-	if (index+7 >= buffer.size()) {
+	if (index+7 >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 
@@ -89,7 +89,7 @@ __u64 dvbtune::read64(__u64 mask)
 
 __u64 dvbtune::read56(__u64 mask)
 {
-	if (index+6 >= buffer.size()) {
+	if (index+6 >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 
@@ -104,7 +104,7 @@ __u64 dvbtune::read56(__u64 mask)
 
 __u64 dvbtune::read48(__u64 mask)
 {
-	if (index+5 >= buffer.size()) {
+	if (index+5 >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 
@@ -118,7 +118,7 @@ __u64 dvbtune::read48(__u64 mask)
 
 __u64 dvbtune::read40(__u64 mask)
 {
-	if (index+4 >= buffer.size()) {
+	if (index+4 >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 
@@ -131,7 +131,7 @@ __u64 dvbtune::read40(__u64 mask)
 
 __u32 dvbtune::read32(__u32 mask)
 {
-	if (index+3 >= buffer.size()) {
+	if (index+3 >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 
@@ -143,7 +143,7 @@ __u32 dvbtune::read32(__u32 mask)
 
 __u32 dvbtune::read24(__u32 mask)
 {
-	if (index+2 >= buffer.size()) {
+	if (index+2 >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 
@@ -154,7 +154,7 @@ __u32 dvbtune::read24(__u32 mask)
 
 __u16 dvbtune::read16(__u16 mask)
 {
-	if (index+1 >= buffer.size()) {
+	if (index+1 >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 
@@ -164,7 +164,7 @@ __u16 dvbtune::read16(__u16 mask)
 
 __u8 dvbtune::read8(__u8 mask)
 {
-	if (index >= buffer.size()) {
+	if (index >= (unsigned int)buffer.size()) {
 		return 0;
 	}
 

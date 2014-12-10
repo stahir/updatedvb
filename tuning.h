@@ -71,12 +71,10 @@ private slots:
 	void on_pushButton_unexpand_clicked();
 	void on_pushButton_stream_clicked();
 	void on_pushButton_bbframe_clicked();
-	void on_treeWidget_itemClicked(QTreeWidgetItem * item, int column);
+	void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 	void list_create();
-	void tree_create_root(int *parent, QString text, int pid);
-	void tree_create_child(int *parent, QString text, int pid);
-	void tree_select_children(QTreeWidgetItem * item);
-	void setcolor(int index, QColor color);
+	void tree_create(tree_item *item);
+	void tree_select_children(QTreeWidgetItem *item);
 	void on_listWidget_itemClicked(QListWidgetItem *item);
 	void delete_iqplot();
 	void delete_demux_file();
@@ -91,9 +89,8 @@ private:
 	QSettings *mysettings;
 	dvb_settings dvbnames;
 	QProcess myProcess;
-	QVector<int> tree_pid;
+	QVector<tree_item> tree_items;
 	QVector<int> list_pid;
-	QVector<QTreeWidgetItem *> tree_item;
 	QVector<QListWidgetItem *> list_item;
 	tuning_thread mythread;
 	QPointer<iqplot> myiqplot;

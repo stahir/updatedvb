@@ -21,6 +21,8 @@
 
 #include <QString>
 #include <QDebug>
+#include <QPointer>
+#include <QTreeWidget>
 #include <linux/dvb/frontend.h>
 
 #define MAX_LNBS 16
@@ -133,6 +135,22 @@ public:
 	QVector<QString> dvb_descriptortag;
 };
 
+class tree_item
+{
+public:
+	tree_item();
+
+	int parent;
+	int current;
+	QString text;
+	QColor color;
+	bool expanded;
+	bool return_parent;
+	unsigned int pid;
+	unsigned int table;
+	QTreeWidgetItem * tree;
+};
+
 class dvb_pat
 {
 public:
@@ -209,5 +227,6 @@ bool isDVBT(int system);
 int azero(int num);
 unsigned int setbit(unsigned int var, unsigned int MASK);
 unsigned int unsetbit(unsigned int var, unsigned int MASK);
+QString tohex(unsigned long val, int length);
 
 #endif // DVB_SETTINGS_H

@@ -36,22 +36,22 @@ public:
 	void run();
 	void parsetp();
 	unsigned int dtag_convert(unsigned int temp);
-	int parse_pat();
-	int parse_pmt();
-	int parse_sdt();
-	int parse_dcii_sdt();
-	int parse_cat();
-	int parse_eit();
-	int parse_nit();
-	int parse_psip_eit();
-	int parse_psip_stt();
-	int parse_psip_ett();
-	int parse_psip_mgt();
-	int parse_psip_rrt();
-	int parse_psip_tvct();
-	int parse_tdt();
-	int parse_etm(int parent, QString desc = "Text");
-	int parse_descriptor(int parent);
+	void parse_pat();
+	void parse_pmt();
+	void parse_sdt();
+	void parse_dcii_sdt();
+	void parse_cat();
+	void parse_eit();
+	void parse_nit();
+	void parse_psip_eit();
+	void parse_psip_stt();
+	void parse_psip_ett();
+	void parse_psip_mgt();
+	void parse_psip_rrt();
+	void parse_psip_tvct();
+	void parse_tdt();
+	void parse_etm(tree_item *item, QString desc = "Text");
+	void parse_descriptor(tree_item *item);
 
 	dvb_settings dvbnames;
 	dvbtune *mytune;
@@ -69,15 +69,12 @@ public:
 	void filter_pids(unsigned int pid, unsigned int table = 0xFFFF);
 	
 signals:
-	void setcolor(int parent, QColor color);
 	void list_create();
-	void tree_create_root(int *parent, QString text, int pid);
-	void tree_create_child(int *parent, QString text, int pid);
+	void tree_create(tree_item *item);
 	void parsetp_done();
 
 private:
-	void tree_create_root_wait(int *parent, QString text, int pid);
-	void tree_create_child_wait(int *parent, QString text, int pid);
+	void tree_create_wait(tree_item *item);
 
 protected:
 	void closeEvent(QCloseEvent *event);

@@ -55,7 +55,7 @@ public:
 	tuning_options		tune_ops;
 	switch_settings		myswitch;
 
-	int index;
+	unsigned int index;
 	QByteArray buffer;
 	QVector<dvb_data> dvbdata;
 	QVector<QByteArray> packet_processed;

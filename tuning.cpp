@@ -129,9 +129,7 @@ void tuning::init()
 	connect(mytune, SIGNAL(update_results()), this, SLOT(update_results()));
 	connect(mytune, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 	connect(&mythread, SIGNAL(list_create()), this, SLOT(list_create()));
-	connect(&mythread, SIGNAL(tree_create_root(int *, QString, int)), this, SLOT(tree_create_root(int *, QString, int)));
-	connect(&mythread, SIGNAL(tree_create_child(int *, QString, int)), this, SLOT(tree_create_child(int *, QString, int)));
-	connect(&mythread, SIGNAL(setcolor(int,QColor)), this, SLOT(setcolor(int,QColor)));
+	connect(&mythread, SIGNAL(tree_create(tree_item *)), this, SLOT(tree_create(tree_item *)));
 	connect(&mythread, SIGNAL(parsetp_done()), this, SLOT(parsetp_done()));
 	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 	connect(this, SIGNAL(server_new()), &mystream, SLOT(server_new()));
@@ -184,10 +182,10 @@ void tuning::on_treeWidget_itemClicked(QTreeWidgetItem * item, int column)
 
 	tree_select_children(item);
 
-	for(int a = 0; a < tree_item.size(); a++) {
-		if (tree_item.at(a)->isSelected()) {
-			if (tree_pid.at(a) != -1) {
-				list_item.at(tree_pid.at(a))->setSelected(item->isSelected());
+	for(int a = 0; a < tree_items.size(); a++) {
+		if (tree_items.at(a).tree->isSelected()) {
+			if (tree_items.at(a).pid != 0xFFFF) {
+				list_item.at(tree_items.at(a).pid)->setSelected(item->isSelected());
 			}
 		}
 	}
@@ -197,15 +195,15 @@ void tuning::on_listWidget_itemClicked(QListWidgetItem *item)
 {
 	Q_UNUSED(item);
 
-	for(int a = 0; a < tree_item.size(); a++) {
-		tree_item.at(a)->setSelected(false);
+	for(int a = 0; a < tree_items.size(); a++) {
+		tree_items.at(a).tree->setSelected(false);
 	}
 
 	for (int a = 0; a < list_item.size(); a++) {
 		if (list_item.at(a)->isSelected()) {
-			for (int i = 0; i < list_item.size(); i++) {
-				if (tree_pid.indexOf(a, i) != -1) {
-					tree_item.at(tree_pid.indexOf(a, i))->setSelected(true);
+			for (int i = 0; i < tree_items.size(); i++) {
+				if (tree_items.at(i).pid == (unsigned int)a) {
+					tree_items.at(i).tree->setSelected(true);
 				}
 			}
 		}
@@ -332,68 +330,56 @@ void tuning::list_create()
 			list_item.at(i)->setHidden(false);
 			list_item.at(i)->setText(QString("0x%1 - %2 kbit/s").arg(i,4,16,QChar('0')).arg(mytune->pids_rate.at(i),5,10,QChar(' ')));
 			list_item.at(i)->setTextColor(QColor(Qt::gray));
-			if (i == 0x00 || i == 0x11 || i == 0x1fff) {
+			if (i == 0x1fff) {
 				list_item.at(i)->setTextColor(QColor(Qt::green));
 			}
-			if (tree_pid.contains(i)) {
-				list_item.at(i)->setTextColor(tree_item.at(tree_pid.indexOf(i))->textColor(0));
+		}
+	}
+	for (int i = 0; i < tree_items.size(); i++) {
+		if (tree_items.at(i).pid != 0xFFFF) {
+			list_item.at(tree_items.at(i).pid)->setTextColor(QColor(Qt::green));
+		}
+	}
+}
+
+void tuning::tree_create(tree_item *item)
+{
+	if (item->pid != 0xFFFF && mytune->pids_rate.at(item->pid) == 0) {
+		mytune->pids_rate[item->pid] = 1;
+	}
+
+	if (item->pid != 0xFFFF) {
+		for (int i = 0; i < tree_items.size(); i++) {
+			if (item->pid == tree_items.at(i).pid && item->text == tree_items.at(i).text) {
+				item->parent = i;
+				mythread.ready = true;
+				return;
 			}
 		}
 	}
-}
 
-void tuning::tree_create_root(int *parent, QString text, int pid)
-{
-	if (pid >= 0 && mytune->pids_rate.at(pid) == 0) {
-		mytune->pids_rate[pid] = 1;
-	}
-
-	tree_pid.append(pid);
-	tree_item.append(new QTreeWidgetItem(ui->treeWidget));
-	tree_item.last()->setText(0, text);
-	tree_item.last()->setTextColor(0, QColor(Qt::gray));
-	*parent = tree_item.size() - 1;
-	mythread.ready = true;
-}
-
-void tuning::tree_create_child(int *parent, QString text, int pid)
-{
-	if (pid >= 0 && mytune->pids_rate.at(pid) == 0) {
-		mytune->pids_rate[pid] = 1;
-	}
-	// Exceptions: we only want to display the current packet/time
-	for (int a = 0; a < tree_item.size(); a++) {
-		if (text == "STT - System Time Table" && tree_item.at(a)->text(0) == "STT - System Time Table") {
-			*parent = a;
-			mythread.ready = true;
-			return;
+	item->current = tree_items.size();
+	tree_items.append(*item);
+	if (item->parent == -1) { // Root
+		tree_items.last().tree = new QTreeWidgetItem(ui->treeWidget);
+		tree_items.last().tree->setText(0, item->text);
+		tree_items.last().tree->setExpanded(item->expanded);
+		tree_items.last().tree->setTextColor(0, item->color);
+	} else { // Child
+		tree_items.last().tree = new QTreeWidgetItem();
+		tree_items.last().tree->setText(0, item->text);
+		if (tree_items.at(item->parent).tree->childCount() == 0) { // Can't expand an item with no children
+			tree_items.at(item->parent).tree->setExpanded(item->expanded);
+		} else {
+			tree_items.at(item->parent).tree->setExpanded(tree_items.at(item->parent).tree->isExpanded());
 		}
+		tree_items.last().tree->setTextColor(0, tree_items.at(item->parent).tree->textColor(0));
+		tree_items.at(item->parent).tree->addChild(tree_items.last().tree);
 	}
-	// Exceptions: we only want to display the current packet/time
-	if (text.contains("System Time:") || text.contains("UTC Date/Time:")) {
-		for (int i = 0; i < tree_item.at(*parent)->childCount(); i++) {
-			tree_item.at(*parent)->removeChild(tree_item.at(*parent)->child(i));
-		}
+	if (item->return_parent) {
+		item->parent = item->current;
 	}
-
-	tree_pid.append(pid);
-	tree_item.append(new QTreeWidgetItem());
-	tree_item.last()->setText(0, text);
-	tree_item.last()->setTextColor(0, QColor(Qt::gray));
-	tree_item.last()->setExpanded(true);
-	tree_item.last()->setTextColor(0, tree_item.at(*parent)->textColor(0));
-	tree_item.at(*parent)->addChild(tree_item.last());
-	tree_item.at(*parent)->setExpanded(true);
-	*parent = tree_item.size() - 1;
 	mythread.ready = true;
-}
-
-void tuning::setcolor(int index, QColor color)
-{
-	tree_item.at(index)->setForeground(0, QBrush(color));
-	for (int i = 0; i < tree_item.at(index)->childCount(); i++) {
-		setcolor(tree_item.indexOf(tree_item.at(index)->child(i)), color);
-	}
 }
 
 void tuning::update_results()
@@ -524,15 +510,15 @@ void tuning::on_pushButton_file_clicked()
 
 void tuning::on_pushButton_expand_clicked()
 {
-	for(int a = 0; a < tree_item.size(); a++) {
-		tree_item.at(a)->setExpanded(true);
+	for(int a = 0; a < tree_items.size(); a++) {
+		tree_items.at(a).tree->setExpanded(true);
 	}
 }
 
 void tuning::on_pushButton_unexpand_clicked()
 {
-	for(int a = 0; a < tree_item.size(); a++) {
-		tree_item.at(a)->setExpanded(false);
+	for(int a = 0; a < tree_items.size(); a++) {
+		tree_items.at(a).tree->setExpanded(false);
 	}
 }
 
