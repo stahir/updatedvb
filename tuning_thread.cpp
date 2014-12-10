@@ -114,6 +114,13 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x0A: // ISO_639_language_descriptor
+		while (mytune->index < desc_end) {
+			item->text = QString("Language: %1").arg(mytune->readstr(3));
+			tree_create_wait(item);
+			mytune->index++;
+		}
+		break;
 	case 0x40: // network_name_descriptor
 		item->text = QString("Network Name: %1").arg(mytune->readstr(desc_len));
 		tree_create_wait(item);
