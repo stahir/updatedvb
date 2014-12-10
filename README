@@ -26,13 +26,13 @@
 
 # 64bit
 
-	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x64-1.6.0-5-online.run
+	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x64-online.run
 	chmod +x qt-opensource-linux-x64-1.6.0-5-online.run
 	sudo ./qt-opensource-linux-x64-1.6.0-5-online.run
 
 # or 32bit
 
-	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x86-1.6.0-5-online.run
+	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x86-online.run
 	chmod +x qt-opensource-linux-x86-1.6.0-5-online.run
 	sudo ./qt-opensource-linux-x86-1.6.0-5-online.run
 
