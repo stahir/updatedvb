@@ -722,14 +722,14 @@ void tuning_thread::parse_pmt()
 
 	item->text = QString("PMT PID: %1 - Program: %2").arg(tohex(pid,4)).arg(mytune->read16());
 	tree_create_wait(item);
-	item->pid			= 0xFFFF;
 	item->return_parent = false;
 
 	mytune->index += 3;
 
-	item->pid	= 0xFFFF;
-	item->text	= QString("PCR: %1").arg(tohex(mytune->read16(0x1FFF),4));
+	item->pid	= mytune->read16(0x1FFF);
+	item->text	= QString("PCR: %1").arg(tohex(item->pid,4));
 	tree_create_wait(item);
+	item->pid	= 0xFFFF;
 
 	unsigned int program_info_length = mytune->read16(0x0FFF) + mytune->index;
 	while (mytune->index < program_info_length) {

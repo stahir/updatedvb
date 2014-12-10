@@ -330,12 +330,12 @@ void tuning::list_create()
 			list_item.at(i)->setHidden(false);
 			list_item.at(i)->setText(QString("0x%1 - %2 kbit/s").arg(i,4,16,QChar('0')).arg(mytune->pids_rate.at(i),5,10,QChar(' ')));
 			list_item.at(i)->setTextColor(QColor(Qt::gray));
-			if (i == 0x1fff) {
+			if (i == 0x1fff || i == 0x2000) {
 				list_item.at(i)->setTextColor(QColor(Qt::green));
 			}
 		}
 	}
-	for (int i = 0; i < tree_items.size(); i++) {
+	for (int i = 0; i < tree_items.size(); i++) { // 0x1fff padding packets and 0x2000 entire mux should show as green
 		if (tree_items.at(i).pid != 0xFFFF) {
 			list_item.at(tree_items.at(i).pid)->setTextColor(QColor(Qt::green));
 		}
