@@ -156,6 +156,38 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x2A: // AVC_timing_and_HRD_descriptor
+	{
+		unsigned int tmp;
+		tmp = mytune->read8();
+		item->text = QString("HRD Management Valid Flag: %1").arg(mytune->maskbits(tmp,0x80) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Picture And Timing Info Present: %1").arg(mytune->maskbits(tmp,0x01) ? "true" : "false");
+		tree_create_wait(item);
+		if (mytune->maskbits(tmp,0x01)) {
+			unsigned int orig_parent = item->parent;
+			tmp = mytune->read8();
+			item->text = QString("90khz Flag: %1").arg(mytune->maskbits(tmp,0x80) ? "true" : "false");
+			item->return_parent = true;
+			tree_create_wait(item);
+			item->return_parent = false;
+			if (mytune->maskbits(tmp,0x80)) {
+				item->text = QString("N: %1").arg(mytune->read32());
+				tree_create_wait(item);
+				item->text = QString("K: %1").arg(mytune->read32());
+				tree_create_wait(item);
+			}
+			item->parent = orig_parent;
+		}
+		tmp = mytune->read8();
+		item->text = QString("Fixed Frame Rate Flag: %1").arg(mytune->maskbits(tmp,0x80) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Temporal POC Flag: %1").arg(mytune->maskbits(tmp,0x40) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Picture To Display Conversion Flag: %1").arg(mytune->maskbits(tmp,0x20) ? "true" : "false");
+		tree_create_wait(item);
+	}
+		break;
 	case 0x40: // network_name_descriptor
 		item->text = QString("Network Name: %1").arg(mytune->readstr(desc_len));
 		tree_create_wait(item);
