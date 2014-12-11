@@ -142,6 +142,19 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x0b: // system_clock_descriptor
+	{
+		unsigned int tmp;
+		tmp = mytune->read8();
+		item->text = QString("External Clock Reference Indicatior: %1").arg(mytune->maskbits(tmp,0x80) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Clock Accuracy Integer: %1").arg(mytune->maskbits(tmp,0x3F));
+		tree_create_wait(item);
+		tmp = mytune->read8();
+		item->text = QString("Clock Accuracy Exponent: %1").arg(mytune->maskbits(tmp,0xE0));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x0e: // maximum_bitrate_descriptor
 		item->text = QString("Maximum Bitrate: %1 kB/sec").arg(mytune->read24(0x3FFFFF) * 50 / 1000);
 		tree_create_wait(item);
