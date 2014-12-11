@@ -300,6 +300,30 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x86: // caption_service_descriptor
+	{
+		unsigned int num_services = mytune->read8(0x1F);
+		for (unsigned int i = 0; i < num_services; i++) {
+			item->text = QString("Language: %1").arg(mytune->readstr(3));
+			tree_create_wait(item);
+			unsigned int tmp;
+			tmp = mytune->read8();
+			item->text = QString("Digital CC: %1").arg(mytune->maskbits(tmp, 0x80) ? "true" : "false");
+			tree_create_wait(item);
+			if (mytune->maskbits(tmp, 0x80)) {
+				item->text = QString("Line 21 field: %1").arg(mytune->maskbits(tmp, 0x01) ? "true" : "false");
+				tree_create_wait(item);
+			} else {
+				item->text = QString("Caption Service Number: %1").arg(mytune->maskbits(tmp, 0x1F));
+			}
+			tmp = mytune->read16();
+			item->text = QString("Easy Reader: %1").arg(mytune->maskbits(tmp,0x8000) ? "true" : "false");
+			tree_create_wait(item);
+			item->text = QString("Wide Aspect Ration: %1").arg(mytune->maskbits(tmp,0x4000) ? "true" : "false");
+			tree_create_wait(item);
+		}
+	}
+		break;
 	case 0xA0: // extended_channel_name_descriptor
 		while (mytune->index < desc_end) {
 			int number_strings = mytune->read8();
