@@ -125,6 +125,12 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x10: // smoothing_buffer_descriptor
+		item->text = QString("Leak Rate: %1 bits/sec").arg(mytune->read24(0x3FFFFF)/400);
+		tree_create_wait(item);
+		item->text = QString("Buffer Size: %1 bytes").arg(mytune->read24(0x3FFFFF));
+		tree_create_wait(item);
+		break;
 	case 0x0A: // ISO_639_language_descriptor
 		while (mytune->index < desc_end) {
 			item->text = QString("Language: %1").arg(mytune->readstr(3));
