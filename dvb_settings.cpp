@@ -26,6 +26,15 @@ switch_settings::switch_settings()
 	uncommitted	= -1;
 }
 
+rating_region::rating_region()
+{
+	name.append("US");
+	name.append("Canada");
+	name.append("Taiwan");
+	name.append("South Korea");
+	name.append("Alternate US Rating Region");
+}
+
 ac3_desc::ac3_desc()
 {
 	sample_rate_code.append("48 khz");
@@ -141,6 +150,16 @@ tree_item::tree_item()
 	return_parent	= true;
 	pid				= 0xFFFF;
 	table			= 0xFFFF;
+}
+
+void tree_item::save()
+{
+	saved = parent;
+}
+
+void tree_item::restore()
+{
+	parent = saved;
 }
 
 dvb_settings::dvb_settings()

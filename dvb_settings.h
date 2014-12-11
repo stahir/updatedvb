@@ -125,6 +125,13 @@ public:
 	tuning_options();
 };
 
+class rating_region
+{
+public:
+	rating_region();
+	QVector<QString> name;
+};
+
 class dvb_settings
 {
 public:
@@ -162,9 +169,12 @@ class tree_item
 {
 public:
 	tree_item();
+	void save();
+	void restore();
 
 	int parent;
 	int current;
+	int saved;
 	QString text;
 	QColor color;
 	bool expanded;

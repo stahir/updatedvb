@@ -324,6 +324,26 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 	}
 		break;
+	case 0x87: // content_advisory_descriptor
+	{
+		rating_region rr;
+		unsigned int rating_region_count = mytune->read8(0x3F);
+		for (unsigned int i = 0; i < rating_region_count; i++) {
+			item->text = QString("Rating Region: %1").arg(rr.name.at(mytune->read8()));
+			tree_create_wait(item);
+			unsigned int rated_dimensions = mytune->read8();
+			for (unsigned int a = 0; a < rated_dimensions; a++) {
+				item->text = QString("Rating Dimension J: %1").arg(mytune->read8());
+				tree_create_wait(item);
+				item->text = QString("Rating Value: %1").arg(mytune->read8(0x0F));
+				tree_create_wait(item);
+			}
+			mytune->index++;
+			parse_etm(item, "Rating Description");
+			item->restore();
+		}
+	}
+		break;
 	case 0xA0: // extended_channel_name_descriptor
 		while (mytune->index < desc_end) {
 			int number_strings = mytune->read8();
