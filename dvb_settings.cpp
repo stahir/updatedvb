@@ -149,6 +149,20 @@ data_stream_type::data_stream_type()
 	name[0x04] = "SEQ";
 }
 
+frame_rate::frame_rate()
+{
+	rate.fill("Reserved", 0xFF);
+	rate[0x00] = "Forbidden";
+	rate[0x01] = "23.976 fps";
+	rate[0x02] = "24 fps";
+	rate[0x03] = "25 fps";
+	rate[0x04] = "29.97 fps";
+	rate[0x05] = "30 fps";
+	rate[0x06] = "50 fps";
+	rate[0x07] = "59.95 fps";
+	rate[0x08] = "60 fps";
+}
+
 tree_item::tree_item()
 {
 	text.clear();

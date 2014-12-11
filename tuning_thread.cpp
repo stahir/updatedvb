@@ -104,6 +104,23 @@ void tuning_thread::parse_descriptor(tree_item *item)
 	item->return_parent	= false;
 
 	switch(desc_tag) {
+	case 0x02: // video_stream_descriptor
+	{
+		unsigned int tmp;
+		tmp = mytune->read8();
+		item->text = QString("Multiple Frame Rate Flag: %1").arg(mytune->maskbits(tmp,0x80));
+		tree_create_wait(item);
+		frame_rate fr;
+		item->text = QString("Frame Rate Code: %1").arg(fr.rate.at(mytune->maskbits(tmp,0x70)));
+		tree_create_wait(item);
+		item->text = QString("MPEG1 Only Flag: %1").arg(mytune->maskbits(tmp,0x04) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Constrained Paramater Flag: %1").arg(mytune->maskbits(tmp,0x02) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Still Picture Flag: %1").arg(mytune->maskbits(tmp,0x01) ? "true" : "false");
+		tree_create_wait(item);
+	}
+		break;
 	case 0x05: // registration_descriptor
 		item->text = QString("Format Identifier: %1").arg(mytune->readstr(4));
 		tree_create_wait(item);

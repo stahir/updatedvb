@@ -165,6 +165,13 @@ public:
 	QVector<unsigned long int> max;
 };
 
+class frame_rate
+{
+public:
+	frame_rate();
+	QVector<QString> rate;
+};
+
 class data_stream_type
 {
 public:
