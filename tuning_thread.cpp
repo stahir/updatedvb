@@ -142,6 +142,10 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x0e: // maximum_bitrate_descriptor
+		item->text = QString("Maximum Bitrate: %1 kB/sec").arg(mytune->read24(0x3FFFFF) * 50 / 1000);
+		tree_create_wait(item);
+		break;
 	case 0x10: // smoothing_buffer_descriptor
 		item->text = QString("Leak Rate: %1 bits/sec").arg(mytune->read24(0x3FFFFF)/400);
 		tree_create_wait(item);
