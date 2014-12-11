@@ -436,6 +436,96 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0xFE]	= "User Defined";
 }
 
+QString private_data_specifier::whois(unsigned long val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "unknown";
+}
+
+private_data_specifier::private_data_specifier()
+{
+	min.append(0x00000000);	max.append(0x00000000);	text.append("Reserved");
+	min.append(0x00000001);	max.append(0x00000001);	text.append("SES");
+	min.append(0x00000002);	max.append(0x00000002);	text.append("BskyB 1");
+	min.append(0x00000003);	max.append(0x00000003);	text.append("BskyB 2");
+	min.append(0x00000004);	max.append(0x00000004);	text.append("BskyB 3");
+	min.append(0x00000005);	max.append(0x00000005);	text.append("ARD, ZDF, ORF");
+	min.append(0x00000006);	max.append(0x00000006);	text.append("Nokia Multimedia Network Terminals");
+	min.append(0x00000007);	max.append(0x00000007);	text.append("AT Entertainment Ltd.");
+	min.append(0x00000008);	max.append(0x00000008);	text.append("TV Cabo Portugal");
+	min.append(0x00000009);	max.append(0x0000000D);	text.append("Nagravision SA // Kudelski");
+	min.append(0x0000000E);	max.append(0x0000000E);	text.append("Valvision SA");
+	min.append(0x0000000F);	max.append(0x0000000F);	text.append("Quiero Television");
+	min.append(0x00000010);	max.append(0x00000010);	text.append("La Television Par Satellite (TPS)");
+	min.append(0x00000011);	max.append(0x00000011);	text.append("Echostar Communications");
+	min.append(0x00000012);	max.append(0x00000012);	text.append("Telia AB");
+	min.append(0x00000013);	max.append(0x00000013);	text.append("Viasat");
+	min.append(0x00000014);	max.append(0x00000014);	text.append("Senda (Swedish Terrestrial TV)");
+	min.append(0x00000015);	max.append(0x00000015);	text.append("MediaKabel");
+	min.append(0x00000016);	max.append(0x00000016);	text.append("Casema");
+	min.append(0x00000017);	max.append(0x00000017);	text.append("Humax Electronics Co. Ltd.");
+	min.append(0x00000018);	max.append(0x00000018);	text.append("@Sky");
+	min.append(0x00000019);	max.append(0x00000019);	text.append("Singapore Digital Terrestrial Television");
+	min.append(0x0000001A);	max.append(0x0000001A);	text.append("Telediffusion de France (TDF)");
+	min.append(0x0000001B);	max.append(0x0000001B);	text.append("Intellibyte Inc.");
+	min.append(0x0000001C);	max.append(0x0000001C);	text.append("Digital Theater Systems Ltd");
+	min.append(0x0000001D);	max.append(0x0000001D);	text.append("Finlux Ltd.");
+	min.append(0x0000001E);	max.append(0x0000001E);	text.append("Sagem SA");
+	min.append(0x00000020);	max.append(0x00000023);	text.append("Lyonnaise Cable");
+	min.append(0x00000025);	max.append(0x00000025);	text.append("MTV Europe");
+	min.append(0x00000026);	max.append(0x00000026);	text.append("Pansonic");
+	min.append(0x00000027);	max.append(0x00000027);	text.append("Mentor Data System, Inc.");
+	min.append(0x00000028);	max.append(0x00000028);	text.append("EACEM");
+	min.append(0x00000029);	max.append(0x00000029);	text.append("NorDig");
+	min.append(0x0000002A);	max.append(0x0000002A);	text.append("Intelsis Sistemas Inteligentes S.A.");
+	min.append(0x0000002D);	max.append(0x0000002D);	text.append("Alpha Digital Synthesis S.A.");
+	min.append(0x0000002F);	max.append(0x0000002F);	text.append("Conax A.S.");
+	min.append(0x00000030);	max.append(0x00000030);	text.append("Telenor");
+	min.append(0x00000031);	max.append(0x00000031);	text.append("TeleDenmark");
+	min.append(0x00000035);	max.append(0x00000035);	text.append("Europe Online Networks S.A.");
+	min.append(0x00000038);	max.append(0x00000038);	text.append("OTE");
+	min.append(0x00000039);	max.append(0x00000039);	text.append("Telewizja Polsat");
+	min.append(0x000000A0);	max.append(0x000000A0);	text.append("Sentech");
+	min.append(0x000000A1);	max.append(0x000000A1);	text.append("TechniSat Digital GmbH");
+	min.append(0x000000BE);	max.append(0x000000BE);	text.append("BetaTechnik");
+	min.append(0x000000C0);	max.append(0x000000C0);	text.append("Canal+");
+	min.append(0x000000D0);	max.append(0x000000D0);	text.append("Dolby Laboratories Inc.");
+	min.append(0x000000E0);	max.append(0x000000E0);	text.append("ExpressVu Inc.");
+	min.append(0x000000F0);	max.append(0x000000F0);	text.append("France Telecom, CNES and DGA (STENTOR)");
+	min.append(0x00000100);	max.append(0x00000100);	text.append("OpenTV");
+	min.append(0x00000150);	max.append(0x00000150);	text.append("Loewe Opta GmbH");
+	min.append(0x00000600);	max.append(0x00000601);	text.append("UPC 1");
+	min.append(0x00000ACE);	max.append(0x00000ACE);	text.append("Ortikon Interactive Oy");
+	min.append(0x00001000);	max.append(0x00001000);	text.append("La Television Par Satellite (TPS)");
+	min.append(0x000022D4);	max.append(0x000022D4);	text.append("Spanish Broadcasting Regulator");
+	min.append(0x000022F1);	max.append(0x000022F1);	text.append("Swedish Broadcasting Regulator");
+	min.append(0x0000233A);	max.append(0x0000233A);	text.append("Independent Television Commission");
+	min.append(0x00003200);	max.append(0x0000320f);	text.append("Australian Terrestrial Television Networks");
+	min.append(0x00006000);	max.append(0x00006000);	text.append("News Datacom");
+	min.append(0x00006001);	max.append(0x00006006);	text.append("NDC");
+	min.append(0x00362275);	max.append(0x00362275);	text.append("Irdeto");
+	min.append(0x004E544C);	max.append(0x004E544C);	text.append("NTL");
+	min.append(0x00532D41);	max.append(0x00532D41);	text.append("Scientific Atlanta");
+	min.append(0x00600000);	max.append(0x00600000);	text.append("Rhene Vision Cable");
+	min.append(0x44414E59);	max.append(0x44414E59);	text.append("News Datacom (IL) 1");
+	min.append(0x46524549);	max.append(0x46524549);	text.append("News Datacom (IL) 1");
+	min.append(0x46545600);	max.append(0x46545620);	text.append("FreeTV");
+	min.append(0x4A4F4A4F);	max.append(0x4A4F4A4F);	text.append("MSG MediaServices GmbH");
+	min.append(0x4F545600);	max.append(0x4F5456ff);	text.append("OpenTV");
+	min.append(0x50484900);	max.append(0x504849ff);	text.append("Philips DVS");
+	min.append(0x53415053);	max.append(0x53415053);	text.append("Scientific Atlanta");
+	min.append(0x5347444E);	max.append(0x5347444E);	text.append("StarGuide Digital Networks");
+	min.append(0x56444700);	max.append(0x56444700);	text.append("Via Digital");
+	min.append(0xBBBBBBBB);	max.append(0xBBBBBBBB);	text.append("Bertelsmann Broadband Group");
+	min.append(0xECCA0001);	max.append(0xECCA0001);	text.append("ECCA (European Cable Communications Association)");
+	min.append(0xFCFCFCFC);	max.append(0xFCFCFCFC);	text.append("France Telecom");
+}
+
+
 freq_list::freq_list() {
 	ch.clear();
 	freq.clear();

@@ -267,6 +267,14 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Component Tag: %1").arg(mytune->read8());
 		tree_create_wait(item);
 		break;
+	case 0x5F: // private_data_specifier_descriptor
+	{
+		private_data_specifier prov;
+		unsigned int tmp = mytune->read32();
+		item->text = QString("PrivateDataSpecifier: %1 - %2").arg(tohex(tmp,8)).arg(prov.whois(tmp));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x81: // AC-3_audio_stream_descriptor
 	{
 		ac3_desc ac3;

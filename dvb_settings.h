@@ -147,6 +147,17 @@ public:
 	QVector<QString> dvb_descriptortag;
 };
 
+class private_data_specifier
+{
+public:
+	private_data_specifier();
+	QString whois(unsigned long int val);
+
+	QVector<QString> text;
+	QVector<unsigned long int> min;
+	QVector<unsigned long int> max;
+};
+
 class tree_item
 {
 public:
