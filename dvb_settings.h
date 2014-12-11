@@ -165,6 +165,13 @@ public:
 	QVector<unsigned long int> max;
 };
 
+class data_stream_type
+{
+public:
+	data_stream_type();
+	QVector<QString> name;
+};
+
 class tree_item
 {
 public:

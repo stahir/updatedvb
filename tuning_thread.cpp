@@ -108,6 +108,13 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Format Identifier: %1").arg(mytune->readstr(4));
 		tree_create_wait(item);
 		break;
+	case 0x06: // data_stream_alignment_descriptor
+	{
+		data_stream_type dst;
+		item->text = QString("Type: %1").arg(dst.name.at(mytune->read8()));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x09: // CA Descriptor
 	{
 		unsigned int sys = mytune->read16();

@@ -140,6 +140,15 @@ tuning_options::tuning_options()
 	site_long	= 0;
 }
 
+data_stream_type::data_stream_type()
+{
+	name.fill("Reserved", 0xFF);
+	name[0x01] = "Slice or Video Access Unit";
+	name[0x02] = "Video Access Unit";
+	name[0x03] = "GOP or SEQ";
+	name[0x04] = "SEQ";
+}
+
 tree_item::tree_item()
 {
 	text.clear();
