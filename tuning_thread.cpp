@@ -131,6 +131,10 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Buffer Size: %1 bytes").arg(mytune->read24(0x3FFFFF));
 		tree_create_wait(item);
 		break;
+	case 0x11: // STD_descriptor
+		item->text = QString("Leak Valid Flag: %1").arg(mytune->read8(0x01) ? "true" : "false");
+		tree_create_wait(item);
+		break;
 	case 0x0A: // ISO_639_language_descriptor
 		while (mytune->index < desc_end) {
 			item->text = QString("Language: %1").arg(mytune->readstr(3));
@@ -638,6 +642,7 @@ void tuning_thread::parse_psip_rrt()
 
 	unsigned int dimensions_defined = mytune->read8();
 	for (unsigned int i = 0; i < dimensions_defined; i++) {
+		item->save();
 		mytune->index++;
 		parse_etm(item, "Dimension Name");
 
@@ -648,6 +653,7 @@ void tuning_thread::parse_psip_rrt()
 			mytune->index++;
 			parse_etm(item, "Rating Name");
 		}
+		item->restore();
 	}
 
 	unsigned int descriptors_loop_length = mytune->read16(0x03FF) + mytune->index;
