@@ -125,6 +125,37 @@ void tuning_thread::parse_descriptor(tree_item *item)
 			mytune->index++;
 		}
 		break;
+	case 0x28: // AVC_video_descriptor
+	{
+		item->text = QString("Profile IDC: %1").arg(mytune->read8());
+		tree_create_wait(item);
+		unsigned int tmp;
+		tmp = mytune->read8();
+		item->text = QString("Constraint set0 Flag: %1").arg(mytune->maskbits(tmp,0x80) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Constraint set1 Flag: %1").arg(mytune->maskbits(tmp,0x40) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Constraint set2 Flag: %1").arg(mytune->maskbits(tmp,0x20) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Constraint set3 Flag: %1").arg(mytune->maskbits(tmp,0x10) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Constraint set4 Flag: %1").arg(mytune->maskbits(tmp,0x08) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Constraint set5 Flag: %1").arg(mytune->maskbits(tmp,0x04) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("AVC Compatible Flags: %1").arg(mytune->maskbits(tmp,0x03));
+		tree_create_wait(item);
+		item->text = QString("Level IDC: %1").arg(mytune->read8());
+		tree_create_wait(item);
+		tmp = mytune->read8();
+		item->text = QString("AVC Still Present: %1").arg(mytune->maskbits(tmp,0x80) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("AVC 24h Picture: %1").arg(mytune->maskbits(tmp,0x40) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Frame Packing SEI Not Present Flag: %1").arg(mytune->maskbits(tmp,0x20) ? "true" : "false");
+		tree_create_wait(item);
+	}
+		break;
 	case 0x40: // network_name_descriptor
 		item->text = QString("Network Name: %1").arg(mytune->readstr(desc_len));
 		tree_create_wait(item);
