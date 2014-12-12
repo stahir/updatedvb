@@ -59,13 +59,15 @@ tuning::tuning(QWidget *parent) :
 
 tuning::~tuning()
 {
-	mythread.ready			= true;
-	mythread.loop			= false;
-	mythread.parsetp_loop	= false;
+	mythread.ready				= true;
+	mythread.loop				= false;
+	mythread.parsetp_loop		= false;
+	mytune->demux_packets_loop	= false;
 	while (mythread.parsetp_running) {
-		mythread.ready			= true;
-		mythread.loop			= false;
-		mythread.parsetp_loop	= false;
+		mythread.ready				= true;
+		mythread.loop				= false;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
 
@@ -425,7 +427,9 @@ void tuning::setup_demux(QString type)
 void tuning::on_pushButton_ipcleaner_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.parsetp_loop = false;
+		mythread.ready				= true;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
 	if (myProcess.pid()) {
@@ -445,7 +449,9 @@ void tuning::on_pushButton_ipcleaner_clicked()
 void tuning::on_pushButton_play_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.parsetp_loop = false;
+		mythread.ready				= true;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
 
@@ -467,7 +473,9 @@ void tuning::on_pushButton_play_clicked()
 void tuning::on_pushButton_demux_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.parsetp_loop = false;
+		mythread.ready				= true;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
 
@@ -491,8 +499,9 @@ void tuning::delete_demux_file()
 void tuning::on_pushButton_file_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.ready			= true;
-		mythread.parsetp_loop	= false;
+		mythread.ready				= true;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
 
@@ -525,7 +534,9 @@ void tuning::on_pushButton_unexpand_clicked()
 void tuning::on_pushButton_stream_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.parsetp_loop = false;
+		mythread.ready				= true;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
 

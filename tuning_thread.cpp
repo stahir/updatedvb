@@ -30,8 +30,9 @@ tuning_thread::tuning_thread()
 
 tuning_thread::~tuning_thread()
 {
-	parsetp_loop	= false;
 	while (parsetp_running) {
+		parsetp_loop				= false;
+		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
 }

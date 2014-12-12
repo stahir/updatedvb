@@ -845,6 +845,7 @@ void dvbtune::get_bitrate()
 int dvbtune::demux_packets(dvb_pids mypids)
 {
 	stop_demux();
+	demux_packets_loop = true;
 	sec_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
 
 	while (sec_fd.size() < mypids.pid.size()) {
@@ -858,7 +859,11 @@ int dvbtune::demux_packets(dvb_pids mypids)
 		ioctl(sec_fd.last(), DMX_SET_BUFFER_SIZE, BIG_BUFSIZE);
 		status = unsetbit(status, TUNER_IOCTL);
 	}
-	for(int a = 0; a < mypids.pid.size(); a++)
+
+	int len = 0;
+	char buf[TNY_BUFSIZE];
+
+	for(int a = 0; a < mypids.pid.size() && demux_packets_loop; a++)
 	{
 		struct dmx_sct_filter_params sctfilter;
 		memset(&sctfilter, 0, sizeof(struct dmx_sct_filter_params));
@@ -867,7 +872,7 @@ int dvbtune::demux_packets(dvb_pids mypids)
 			sctfilter.filter.filter[0] = (unsigned int)mypids.tbl.at(a);
 			sctfilter.filter.mask[0] = 0xFF;
 		}
-		sctfilter.timeout = 500;
+		sctfilter.timeout = 300;
 		sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 
 		status = setbit(status, TUNER_IOCTL);
@@ -875,28 +880,23 @@ int dvbtune::demux_packets(dvb_pids mypids)
 			qDebug() << "DEMUX: DMX_SET_FILTER";
 		}
 		status = unsetbit(status, TUNER_IOCTL);
-	}
-	status = setbit(status, TUNER_DEMUX);
 
-	int len = 0;
-	char buf[TNY_BUFSIZE];
-
-	status = setbit(status, TUNER_RDING);
-	for (int i = 0; i < mypids.pid.size(); i++) {
 		len = 0;
 		memset(buf, 0, TNY_BUFSIZE);
-		len = read(sec_fd.at(i), buf, TNY_BUFSIZE);
+		status = setbit(status, TUNER_RDING);
+		len = read(sec_fd.at(a), buf, TNY_BUFSIZE);
+		status = unsetbit(status, TUNER_RDING);
 		if (len > 0) {
 			buffer.clear();
 			buffer.append(buf, len);
 			dvb_data tmp;
-			tmp.pid		= mypids.pid.at(i);
-			tmp.table	= mypids.tbl.at(i);
+			tmp.pid		= mypids.pid.at(a);
+			tmp.table	= mypids.tbl.at(a);
 			tmp.buffer	= buffer;
 			dvbdata.append(tmp);
 		}
 	}
-	status = unsetbit(status, TUNER_RDING);
+	status = setbit(status, TUNER_DEMUX);
 	stop_demux();
 
 	return 1;

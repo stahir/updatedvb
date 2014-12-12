@@ -81,6 +81,7 @@ public:
 	int tune();
 	int tune_clear();
 	int demux_packets(dvb_pids mypids);
+	bool demux_packets_loop;
 	void demux_file(bool start);
 	void demux_video();
 	void demux_bbframe();
