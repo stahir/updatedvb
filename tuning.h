@@ -28,6 +28,7 @@
 #include <QListWidget>
 #include <QStatusBar>
 #include <QThread>
+#include <QFileDialog>
 #include <QKeyEvent>
 #include "demux_file.h"
 #include "demux_dvr.h"
@@ -82,6 +83,8 @@ private slots:
 	void parsetp_done();
 	void parsetp_start();
 	void myProcess_finished();
+	void on_pushButton_save_tree_clicked();
+	void save_children(QTreeWidgetItem *item, QTextStream *out);
 
 private:
 	Ui::tuning *ui;

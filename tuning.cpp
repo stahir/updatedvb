@@ -627,3 +627,29 @@ void tuning::on_pushButton_bbframe_clicked()
 	mydemux_file->init();
 	mydemux_file->show();
 }
+
+void tuning::save_children(QTreeWidgetItem *item, QTextStream *out)
+{
+	static QString indent;
+	*out << indent << item->text(0) << "\n";
+	for (int i = 0; i < item->childCount(); i++) {
+		indent.append("\t");
+		save_children(item->child(i), out);
+		indent.chop(1);
+	}
+}
+
+void tuning::on_pushButton_save_tree_clicked()
+{
+	QString filename = QFileDialog::getOpenFileName(this, "Save Parsed Output", QDir::currentPath());
+	QFile output(filename);
+	output.open(QIODevice::WriteOnly | QIODevice::Text);
+	QTextStream out(&output);
+
+	for (int i = 0; i < tree_items.size(); i++) {
+		if (tree_items.at(i).parent == -1) {
+			save_children(tree_items.at(i).tree, &out);
+		}
+	}
+	output.close();
+}

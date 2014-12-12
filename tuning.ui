@@ -266,7 +266,14 @@
              </size>
             </property>
             <property name="text">
-             <string>Save to file</string>
+             <string>Save Stream</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>FEC</string>
             </property>
            </widget>
           </item>
@@ -274,6 +281,20 @@
            <widget class="QLabel" name="label_ccmacm">
             <property name="text">
              <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_modulation">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Modulation</string>
             </property>
            </widget>
           </item>
@@ -302,24 +323,17 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Modulation</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_modulation">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="14" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>BER</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Lock</string>
             </property>
            </widget>
           </item>
@@ -337,7 +351,14 @@
             </property>
            </widget>
           </item>
-          <item row="20" column="0">
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Pilot</string>
+            </property>
+           </widget>
+          </item>
+          <item row="21" column="0">
            <widget class="QPushButton" name="pushButton_ipcleaner">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -368,14 +389,14 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_10">
+          <item row="11" column="1">
+           <widget class="QLabel" name="label_sismis">
             <property name="text">
-             <string>Pilot</string>
+             <string/>
             </property>
            </widget>
           </item>
-          <item row="21" column="0">
+          <item row="22" column="0">
            <widget class="QPushButton" name="pushButton_stream">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -403,10 +424,17 @@
             </property>
            </widget>
           </item>
-          <item row="11" column="1">
-           <widget class="QLabel" name="label_sismis">
+          <item row="8" column="0">
+           <widget class="QLabel" name="label_12">
             <property name="text">
-             <string/>
+             <string>MIS</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="text">
+             <string>Inversion</string>
             </property>
            </widget>
           </item>
@@ -426,20 +454,6 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>MIS</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>Inversion</string>
-            </property>
-           </widget>
-          </item>
           <item row="6" column="0">
            <widget class="QLabel" name="label_9">
             <property name="text">
@@ -451,13 +465,6 @@
            <widget class="QLabel" name="label_pilot">
             <property name="text">
              <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>FEC</string>
             </property>
            </widget>
           </item>
@@ -506,14 +513,14 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_16">
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_lock">
             <property name="text">
-             <string>Lock</string>
+             <string/>
             </property>
            </widget>
           </item>
-          <item row="22" column="0">
+          <item row="23" column="0">
            <widget class="QPushButton" name="pushButton_iqplot">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -535,10 +542,10 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLabel" name="label_lock">
+          <item row="13" column="0">
+           <widget class="QLabel" name="label_3">
             <property name="text">
-             <string/>
+             <string>Signal Q</string>
             </property>
            </widget>
           </item>
@@ -546,13 +553,6 @@
            <widget class="QLabel" name="label_ber">
             <property name="text">
              <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="13" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Signal Q</string>
             </property>
            </widget>
           </item>
@@ -586,6 +586,13 @@
            <widget class="QLabel" name="label_system">
             <property name="text">
              <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="20" column="0">
+           <widget class="QPushButton" name="pushButton_bbframe">
+            <property name="text">
+             <string>Save BBFrame</string>
             </property>
            </widget>
           </item>
@@ -637,9 +644,15 @@
            </spacer>
           </item>
           <item row="19" column="0">
-           <widget class="QPushButton" name="pushButton_bbframe">
+           <widget class="QPushButton" name="pushButton_save_tree">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>21</height>
+             </size>
+            </property>
             <property name="text">
-             <string>Save BBFrame</string>
+             <string>Save Tree</string>
             </property>
            </widget>
           </item>
