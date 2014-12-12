@@ -72,8 +72,12 @@ void tuning_thread::parse_etm(tree_item *item, QString desc)
 
 	unsigned int num_str = mytune->read8();
 	for (unsigned int i = 0; i < num_str; i++) {
-		item->text = QString("Language: %1").arg(mytune->readstr(3));
+		item->return_parent	= true;
+		item->parent		= orig.parent;
+		item->text			= QString("Language: %1").arg(mytune->readstr(3));
 		tree_create_wait(item);
+		item->return_parent	= false;
+
 		unsigned int num_seg = mytune->read8();
 		for (unsigned int j = 0; j < num_seg; j++) {
 			mytune->index += 2;
@@ -656,15 +660,15 @@ void tuning_thread::parse_psip_ett()
 	item->text		= QString("PSIP pid: %1").arg(tohex(pid,4));
 	tree_create_wait(item);
 
-	item->text = QString("ETT - Extended Text Table");
+	item->text	= QString("ETT - Extended Text Table");
 	tree_create_wait(item);
-	item->pid			= 0xFFFF;
-	item->return_parent = false;
+	item->pid	= 0xFFFF;
 
 	mytune->index += 8;
 
 	item->text = QString("ETM ID : %2").arg(tohex(mytune->read32(),8));
 	tree_create_wait(item);
+	item->return_parent = false;
 
 	parse_etm(item, "Text");
 }
@@ -691,20 +695,34 @@ void tuning_thread::parse_psip_rrt()
 
 	parse_etm(item, "Rating Region Name");
 
+	int dimensions_parent;
+	int values_parent;
 	unsigned int dimensions_defined = mytune->read8();
 	for (unsigned int i = 0; i < dimensions_defined; i++) {
-		item->save();
+		dimensions_parent = item->parent;
+
 		mytune->index++;
 		parse_etm(item, "Dimension Name");
 
 		unsigned int values_defined = mytune->read8(0x0F);
 		for (unsigned int j = 0; j < values_defined; j++) {
+			values_parent = item->parent;
+
+			item->return_parent	= true;
+			item->text			= QString("Rating");
+			tree_create_wait(item);
+			item->return_parent	= false;
+
 			mytune->index++;
 			parse_etm(item, "Abbreviated Rating Name");
+
 			mytune->index++;
 			parse_etm(item, "Rating Name");
+
+			item->parent = values_parent;
 		}
-		item->restore();
+
+		item->parent = dimensions_parent;
 	}
 
 	unsigned int descriptors_loop_length = mytune->read16(0x03FF) + mytune->index;
