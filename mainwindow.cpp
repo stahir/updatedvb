@@ -461,12 +461,12 @@ void MainWindow::on_pushButton_usals_go_clicked()
 
 void MainWindow::on_pushButton_gotox_go_clicked()
 {
-	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->comboBox_gotox->currentIndex());
+	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->comboBox_gotox->currentData().toInt());
 }
 
 void MainWindow::on_pushButton_gotox_save_clicked()
 {
-	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->comboBox_gotox->currentIndex());
+	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->comboBox_gotox->currentData().toInt());
 }
 
 void MainWindow::on_pushButton_drive_east_L_clicked()
@@ -779,7 +779,7 @@ void MainWindow::reload_settings()
 	for (int i = 1; i < 256; i++) {
 		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_diseqc_v12_name_"+QString::number(i)).toString();
 		if (text != "") {
-			ui->comboBox_gotox->addItem(text);
+			ui->comboBox_gotox->addItem(text, i);
 		}
 	}
 	ui->comboBox_gotox->setCurrentIndex(gotox_i);
