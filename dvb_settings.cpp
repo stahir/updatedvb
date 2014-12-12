@@ -163,6 +163,127 @@ frame_rate::frame_rate()
 	rate[0x08] = "60 fps";
 }
 
+QString stream_content::whatis(unsigned int stream_type, unsigned int component_type)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (stream_type == sval.at(i) && component_type >= cmin.at(i) && component_type <= cmax.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+stream_content::stream_content()
+{
+	sval.append(0x00);	cmin.append(0x00);	cmax.append(0xFF);	text.append("reserved for future use");
+	sval.append(0x01);	cmin.append(0x00);	cmax.append(0x00);	text.append("reserved for future use");
+	sval.append(0x01);	cmin.append(0x01);	cmax.append(0x01);	text.append("MPEG-2 video, 4:3 aspect ratio, 25 Hz");
+	sval.append(0x01);	cmin.append(0x02);	cmax.append(0x02);	text.append("MPEG-2 video, 16:9 aspect ratio with pan vectors, 25 Hz");
+	sval.append(0x01);	cmin.append(0x03);	cmax.append(0x03);	text.append("MPEG-2 video, 16:9 aspect ratio without pan vectors, 25 Hz");
+	sval.append(0x01);	cmin.append(0x04);	cmax.append(0x04);	text.append("MPEG-2 video, > 16:9 aspect ratio, 25 Hz");
+	sval.append(0x01);	cmin.append(0x05);	cmax.append(0x05);	text.append("MPEG-2 video, 4:3 aspect ratio, 30 Hz");
+	sval.append(0x01);	cmin.append(0x06);	cmax.append(0x06);	text.append("MPEG-2 video, 16:9 aspect ratio with pan vectors, 30 Hz");
+	sval.append(0x01);	cmin.append(0x07);	cmax.append(0x07);	text.append("MPEG-2 video, 16:9 aspect ratio without pan vectors, 30 Hz");
+	sval.append(0x01);	cmin.append(0x08);	cmax.append(0x08);	text.append("MPEG-2 video, > 16:9 aspect ratio, 30 Hz");
+	sval.append(0x01);	cmin.append(0x09);	cmax.append(0x09);	text.append("MPEG-2 high definition video, 4:3 aspect ratio, 25 Hz");
+	sval.append(0x01);	cmin.append(0x0A);	cmax.append(0x0A);	text.append("MPEG-2 high definition video, 16:9 aspect ratio with pan vectors, 25 Hz");
+	sval.append(0x01);	cmin.append(0x0B);	cmax.append(0x0B);	text.append("MPEG-2 high definition video, 16:9 aspect ratio without pan vectors, 25 Hz");
+	sval.append(0x01);	cmin.append(0x0C);	cmax.append(0x0C);	text.append("MPEG-2 high definition video, > 16:9 aspect ratio, 25 Hz");
+	sval.append(0x01);	cmin.append(0x0D);	cmax.append(0x0D);	text.append("MPEG-2 high definition video, 4:3 aspect ratio, 30 Hz");
+	sval.append(0x01);	cmin.append(0x0E);	cmax.append(0x0E);	text.append("MPEG-2 high definition video, 16:9 aspect ratio with pan vectors, 30 Hz");
+	sval.append(0x01);	cmin.append(0x0F);	cmax.append(0x0F);	text.append("MPEG-2 high definition video, 16:9 aspect ratio without pan vectors, 30 Hz");
+	sval.append(0x01);	cmin.append(0x10);	cmax.append(0x10);	text.append("MPEG-2 high definition video, > 16:9 aspect ratio, 30 Hz");
+	sval.append(0x01);	cmin.append(0x11);	cmax.append(0xAF);	text.append("reserved for future use");
+	sval.append(0x01);	cmin.append(0xB0);	cmax.append(0xFE);	text.append("user defined");
+	sval.append(0x01);	cmin.append(0xFF);	cmax.append(0xFF);	text.append("reserved for future use");
+	sval.append(0x02);	cmin.append(0x00);	cmax.append(0x00);	text.append("reserved for future use");
+	sval.append(0x02);	cmin.append(0x01);	cmax.append(0x01);	text.append("MPEG-1 Layer 2 audio, single mono channel");
+	sval.append(0x02);	cmin.append(0x02);	cmax.append(0x02);	text.append("MPEG-1 Layer 2 audio, dual mono channel");
+	sval.append(0x02);	cmin.append(0x03);	cmax.append(0x03);	text.append("MPEG-1 Layer 2 audio, stereo (2 channel)");
+	sval.append(0x02);	cmin.append(0x04);	cmax.append(0x04);	text.append("MPEG-1 Layer 2 audio, multi-lingual, multi-channel");
+	sval.append(0x02);	cmin.append(0x05);	cmax.append(0x05);	text.append("MPEG-1 Layer 2 audio, surround sound");
+	sval.append(0x02);	cmin.append(0x06);	cmax.append(0x3F);	text.append("reserved for future use");
+	sval.append(0x02);	cmin.append(0x40);	cmax.append(0x40);	text.append("MPEG-1 Layer 2 audio description for the visually impaired");
+	sval.append(0x02);	cmin.append(0x41);	cmax.append(0x41);	text.append("MPEG-1 Layer 2 audio for the hard of hearing");
+	sval.append(0x02);	cmin.append(0x42);	cmax.append(0x42);	text.append("receiver-mixed supplementary audio as per annex E of TS 101 154 [9]");
+	sval.append(0x02);	cmin.append(0x43);	cmax.append(0x46);	text.append("reserved for future use");
+	sval.append(0x02);	cmin.append(0x47);	cmax.append(0x47);	text.append("MPEG-1 Layer 2 audio, receiver mix audio description as per annex E of");
+	sval.append(0x02);	cmin.append(0x48);	cmax.append(0x48);	text.append("MPEG-1 Layer 2 audio, broadcaster mix audio description");
+	sval.append(0x02);	cmin.append(0x49);	cmax.append(0xAF);	text.append("reserved for future use");
+	sval.append(0x02);	cmin.append(0xB0);	cmax.append(0xFE);	text.append("user-defined");
+	sval.append(0x02);	cmin.append(0xFF);	cmax.append(0xFF);	text.append("reserved for future use");
+	sval.append(0x03);	cmin.append(0x00);	cmax.append(0x00);	text.append("reserved for future use");
+	sval.append(0x03);	cmin.append(0x01);	cmax.append(0x01);	text.append("EBU Teletext subtitles");
+	sval.append(0x03);	cmin.append(0x02);	cmax.append(0x02);	text.append("associated EBU Teletext");
+	sval.append(0x03);	cmin.append(0x03);	cmax.append(0x03);	text.append("VBI data");
+	sval.append(0x03);	cmin.append(0x04);	cmax.append(0x0F);	text.append("reserved for future use");
+	sval.append(0x03);	cmin.append(0x10);	cmax.append(0x10);	text.append("DVB subtitles (normal) with no monitor aspect ratio criticality");
+	sval.append(0x03);	cmin.append(0x11);	cmax.append(0x11);	text.append("DVB subtitles (normal) for display on 4:3 aspect ratio monitor");
+	sval.append(0x03);	cmin.append(0x12);	cmax.append(0x12);	text.append("DVB subtitles (normal) for display on 16:9 aspect ratio monitor");
+	sval.append(0x03);	cmin.append(0x13);	cmax.append(0x13);	text.append("DVB subtitles (normal) for display on 2.21:1 aspect ratio monitor");
+	sval.append(0x03);	cmin.append(0x14);	cmax.append(0x14);	text.append("DVB subtitles (normal) for display on a high definition monitor");
+	sval.append(0x03);	cmin.append(0x15);	cmax.append(0x1F);	text.append("reserved for future use");
+	sval.append(0x03);	cmin.append(0x20);	cmax.append(0x20);	text.append("DVB subtitles (for the hard of hearing) with no monitor aspect ratio criticality");
+	sval.append(0x03);	cmin.append(0x21);	cmax.append(0x21);	text.append("DVB subtitles (for the hard of hearing) for display on 4:3 aspect ratio monitor");
+	sval.append(0x03);	cmin.append(0x22);	cmax.append(0x22);	text.append("DVB subtitles (for the hard of hearing) for display on 16:9 aspect ratio monitor");
+	sval.append(0x03);	cmin.append(0x23);	cmax.append(0x23);	text.append("DVB subtitles (for the hard of hearing) for display on 2.21:1 aspect ratio monitor");
+	sval.append(0x03);	cmin.append(0x24);	cmax.append(0x24);	text.append("DVB subtitles (for the hard of hearing) for display on a high definition monitor");
+	sval.append(0x03);	cmin.append(0x25);	cmax.append(0x2F);	text.append("reserved for future use");
+	sval.append(0x03);	cmin.append(0x30);	cmax.append(0x30);	text.append("Open (in-vision) sign language interpretation for the deaf");
+	sval.append(0x03);	cmin.append(0x31);	cmax.append(0x31);	text.append("Closed sign language interpretation for the deaf");
+	sval.append(0x03);	cmin.append(0x32);	cmax.append(0x3F);	text.append("reserved for future use");
+	sval.append(0x03);	cmin.append(0x40);	cmax.append(0x40);	text.append("video up-sampled from standard definition source material");
+	sval.append(0x03);	cmin.append(0x41);	cmax.append(0xAF);	text.append("reserved for future use");
+	sval.append(0x03);	cmin.append(0xB0);	cmax.append(0xFE);	text.append("user defined");
+	sval.append(0x03);	cmin.append(0xFF);	cmax.append(0xFF);	text.append("reserved for future use");
+	sval.append(0x04);	cmin.append(0x00);	cmax.append(0x7F);	text.append("reserved for AC-3 audio modes (refer to table D.1)");
+	sval.append(0x04);	cmin.append(0x80);	cmax.append(0xFF);	text.append("reserved for enhanced AC-3 audio modes (refer to table D.1)");
+	sval.append(0x05);	cmin.append(0x00);	cmax.append(0x00);	text.append("reserved for future use");
+	sval.append(0x05);	cmin.append(0x01);	cmax.append(0x01);	text.append("H.264/AVC standard definition video, 4:3 aspect ratio, 25 Hz");
+	sval.append(0x05);	cmin.append(0x02);	cmax.append(0x02);	text.append("reserved for future use");
+	sval.append(0x05);	cmin.append(0x03);	cmax.append(0x03);	text.append("H.264/AVC standard definition video, 16:9 aspect ratio, 25 Hz");
+	sval.append(0x05);	cmin.append(0x04);	cmax.append(0x04);	text.append("H.264/AVC standard definition video, > 16:9 aspect ratio, 25 Hz");
+	sval.append(0x05);	cmin.append(0x05);	cmax.append(0x05);	text.append("H.264/AVC standard definition video, 4:3 aspect ratio, 30 Hz");
+	sval.append(0x05);	cmin.append(0x06);	cmax.append(0x06);	text.append("reserved for future use");
+	sval.append(0x05);	cmin.append(0x07);	cmax.append(0x07);	text.append("H.264/AVC standard definition video, 16:9 aspect ratio, 30 Hz");
+	sval.append(0x05);	cmin.append(0x08);	cmax.append(0x08);	text.append("H.264/AVC standard definition video, > 16:9 aspect ratio, 30 Hz");
+	sval.append(0x05);	cmin.append(0x09);	cmax.append(0x0A);	text.append("reserved for future use");
+	sval.append(0x05);	cmin.append(0x0B);	cmax.append(0x0B);	text.append("H.264/AVC high definition video, 16:9 aspect ratio, 25 Hz");
+	sval.append(0x05);	cmin.append(0x0C);	cmax.append(0x0C);	text.append("H.264/AVC high definition video, > 16:9 aspect ratio, 25 Hz");
+	sval.append(0x05);	cmin.append(0x0D);	cmax.append(0x0E);	text.append("reserved for future use");
+	sval.append(0x05);	cmin.append(0x0F);	cmax.append(0x0F);	text.append("H.264/AVC high definition video, 16:9 aspect ratio, 30 Hz");
+	sval.append(0x05);	cmin.append(0x10);	cmax.append(0x10);	text.append("H.264/AVC high definition video, > 16:9 aspect ratio, 30 Hz");
+	sval.append(0x05);	cmin.append(0x11);	cmax.append(0xAF);	text.append("reserved for future use");
+	sval.append(0x05);	cmin.append(0xB0);	cmax.append(0xFE);	text.append("user-defined");
+	sval.append(0x05);	cmin.append(0xFF);	cmax.append(0xFF);	text.append("reserved for future use");
+	sval.append(0x06);	cmin.append(0x00);	cmax.append(0x00);	text.append("reserved for future use");
+	sval.append(0x06);	cmin.append(0x01);	cmax.append(0x01);	text.append("HE-AAC audio, single mono channel");
+	sval.append(0x06);	cmin.append(0x02);	cmax.append(0x02);	text.append("reserved for future use");
+	sval.append(0x06);	cmin.append(0x03);	cmax.append(0x03);	text.append("HE-AAC audio, stereo");
+	sval.append(0x06);	cmin.append(0x04);	cmax.append(0x04);	text.append("reserved for future use");
+	sval.append(0x06);	cmin.append(0x05);	cmax.append(0x05);	text.append("HE-AAC audio, surround sound");
+	sval.append(0x06);	cmin.append(0x06);	cmax.append(0x3F);	text.append("reserved for future use");
+	sval.append(0x06);	cmin.append(0x40);	cmax.append(0x40);	text.append("HE-AAC audio description for the visually impaired");
+	sval.append(0x06);	cmin.append(0x41);	cmax.append(0x41);	text.append("HE-AAC audio for the hard of hearing");
+	sval.append(0x06);	cmin.append(0x42);	cmax.append(0x42);	text.append("HE-AAC receiver-mixed supplementary audio as per annex E of TS 101 154 [9]");
+	sval.append(0x06);	cmin.append(0x43);	cmax.append(0x43);	text.append("HE-AAC v2 audio, stereo");
+	sval.append(0x06);	cmin.append(0x44);	cmax.append(0x44);	text.append("HE-AAC v2 audio description for the visually impaired");
+	sval.append(0x06);	cmin.append(0x45);	cmax.append(0x45);	text.append("HE-AAC v2 audio for the hard of hearing");
+	sval.append(0x06);	cmin.append(0x46);	cmax.append(0x46);	text.append("HE-AAC v2 receiver-mixed supplementary audio as per annex E of TS 101 154 [9]");
+	sval.append(0x06);	cmin.append(0x47);	cmax.append(0x47);	text.append("HE-AAC receiver mix audio description for the visually impaired");
+	sval.append(0x06);	cmin.append(0x48);	cmax.append(0x48);	text.append("HE-AAC broadcaster mix audio description for the visually impaired");
+	sval.append(0x06);	cmin.append(0x49);	cmax.append(0x49);	text.append("HE-AAC v2 receiver mix audio description for the visually impaired");
+	sval.append(0x06);	cmin.append(0x4A);	cmax.append(0x4A);	text.append("HE-AAC v2 broadcaster mix audio description for the visually impaired");
+	sval.append(0x06);	cmin.append(0x4B);	cmax.append(0xAF);	text.append("reserved for future use");
+	sval.append(0x06);	cmin.append(0xB0);	cmax.append(0xFE);	text.append("user-defined");
+	sval.append(0x06);	cmin.append(0xFF);	cmax.append(0xFF);	text.append("reserved for future use");
+	sval.append(0x07);	cmin.append(0x00);	cmax.append(0x7F);	text.append("reserved for DTS audio modes (refer to annex G)");
+	sval.append(0x07);	cmin.append(0x80);	cmax.append(0xFF);	text.append("reserved for future use");
+	sval.append(0x08);	cmin.append(0x00);	cmax.append(0x00);	text.append("reserved for future use");
+	sval.append(0x08);	cmin.append(0x01);	cmax.append(0x01);	text.append("DVB SRM data [48]");
+	sval.append(0x08);	cmin.append(0x02);	cmax.append(0xFF);	text.append("reserved for DVB CPCM modes [46] to [i.4]");
+}
+
 tree_item::tree_item()
 {
 	text.clear();

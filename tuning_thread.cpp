@@ -314,6 +314,23 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Text: %1").arg(mytune->readstr(mytune->read8()));
 		tree_create_wait(item);
 		break;
+	case 0x50: // component_descriptor
+	{
+		stream_content sm;
+		unsigned int s_type = mytune->read8(0x0F);
+		unsigned int c_type = mytune->read8();
+		item->text = QString("Stream Content: %1, Component Type: %2").arg(s_type).arg(c_type);
+		tree_create_wait(item);
+		item->text = QString("Stream/Component Description: %1").arg(sm.whatis(s_type, c_type));
+		tree_create_wait(item);
+		item->text = QString("Component Tag: %1").arg(mytune->read8());
+		tree_create_wait(item);
+		item->text = QString("Language: %1").arg(mytune->readstr(3));
+		tree_create_wait(item);
+		item->text = QString("Component Text: %1").arg(mytune->readstr(desc_end - mytune->index));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x52: // stream_identifier_descriptor
 		item->text = QString("Component Tag: %1").arg(mytune->read8());
 		tree_create_wait(item);

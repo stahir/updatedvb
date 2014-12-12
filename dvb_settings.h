@@ -165,6 +165,17 @@ public:
 	QVector<unsigned long int> max;
 };
 
+class stream_content
+{
+public:
+	stream_content();
+	QString whatis(unsigned int stream_type, unsigned int component_type);
+	QVector<QString> text;
+	QVector<unsigned int> sval;
+	QVector<unsigned int> cmin;
+	QVector<unsigned int> cmax;
+};
+
 class frame_rate
 {
 public:
