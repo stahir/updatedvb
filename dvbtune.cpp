@@ -363,7 +363,7 @@ void dvbtune::usals_drive(double sat_long)
 	setup_switch();
 }
 
-void dvbtune::gotox_drive(int position)
+void dvbtune::gotox_drive(unsigned int position)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6B, (__u8)position, 0x00, 0x00 }, 4 };
 	
@@ -389,7 +389,7 @@ void dvbtune::gotox_drive(int position)
 	setup_switch();
 }
 
-void dvbtune::gotox_save(int position)
+void dvbtune::gotox_save(unsigned int position)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6A, (__u8)position, 0x00, 0x00 }, 4 };
 
