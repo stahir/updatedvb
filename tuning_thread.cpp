@@ -470,7 +470,17 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		parse_etm(item, "Component Name");
 		break;
 	default:
-		qDebug() << Q_FUNC_INFO << "Unknown Descriptor" << tohex(desc_tag,2);
+		qDebug() << Q_FUNC_INFO << "Unknown Descriptor" << tohex(desc_tag,2) << ":" << desc_len << "bytes";
+		QString output;
+		for (unsigned int i = 0; i < desc_len; i++) {
+			if (i % 8 == 0 && !output.isEmpty()) {
+				qDebug() << output;
+				output.clear();
+			}
+			output.append(tohex(mytune->read8(),2));
+			output.append(" ");
+		}
+		qDebug() << output;
 		break;
 	}
 	item->parent		= orig.parent;
