@@ -125,6 +125,17 @@ public:
 	tuning_options();
 };
 
+class mgt_table
+{
+public:
+	mgt_table();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class rating_region
 {
 public:

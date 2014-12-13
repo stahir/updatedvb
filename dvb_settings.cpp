@@ -163,6 +163,51 @@ frame_rate::frame_rate()
 	rate[0x08] = "60 fps";
 }
 
+QString mgt_table::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+mgt_table::mgt_table()
+{
+	min.append(0x0000);	max.append(0x0000);	text.append("Terrestrial VCT with current_next_indicator=1");
+	min.append(0x0001);	max.append(0x0001);	text.append("Terrestrial VCT with current_next_indicator=0");
+	min.append(0x0002);	max.append(0x0002);	text.append("Cable VCT with current_next_indicator=1");
+	min.append(0x0003);	max.append(0x0003);	text.append("Cable VCT with current_next_indicator=0");
+	min.append(0x0004);	max.append(0x0004);	text.append("Channel ETT");
+	min.append(0x0005);	max.append(0x0005);	text.append("DCCSCT");
+	min.append(0x0006);	max.append(0x0006);	text.append("LTST");
+	min.append(0x0007);	max.append(0x00FF);	text.append("(Reserved for future ATSC use)");
+	min.append(0x0010);	max.append(0x0010);	text.append("Short-form VCT – VCM Subtype");
+	min.append(0x0011);	max.append(0x0011);	text.append("Short-form VCT – DCM Subtype");
+	min.append(0x0012);	max.append(0x0012);	text.append("Short-form VCT – ICM Subtype");
+	min.append(0x0020);	max.append(0x0020);	text.append("Network Information Table - CDS Table Subtype");
+	min.append(0x0021);	max.append(0x0021);	text.append("Network Information Table - MMS Table Subtype");
+	min.append(0x0030);	max.append(0x0030);	text.append("Network Text Table – SNS Subtype");
+	min.append(0x0100);	max.append(0x017F);	text.append("EIT-0 to EIT-127");
+	min.append(0x0180);	max.append(0x01FF);	text.append("Reserved for future ATSC use");
+	min.append(0x0200);	max.append(0x027F);	text.append("Event ETT-0 to Event ETT-127");
+	min.append(0x0280);	max.append(0x0300);	text.append("Reserved for future ATSC use");
+	min.append(0x0301);	max.append(0x03FF);	text.append("RRT with rating_region 1-255");
+	min.append(0x0400);	max.append(0x0FFF);	text.append("User private");
+	min.append(0x1000);	max.append(0xFFFF);	text.append("Reserved for future ATSC use");
+	min.append(0x1000);	max.append(0x10FF);	text.append("Aggregate Extended Information Table with MGT_tag 0 to 255");
+	min.append(0x1100);	max.append(0x11FF);	text.append("SCTE Aggregate Extended Text Table with MGT_tag 0 to 255");
+	min.append(0x1180);	max.append(0x1180);	text.append("Long Term Service Table");
+	min.append(0x1200);	max.append(0x127F);	text.append("Extended Text Table for DET");
+	min.append(0x1300);	max.append(0x137F);	text.append("Data Event Table");
+	min.append(0x1380);	max.append(0x13FF);	text.append("Reserved for future ATSC use");
+	min.append(0x1400);	max.append(0x14FF);	text.append("DCCT (with dcc_id 0x00 – 0xFF)");
+	min.append(0x1500);	max.append(0x157F);	text.append("Aggregate Data Event Table");
+	min.append(0x1580);	max.append(0x15FF);	text.append("Reserved");
+	min.append(0x1600);	max.append(0x16FF);	text.append("Satellite VCT");
+}
+
 QString data_broadcast_id::whatis(unsigned int val)
 {
 	for (int i = 0; i < text.size(); i++) {

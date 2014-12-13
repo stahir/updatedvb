@@ -648,12 +648,13 @@ void tuning_thread::parse_psip_mgt()
 
 	unsigned int num_tables = mytune->read16();
 	for (unsigned int i = 0; i < num_tables; i++) {
+		mgt_table mgt;
 		unsigned int table_type	= mytune->read16();
 		unsigned int table_pid	= mytune->read16(0x1FFF);
 
 		mytune->index += 5;
 
-		item->text = QString("Table Type: %1 - PID: %2").arg(tohex(table_type,4)).arg(tohex(table_pid,4));
+		item->text = QString("Table Type: %1 / PID: %2 - %3").arg(tohex(table_type,4)).arg(tohex(table_pid,4)).arg(mgt.whatis(table_type));
 		tree_create_wait(item);
 
 		if (table_type >= 0x0100 && table_type <= 0x17F) {
