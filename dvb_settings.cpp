@@ -163,6 +163,27 @@ frame_rate::frame_rate()
 	rate[0x08] = "60 fps";
 }
 
+QString cue_stream::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+cue_stream::cue_stream()
+{
+	min.append(0x00);	max.append(0x01);	text.append("splice_insert, splice_null, splice_schedule");
+	min.append(0x01);	max.append(0x02);	text.append("All Commands");
+	min.append(0x02);	max.append(0x02);	text.append("Segmentation");
+	min.append(0x03);	max.append(0x03);	text.append("Tiered Splicing");
+	min.append(0x04);	max.append(0x04);	text.append("Tiered Segmentation");
+	min.append(0x05);	max.append(0x7F);	text.append("Reserved");
+	min.append(0x80);	max.append(0xFF);	text.append("User Defined");
+}
+
 QString mgt_table::whatis(unsigned int val)
 {
 	for (int i = 0; i < text.size(); i++) {

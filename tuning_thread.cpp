@@ -438,6 +438,13 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 	}
 		break;
+	case 0x8A: // cue_identifier_descriptor
+	{
+		cue_stream cue;
+		item->text = QString("CUE Stream Type: %1").arg(cue.whatis(mytune->read8()));
+		tree_create_wait(item);
+	}
+		break;
 	case 0xA0: // extended_channel_name_descriptor
 		while (mytune->index < desc_end) {
 			int number_strings = mytune->read8();

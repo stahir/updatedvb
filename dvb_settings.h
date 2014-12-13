@@ -125,6 +125,17 @@ public:
 	tuning_options();
 };
 
+class cue_stream
+{
+public:
+	cue_stream();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class mgt_table
 {
 public:
