@@ -163,6 +163,61 @@ frame_rate::frame_rate()
 	rate[0x08] = "60 fps";
 }
 
+QString data_broadcast_id::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+data_broadcast_id::data_broadcast_id()
+{
+	min.append(0x0000);	max.append(0x0000);	text.append("Reserved for future use");
+	min.append(0x0001);	max.append(0x0001);	text.append("Data pipe");
+	min.append(0x0002);	max.append(0x0002);	text.append("Asynchronous data stream");
+	min.append(0x0003);	max.append(0x0003);	text.append("Synchronous data stream");
+	min.append(0x0004);	max.append(0x0004);	text.append("Synchronised data stream");
+	min.append(0x0005);	max.append(0x0005);	text.append("Multi protocol encapsulation");
+	min.append(0x0006);	max.append(0x0006);	text.append("Data Carousel");
+	min.append(0x0007);	max.append(0x0007);	text.append("Object Carousel");
+	min.append(0x0008);	max.append(0x0008);	text.append("DVB ATM streams");
+	min.append(0x0009);	max.append(0x0009);	text.append("Higher Protocols based on asynchronous data streams");
+	min.append(0x000A);	max.append(0x000A);	text.append("System Software Update");
+	min.append(0x000B);	max.append(0x00ef);	text.append("Reserved for future use by DVB");
+	min.append(0x00F0);	max.append(0x00F0);	text.append("MHP Object Carousel");
+	min.append(0x00F1);	max.append(0x00F1);	text.append("reserved for MHP Multi Protocol Encapsulation");
+	min.append(0x00F2);	max.append(0x00Fe);	text.append("Reserved for MHP use");
+	min.append(0x00FF);	max.append(0x00FF);	text.append("Reserved for future use by DVB");
+	min.append(0x0100);	max.append(0x0100);	text.append("Eutelsat Data Piping");
+	min.append(0x0101);	max.append(0x0101);	text.append("Eutelsat Data Streaming");
+	min.append(0x0102);	max.append(0x0102);	text.append("SAGEM IP encapsulation in MPEG-2 PES packets");
+	min.append(0x0103);	max.append(0x0103);	text.append("BARCO Data Broadcasting");
+	min.append(0x0104);	max.append(0x0104);	text.append("CyberCity Multiprotocol Encapsulation (New Media Communications Ltd.)");
+	min.append(0x0105);	max.append(0x0105);	text.append("CyberSat Multiprotocol Encapsulation (New Media Communications Ltd.)");
+	min.append(0x0106);	max.append(0x0106);	text.append("The Digital Network");
+	min.append(0x0107);	max.append(0x0107);	text.append("OpenTV Data Carousel");
+	min.append(0x0108);	max.append(0x0108);	text.append("Panasonic");
+	min.append(0x0109);	max.append(0x0109);	text.append("MSG MediaServices GmbH");
+	min.append(0x010A);	max.append(0x010A);	text.append("TechnoTrend");
+	min.append(0x010B);	max.append(0x010B);	text.append("Canal + Technologies system software download");
+	min.append(0x0110);	max.append(0x0110);	text.append("Televizja Polsat");
+	min.append(0x0111);	max.append(0x0111);	text.append("UK DTG");
+	min.append(0x0112);	max.append(0x0112);	text.append("SkyMedia");
+	min.append(0x0113);	max.append(0x0113);	text.append("Intellibyte DataBroadcasting");
+	min.append(0x0114);	max.append(0x0114);	text.append("TeleWeb Data Carousel");
+	min.append(0x0115);	max.append(0x0115);	text.append("TeleWeb Object Carousel");
+	min.append(0x0116);	max.append(0x0116);	text.append("TeleWeb");
+	min.append(0x4444);	max.append(0x4444);	text.append("4TV Data Broadcast");
+	min.append(0x4E4F);	max.append(0x4E4F);	text.append("Nokia IP based software delivery");
+	min.append(0xBBB1);	max.append(0xBBB1);	text.append("BBG Data Caroussel");
+	min.append(0xBBB2);	max.append(0xBBB2);	text.append("BBG Object Caroussel");
+	min.append(0xBBBB);	max.append(0xBBBB);	text.append("Bertelsmann Broadband Group");
+	min.append(0xFFFF);	max.append(0xFFFF);	text.append("Reserved for future use");
+}
+
 QString stream_content::whatis(unsigned int stream_type, unsigned int component_type)
 {
 	for (int i = 0; i < text.size(); i++) {

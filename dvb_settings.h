@@ -165,6 +165,17 @@ public:
 	QVector<unsigned long int> max;
 };
 
+class data_broadcast_id
+{
+public:
+	data_broadcast_id();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class stream_content
 {
 public:

@@ -348,6 +348,14 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x66: // data_broadcast_id_descriptor
+	{
+		data_broadcast_id dbid;
+		unsigned int tmp = mytune->read16();
+		item->text = QString("Data Broadcast ID: %1 - %2").arg(tmp).arg(dbid.whatis(tmp));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x81: // AC-3_audio_stream_descriptor
 	{
 		ac3_desc ac3;
