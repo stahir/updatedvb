@@ -175,15 +175,20 @@ QString dvbtune::readstr(unsigned int len)
 {
 	unsigned int tmp = index;
 	index += len;
+	if (len >= (unsigned int)buffer.size()) {
+		return "";
+	}
 	return buffer.mid(tmp, len);
 }
 
 QString dvbtune::readstr16(unsigned int len)
 {
 	QString tmp_s;
-
 	len *= 2;
 	len += index;
+	if (len >= (unsigned int)buffer.size()) {
+		return "";
+	}
 	while ((unsigned int)index < len) {
 		index++;
 		__u8 tmp_c = read8();
