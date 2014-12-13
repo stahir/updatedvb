@@ -641,7 +641,7 @@ void tuning::save_children(QTreeWidgetItem *item, QTextStream *out)
 
 void tuning::on_pushButton_save_tree_clicked()
 {
-	QString filename = QFileDialog::getOpenFileName(this, "Save Parsed Output", QDir::currentPath());
+	QString filename = QFileDialog::getSaveFileName(this, "Save Parsed Output", QDir::currentPath() + "/output.txt");
 	QFile output(filename);
 	output.open(QIODevice::WriteOnly | QIODevice::Text);
 	QTextStream out(&output);
@@ -651,5 +651,9 @@ void tuning::on_pushButton_save_tree_clicked()
 			save_children(tree_items.at(i).tree, &out);
 		}
 	}
+
+	QMessageBox mbox;
+	mbox.setText("Parsed tree output saved");
+	mbox.exec();
 	output.close();
 }

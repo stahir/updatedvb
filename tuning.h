@@ -29,6 +29,7 @@
 #include <QStatusBar>
 #include <QThread>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QKeyEvent>
 #include "demux_file.h"
 #include "demux_dvr.h"
