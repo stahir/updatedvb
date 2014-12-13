@@ -432,8 +432,9 @@ void tuning_thread::parse_descriptor(tree_item *item)
 				item->text = QString("Rating Value: %1").arg(mytune->read8(0x0F));
 				tree_create_wait(item);
 			}
-			mytune->index++;
-			parse_etm(item, "Rating Description");
+			if (mytune->read8() > 0) {
+				parse_etm(item, "Rating Description");
+			}
 			item->restore();
 		}
 	}
