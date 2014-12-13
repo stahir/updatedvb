@@ -373,6 +373,19 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x83: // logical_channel_descriptor
+	{
+		while (mytune->index < desc_end) {
+			item->text = QString("Service ID: %1").arg(mytune->read16());
+			tree_create_wait(item);
+			unsigned int tmp = mytune->read16();
+			item->text = QString("Visible: %1").arg(mytune->maskbits(tmp, 0x8000) ? "true" : "false");
+			tree_create_wait(item);
+			item->text = QString("Logical Channel Number: %1").arg(mytune->maskbits(tmp, 0x3FFF));
+			tree_create_wait(item);
+		}
+	}
+		break;
 	case 0x86: // caption_service_descriptor
 	{
 		unsigned int num_services = mytune->read8(0x1F);

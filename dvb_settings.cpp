@@ -575,7 +575,7 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0x80]	= "Stuffing";
 	dvb_descriptortag[0x81]	= "AC3 audio";
 	dvb_descriptortag[0x82]	= "User Defined";
-	dvb_descriptortag[0x83]	= "User Defined";
+	dvb_descriptortag[0x83]	= "Logical Channel";
 	dvb_descriptortag[0x84]	= "User Defined";
 	dvb_descriptortag[0x86]	= "Caption Service";
 	dvb_descriptortag[0x87]	= "Content Advisory";
