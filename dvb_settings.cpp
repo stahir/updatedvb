@@ -28,6 +28,7 @@ switch_settings::switch_settings()
 
 rating_region::rating_region()
 {
+	name.append("Undefined");
 	name.append("US");
 	name.append("Canada");
 	name.append("Taiwan");
