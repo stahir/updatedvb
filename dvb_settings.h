@@ -125,6 +125,28 @@ public:
 	tuning_options();
 };
 
+class compression_type
+{
+public:
+	compression_type();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
+class encoding_mode
+{
+public:
+	encoding_mode();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class cue_stream
 {
 public:

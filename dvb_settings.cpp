@@ -164,6 +164,78 @@ frame_rate::frame_rate()
 	rate[0x08] = "60 fps";
 }
 
+QString encoding_mode::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+encoding_mode::encoding_mode()
+{
+	min.append(0x00);	max.append(0x00);	text.append("Select Unicode Code Range 0x0000 – 0x00FF");
+	min.append(0x01);	max.append(0x01);	text.append("Select Unicode Code Range 0x0100 – 0x01FF");
+	min.append(0x02);	max.append(0x02);	text.append("Select Unicode Code Range 0x0200 – 0x02FF");
+	min.append(0x03);	max.append(0x03);	text.append("Select Unicode Code Range 0x0300 – 0x03FF");
+	min.append(0x04);	max.append(0x04);	text.append("Select Unicode Code Range 0x0400 – 0x04FF");
+	min.append(0x05);	max.append(0x05);	text.append("Select Unicode Code Range 0x0500 – 0x05FF");
+	min.append(0x06);	max.append(0x06);	text.append("Select Unicode Code Range 0x0600 – 0x06FF");
+	min.append(0x07);	max.append(0x08);	text.append("Reserved");
+	min.append(0x09);	max.append(0x09);	text.append("Select Unicode Code Range 0x0900 – 0x09FF");
+	min.append(0x0A);	max.append(0x0A);	text.append("Select Unicode Code Range 0x0A00 – 0x0AFF");
+	min.append(0x0B);	max.append(0x0B);	text.append("Select Unicode Code Range 0x0B00 – 0x0BFF");
+	min.append(0x0C);	max.append(0x0C);	text.append("Select Unicode Code Range 0x0C00 – 0x0CFF");
+	min.append(0x0D);	max.append(0x0D);	text.append("Select Unicode Code Range 0x0D00 – 0x0DFF");
+	min.append(0x0E);	max.append(0x0E);	text.append("Select Unicode Code Range 0x0E00 – 0x0EFF");
+	min.append(0x0F);	max.append(0x0F);	text.append("Select Unicode Code Range 0x0F00 – 0x0FFF");
+	min.append(0x10);	max.append(0x10);	text.append("Select Unicode Code Range 0x1000 – 0x10FF");
+	min.append(0x11);	max.append(0x1F);	text.append("Reserved");
+	min.append(0x20);	max.append(0x20);	text.append("Select Unicode Code Range 0x2000 – 0x20FF");
+	min.append(0x21);	max.append(0x21);	text.append("Select Unicode Code Range 0x2100 – 0x21FF");
+	min.append(0x22);	max.append(0x22);	text.append("Select Unicode Code Range 0x2200 – 0x22FF");
+	min.append(0x23);	max.append(0x23);	text.append("Select Unicode Code Range 0x2300 – 0x23FF");
+	min.append(0x24);	max.append(0x24);	text.append("Select Unicode Code Range 0x2400 – 0x24FF");
+	min.append(0x25);	max.append(0x25);	text.append("Select Unicode Code Range 0x2500 – 0x25FF");
+	min.append(0x26);	max.append(0x26);	text.append("Select Unicode Code Range 0x2600 – 0x26FF");
+	min.append(0x27);	max.append(0x27);	text.append("Select Unicode Code Range 0x2700 – 0x27FF");
+	min.append(0x28);	max.append(0x2F);	text.append("Reserved");
+	min.append(0x30);	max.append(0x30);	text.append("Select Unicode Code Range 0x3000 – 0x30FF");
+	min.append(0x31);	max.append(0x31);	text.append("Select Unicode Code Range 0x3100 – 0x31FF");
+	min.append(0x32);	max.append(0x32);	text.append("Select Unicode Code Range 0x3200 – 0x32FF");
+	min.append(0x33);	max.append(0x33);	text.append("Select Unicode Code Range 0x3300 – 0x33FF");
+	min.append(0x34);	max.append(0x3D);	text.append("Reserved");
+	min.append(0x3E);	max.append(0x3E);	text.append("Select Standard Compression Scheme for Unicode (SCSU)");
+	min.append(0x3F);	max.append(0x3F);	text.append("Select Unicode, UTF-16 Form");
+	min.append(0x40);	max.append(0x41);	text.append("Assigned to ATSC standard for Taiwan");
+	min.append(0x42);	max.append(0x47);	text.append("Reserved for future ATSC use");
+	min.append(0x48);	max.append(0x48);	text.append("Assigned to ATSC standard for South Korea");
+	min.append(0x49);	max.append(0xDF);	text.append("Reserved for future ATSC use");
+	min.append(0xE0);	max.append(0xFE);	text.append("Used in other systems");
+	min.append(0xFF);	max.append(0xFF);	text.append("Not applicable");
+}
+
+QString compression_type::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+compression_type::compression_type()
+{
+	min.append(0x00);	max.append(0x00);	text.append("No compression");
+	min.append(0x01);	max.append(0x01);	text.append("Huffman coding using standard encode/decode tables defined in Table C4 and C5 in Annex C.");
+	min.append(0x02);	max.append(0x02);	text.append("Huffman coding using standard encode/decode tables defined in Table C6 and C7 in Annex C.");
+	min.append(0x03);	max.append(0xAF);	text.append("reserved");
+	min.append(0xB0);	max.append(0xFF);	text.append("Used in other systems");
+}
+
 QString cue_stream::whatis(unsigned int val)
 {
 	for (int i = 0; i < text.size(); i++) {

@@ -81,7 +81,12 @@ void tuning_thread::parse_etm(tree_item *item, QString desc)
 
 		unsigned int num_seg = mytune->read8();
 		for (unsigned int j = 0; j < num_seg; j++) {
-			mytune->index += 2;
+			compression_type ct;
+			item->text = QString("Compression Type: %1").arg(ct.whatis(mytune->read8()));
+			tree_create_wait(item);
+			encoding_mode em;
+			item->text = QString("Text Encoding: %1").arg(em.whatis(mytune->read8()));
+			tree_create_wait(item);
 			unsigned int num_bytes = mytune->read8();
 			item->text = QString("%1: %2").arg(desc).arg(mytune->readstr(num_bytes));
 			tree_create_wait(item);
