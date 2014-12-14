@@ -317,12 +317,21 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 		break;
 	case 0x4d: // short_event_descriptor
+	{
 		item->text = QString("Language: %1").arg(mytune->readstr(3));
 		tree_create_wait(item);
-		item->text = QString("Event Name: %1").arg(mytune->readstr(mytune->read8()));
-		tree_create_wait(item);
-		item->text = QString("Text: %1").arg(mytune->readstr(mytune->read8()));
-		tree_create_wait(item);
+		unsigned int num_bytes;
+		num_bytes = mytune->read8();
+		if (num_bytes > 0) {
+			item->text = QString("Event Name: %1").arg(mytune->readstr(num_bytes));
+			tree_create_wait(item);
+		}
+		num_bytes = mytune->read8();
+		if (num_bytes > 0) {
+			item->text = QString("Text: %1").arg(mytune->readstr(num_bytes));
+			tree_create_wait(item);
+		}
+	}
 		break;
 	case 0x50: // component_descriptor
 	{
@@ -459,8 +468,11 @@ void tuning_thread::parse_descriptor(tree_item *item)
 				int number_segments = mytune->read8();
 				for (int a = 0; a < number_segments; a++) {
 					mytune->index += 2;
-					item->text = QString("Long Channel Name: %1").arg(mytune->readstr(mytune->read8()));
-					tree_create_wait(item);
+					unsigned int num_bytes = mytune->read8();
+					if (num_bytes) {
+						item->text = QString("Long Channel Name: %1").arg(mytune->readstr(num_bytes));
+						tree_create_wait(item);
+					}
 				}
 			}
 		}
