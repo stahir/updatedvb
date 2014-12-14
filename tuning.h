@@ -86,6 +86,7 @@ private slots:
 	void myProcess_finished();
 	void on_pushButton_save_tree_clicked();
 	void save_children(QTreeWidgetItem *item, QTextStream *out);
+	void set_tree_color(QTreeWidgetItem *item, QColor color);
 
 private:
 	Ui::tuning *ui;

@@ -339,9 +339,19 @@ void tuning::list_create()
 	}
 	for (int i = 0; i < tree_items.size(); i++) { // 0x1fff padding packets and 0x2000 entire mux should show as green
 		if (tree_items.at(i).pid != 0xFFFF) {
-			list_item.at(tree_items.at(i).pid)->setTextColor(QColor(Qt::green));
+			list_item.at(tree_items.at(i).pid)->setTextColor(tree_items.at(i).tree->textColor(0));
 		}
 	}
+}
+
+void tuning::set_tree_color(QTreeWidgetItem *item, QColor color)
+{
+	if (item->childCount() > 0) {
+		for (int i = 0; i < item->childCount(); i++) {
+			set_tree_color(item->child(i), color);
+		}
+	}
+	item->setTextColor(0, color);
 }
 
 void tuning::tree_create(tree_item *item)
@@ -375,7 +385,16 @@ void tuning::tree_create(tree_item *item)
 		} else {
 			tree_items.at(item->parent).tree->setExpanded(tree_items.at(item->parent).tree->isExpanded());
 		}
-		tree_items.last().tree->setTextColor(0, tree_items.at(item->parent).tree->textColor(0));
+		if (item->color == QColor(Qt::red)) {
+			tree_item tmp = tree_items.at(item->parent);
+			while (tmp.parent != -1) {
+				tmp = tree_items.at(tmp.parent);
+			}
+			set_tree_color(tmp.tree, item->color);
+			tree_items.last().tree->setTextColor(0, item->color);
+		} else {
+			tree_items.last().tree->setTextColor(0, tree_items.at(item->parent).tree->textColor(0));
+		}
 		tree_items.at(item->parent).tree->addChild(tree_items.last().tree);
 	}
 	if (item->return_parent) {
