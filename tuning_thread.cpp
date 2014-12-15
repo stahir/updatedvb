@@ -516,6 +516,17 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 	}
 		break;
+	case 0xA2: // time_shifted_service_descriptor
+	{
+		unsigned int num_services = mytune->read8(0x1F);
+		for (unsigned int i = 0; i < num_services; i++) {
+			item->text = QString("Time Shift: %1 min").arg(mytune->read16(0x3FF));
+			tree_create_wait(item);
+			item->text = QString("Channel: %1-%2").arg(mytune->read16(0x3FF)).arg(mytune->read16(0x3FF));
+			tree_create_wait(item);
+		}
+	}
+		break;
 	case 0xA3: // component_name_descriptor
 		parse_etm(item, "Component Name");
 		break;
