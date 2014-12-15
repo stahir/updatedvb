@@ -782,7 +782,7 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag.fill("", 0xFF + 1);
 	dvb_descriptortag[0x00]	= "Reserved";
 	dvb_descriptortag[0x02]	= "Video";
-	dvb_descriptortag[0x03]	= "Audio";
+	dvb_descriptortag[0x03]	= "Audio Stream";
 	dvb_descriptortag[0x05]	= "Registration";
 	dvb_descriptortag[0x06]	= "Data Stream Alignment";
 	dvb_descriptortag[0x09]	= "CA";
