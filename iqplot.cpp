@@ -39,12 +39,8 @@ iqplot::iqplot(QWidget *parent) :
 
 iqplot::~iqplot()
 {
-	mytune->loop = false;
-	mytune->quit();
-	mytune->wait(1000);
-	while (mytune->isRunning()) {
-		mytune->loop = false;
-		QThread::msleep(100);
+	if (mytune->thread_function.contains("iqplot")) {
+		mytune->thread_function.remove(mytune->thread_function.indexOf("iqplot"));
 	}
 
 	ui->qwtPlot->detachItems();
