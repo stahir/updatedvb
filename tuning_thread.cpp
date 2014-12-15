@@ -131,6 +131,19 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x03: // audio_stream_descriptor
+	{
+		unsigned int tmp = mytune->read8();
+		item->text = QString("Free Format: %1").arg(mytune->maskbits(tmp, 0x80) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("ID: %1").arg(mytune->maskbits(tmp, 0x40) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Layer: %1").arg(mytune->maskbits(tmp, 0x30));
+		tree_create_wait(item);
+		item->text = QString("Variable Rate Audio: %1").arg(mytune->maskbits(tmp, 0x08) ? "true" : "false");
+		tree_create_wait(item);
+	}
+		break;
 	case 0x05: // registration_descriptor
 		item->text = QString("Format Identifier: %1").arg(mytune->readstr(4));
 		tree_create_wait(item);
