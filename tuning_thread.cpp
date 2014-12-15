@@ -532,7 +532,12 @@ void tuning_thread::parse_psip_tvct()
 	item->pid			= 0xFFFF;
 	item->return_parent = false;
 
-	mytune->index += 8;
+	mytune->index += 2;
+
+	item->text = QString("Transport Stream ID: %1").arg(mytune->read16());
+	tree_create_wait(item);
+
+	mytune->index += 4;
 
 	unsigned int num_channels_in_section = mytune->read8();
 	for (unsigned int i = 0; i < num_channels_in_section; i++) {
