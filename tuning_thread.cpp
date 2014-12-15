@@ -550,8 +550,11 @@ void tuning_thread::parse_psip_tvct()
 		atsc_modulation am;
 		item->text = QString("Modulation: %1").arg(am.whatis(mytune->read8()));
 		tree_create_wait(item);
-		item->text = QString("Carrier Frequency (depreciated): %1").arg(mytune->read32());
-		tree_create_wait(item);
+		unsigned int freq = mytune->read32();
+		if (freq > 0) {
+			item->text = QString("Carrier Frequency (depreciated): %1mhz").arg(freq/1000000.0);
+			tree_create_wait(item);
+		}
 		item->text = QString("Channel TSID: %1").arg(mytune->read16());
 		tree_create_wait(item);
 		item->text = QString("Program Number: %1").arg(mytune->read16());
