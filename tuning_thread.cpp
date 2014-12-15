@@ -178,6 +178,18 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x0c: // multiplex_buffer_utilization_descriptor
+	{
+		unsigned int tmp;
+		tmp = mytune->read16();
+		item->text = QString("Lower/Uppoer Bound Flags Valid: %1").arg(mytune->maskbits(tmp, 0x8000) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("LTW Offset Lower Bound: %1 (27mhz/300) clock periods").arg(mytune->maskbits(tmp, 0x7FFF));
+		tree_create_wait(item);
+		item->text = QString("LTW Offset Upper Bound: %1 (27mhz/300) clock periods").arg(mytune->read16(0x7FFF));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x0e: // maximum_bitrate_descriptor
 		item->text = QString("Maximum Bitrate: %1 kB/sec").arg(mytune->read24(0x3FFFFF) * 50 / 1000);
 		tree_create_wait(item);
