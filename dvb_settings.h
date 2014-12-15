@@ -158,6 +158,36 @@ public:
 	QVector<unsigned int> max;
 };
 
+class atsc_service_type
+{
+public:
+	atsc_service_type();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
+class etm_location
+{
+public:
+	etm_location();
+
+	QVector<QString> text;
+};
+
+class atsc_modulation
+{
+public:
+	atsc_modulation();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class mgt_table
 {
 public:

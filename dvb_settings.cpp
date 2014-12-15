@@ -257,6 +257,57 @@ cue_stream::cue_stream()
 	min.append(0x80);	max.append(0xFF);	text.append("User Defined");
 }
 
+QString atsc_service_type::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+atsc_service_type::atsc_service_type()
+{
+	min.append(0x00);	max.append(0x00);	text.append("[Reserved]");
+	min.append(0x01);	max.append(0x01);	text.append("Analog Television");
+	min.append(0x02);	max.append(0x02);	text.append("ATSC Digital Television");
+	min.append(0x03);	max.append(0x03);	text.append("ATSC Audio");
+	min.append(0x04);	max.append(0x04);	text.append("ATSC Data Only Service");
+	min.append(0x05);	max.append(0x05);	text.append("ATSC Software Download Service");
+	min.append(0x06);	max.append(0x3F);	text.append("[Reserved – see ATSC Code Points Registry3]");
+}
+
+etm_location::etm_location()
+{
+	text.append("No ETM");
+	text.append("ETM located in the PTC carrying this PSIP");
+	text.append("ETM located in the PTC specified by the channel_TSID");
+	text.append("[Reserved for future ATSC use]");
+}
+
+QString atsc_modulation::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+atsc_modulation::atsc_modulation()
+{
+	min.append(0x00);	max.append(0x00);	text.append("[Reserved]");
+	min.append(0x01);	max.append(0x01);	text.append("Analog — The virtual channel is modulated using standard analog methods for analog television");
+	min.append(0x02);	max.append(0x02);	text.append("SCTE_mode_1 — The virtual channel has a symbol rate of 5.057 Msps, transmitted in accordance with ANSI/SCTE 07 [21] (Mode 1). Typically, mode 1 will be used for 64-QAM.");
+	min.append(0x03);	max.append(0x03);	text.append("SCTE_mode_2 — The virtual channel has a symbol rate of 5.361 Msps, transmitted in accordance with ANSI/SCTE 07 [21] (Mode 2). Typically, mode 2 will be used for 256-QAM.");
+	min.append(0x04);	max.append(0x04);	text.append("ATSC (8 VSB) — The virtual channel uses the 8-VSB modulation method conforming to A/53 Part 2 [2].");
+	min.append(0x05);	max.append(0x05);	text.append("ATSC (16 VSB) — The virtual channel uses the 16-VSB modulation method conforming to A/53 Part 2 [2].");
+	min.append(0x06);	max.append(0x7F);	text.append("[Reserved for future use by ATSC]");
+	min.append(0x80);	max.append(0xFF);	text.append("[User Private]");
+}
+
 QString mgt_table::whatis(unsigned int val)
 {
 	for (int i = 0; i < text.size(); i++) {

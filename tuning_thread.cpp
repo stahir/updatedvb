@@ -547,8 +547,29 @@ void tuning_thread::parse_psip_tvct()
 		unsigned int channel = mytune->read24();
 		item->text = QString("Channel Number: %1-%2").arg(mytune->maskbits(channel, 0xFFC00)).arg(mytune->maskbits(channel, 0x3FF));
 		tree_create_wait(item);
+		atsc_modulation am;
+		item->text = QString("Modulation: %1").arg(am.whatis(mytune->read8()));
+		tree_create_wait(item);
+		item->text = QString("Carrier Frequency (depreciated): %1").arg(mytune->read32());
+		tree_create_wait(item);
+		item->text = QString("Channel TSID: %1").arg(mytune->read16());
+		tree_create_wait(item);
+		item->text = QString("Program Number: %1").arg(mytune->read16());
+		tree_create_wait(item);
+		etm_location etm;
+		unsigned int tmp = mytune->read16();
+		item->text = QString("ETM Location: %1").arg(etm.text.at(mytune->maskbits(tmp,0xC000)));
+		tree_create_wait(item);
+		item->text = QString("Access Controlled: %1").arg(mytune->maskbits(tmp,0x2000) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Hide Guide: %1").arg(mytune->maskbits(tmp,0x0200) ? "true" : "false");
+		tree_create_wait(item);
+		atsc_service_type ast;
+		item->text = QString("Service Type: %1").arg(ast.whatis(mytune->maskbits(tmp,0x3F)));
+		tree_create_wait(item);
+		item->text = QString("Source ID: %1").arg(mytune->read16());
+		tree_create_wait(item);
 
-		mytune->index += 13;
 		unsigned int descriptors_length = mytune->index + mytune->read16(0x3FF);
 		while (mytune->index < descriptors_length) {
 			parse_descriptor(item);
