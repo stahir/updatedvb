@@ -641,6 +641,8 @@ QString dvbtune::format_freq(int frequency, int system)
 int dvbtune::tune_clear()
 {
 	pids_rate.clear();
+	pids_rate.fill(0, 0x2000+1);
+
 	dvbdata.clear();
 	packet_processed.clear();
 
@@ -734,7 +736,6 @@ int dvbtune::tune()
 	// Keep trying for upto 2 second
 	QTime t;
 	t.start();
-	fe_status_t festatus;
 	while (t.elapsed() < 2000) {
 		status = setbit(status, TUNER_IOCTL);
 		if (ioctl(frontend_fd, FE_READ_STATUS, &festatus) == -1) {
@@ -770,6 +771,10 @@ int dvbtune::tune()
 
 void dvbtune::get_bitrate()
 {
+	if (!(festatus & FE_HAS_LOCK)) {
+		return;
+	}
+
 	QTime stime;
 	int ttime = 0;
 
@@ -849,6 +854,10 @@ void dvbtune::get_bitrate()
 
 int dvbtune::demux_packets(dvb_pids mypids)
 {
+	if (!(festatus & FE_HAS_LOCK)) {
+		return -1;
+	}
+
 	stop_demux();
 	demux_packets_loop = true;
 	sec_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";

@@ -126,6 +126,8 @@ public:
 	int fstep;
 	bool servo;
 	QVector<QString> thread_function;
+	fe_status_t festatus;
+
 private:
 	double radian(double number);
 	double degree(double number);
