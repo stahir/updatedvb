@@ -125,6 +125,14 @@ public:
 	tuning_options();
 };
 
+class data_service
+{
+public:
+	data_service();
+
+	QVector<QString> text;
+};
+
 class compression_type
 {
 public:

@@ -328,6 +328,37 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Orbital Position: %L1%2").arg(QString::number(orbital_pos/10.0, 'f', 1)).arg(east_west_flag ? "e" : "w");
 		tree_create_wait(item);
 		break;
+	case 0x45: // VBI_data_descriptor
+	{
+		data_service ds;
+		while (mytune->index < desc_end) {
+			unsigned int data_service_id = mytune->read8();
+			item->text = QString("Data Service ID: % - %11").arg(data_service_id).arg(ds.text.at(data_service_id));
+			tree_create_wait(item);
+			unsigned int data_service_descriptor_length = mytune->read8();
+			switch (data_service_id) {
+			case 0x01:
+			case 0x02:
+			case 0x04:
+			case 0x05:
+			case 0x06:
+			case 0x07:
+				for (unsigned int i = 0; i < data_service_descriptor_length; i++) {
+					unsigned int tmp = mytune->read8();
+					item->text = QString("Parity: %1 field of a frame").arg(mytune->maskbits(tmp, 0x20) ? "first (odd)" : "second (even)");
+					tree_create_wait(item);
+					item->text = QString("Line Number: %1").arg(mytune->maskbits(tmp, 0x1F));
+					tree_create_wait(item);
+				}
+				break;
+			default:
+				mytune->index += data_service_descriptor_length;
+				break;
+			}
+
+		}
+	}
+		break;
 	case 0x48: // service_descriptor
 		mytune->index += 1;
 		mysdt.pname.append(mytune->readstr(mytune->read8()));

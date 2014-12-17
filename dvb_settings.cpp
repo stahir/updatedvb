@@ -26,6 +26,19 @@ switch_settings::switch_settings()
 	uncommitted	= -1;
 }
 
+data_service::data_service()
+{
+	text.fill("reserved for future use", 0xFF);
+	text[0x00] = "reserved for future use";
+	text[0x01] = "EBU teletext (Requires additional teletext_descriptor)";
+	text[0x02] = "inverted teletext";
+	text[0x03] = "reserved";
+	text[0x04] = "VPS";
+	text[0x05] = "WSS";
+	text[0x06] = "Closed Captioning";
+	text[0x07] = "monochrome 4:2:2 samples";
+}
+
 rating_region::rating_region()
 {
 	name.append("Undefined");
