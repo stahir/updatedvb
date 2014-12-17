@@ -860,17 +860,17 @@ int dvbtune::demux_packets(dvb_pids mypids)
 
 	stop_demux();
 	demux_packets_loop = true;
-	sec_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
 
-	while (sec_fd.size() < mypids.pid.size()) {
-		int temp_fd = open(sec_name.toStdString().c_str(), O_RDWR);
-		if (temp_fd < 0) {
+	if (sec_name.isEmpty()) {
+		sec_name	= "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
+		sec_fd		= open(sec_name.toStdString().c_str(), O_RDWR);
+		if (sec_fd < 0) {
 			qDebug() << "Failed to open" << dmx_name;
+			sec_name.clear();
 			return -1;
 		}
-		sec_fd.append(temp_fd);
 		status = setbit(status, TUNER_IOCTL);
-		ioctl(sec_fd.last(), DMX_SET_BUFFER_SIZE, BIG_BUFSIZE);
+		ioctl(sec_fd, DMX_SET_BUFFER_SIZE, BIG_BUFSIZE);
 		status = unsetbit(status, TUNER_IOCTL);
 	}
 
@@ -890,7 +890,7 @@ int dvbtune::demux_packets(dvb_pids mypids)
 		sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 
 		status = setbit(status, TUNER_IOCTL);
-		if (ioctl(sec_fd.at(a), DMX_SET_FILTER, &sctfilter) == -1) {
+		if (ioctl(sec_fd, DMX_SET_FILTER, &sctfilter) == -1) {
 			qDebug() << "DEMUX: DMX_SET_FILTER";
 		}
 		status = unsetbit(status, TUNER_IOCTL);
@@ -898,7 +898,7 @@ int dvbtune::demux_packets(dvb_pids mypids)
 		len = 0;
 		memset(buf, 0, TNY_BUFSIZE);
 		status = setbit(status, TUNER_RDING);
-		len = read(sec_fd.at(a), buf, TNY_BUFSIZE);
+		len = read(sec_fd, buf, TNY_BUFSIZE);
 		status = unsetbit(status, TUNER_RDING);
 		if (len > 0) {
 			buffer.clear();
@@ -1141,11 +1141,8 @@ void dvbtune::close_demux()
 	if (!dmx_name.isEmpty()) {
 		dmx_name.clear();
 	}
-	while (!sec_fd.isEmpty()) {
-		close(sec_fd.last());
-		sec_fd.removeLast();
-	}
 	if (!sec_name.isEmpty()) {
+		close(sec_fd);
 		sec_name.clear();
 	}
 }
@@ -1161,9 +1158,9 @@ void dvbtune::stop_demux()
 		ioctl(dmx_fd.at(i), DMX_STOP);
 		status = unsetbit(status, TUNER_IOCTL);
 	}
-	for (int i = 0; i < sec_fd.size(); i++) {
+	if (!sec_name.isEmpty()) {
 		status = setbit(status, TUNER_IOCTL);
-		ioctl(sec_fd.at(i), DMX_STOP);
+		ioctl(sec_fd, DMX_STOP);
 		status = unsetbit(status, TUNER_IOCTL);
 	}
 	emit adapter_status(adapter);

@@ -62,7 +62,7 @@ public:
 
 	int frontend_fd, dvr_fd, out_fd;
 	QVector<int> dmx_fd;
-	QVector<int> sec_fd;
+	int sec_fd;
 	QString frontend_name, dvr_name, dmx_name, sec_name, out_name;
 	struct timeval fd_timeout;
 	QVector<unsigned int> pids;
