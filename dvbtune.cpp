@@ -771,7 +771,7 @@ int dvbtune::tune()
 
 void dvbtune::get_bitrate()
 {
-	if (!(festatus & FE_HAS_LOCK)) {
+	if (!(festatus & FE_HAS_LOCK) || !demux_packets_loop) {
 		return;
 	}
 
