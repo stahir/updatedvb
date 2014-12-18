@@ -228,7 +228,7 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 			waterfall_curve->removeLast();
 		}
 		waterfall_curve->first()->setItemAttribute(QwtPlotItem::Legend, true);
-		waterfall_curve->first()->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
+		waterfall_curve->first()->setTitle(mysettings->value("lnb" + ui->comboBox_lnb->currentData().toString() + "_name").toString() + " -" + dvbnames.voltage[cindex]);
 		waterfall_curve->first()->setSamples(waterfall_x->first(), waterfall_y->first());
 		waterfall_curve->first()->attach(ui->qwtPlot);
 
@@ -244,7 +244,7 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 			waterfall_curve->at(c)->attach(ui->qwtPlot);
 		}
 	} else {
-		curve[cindex]->setTitle("LNB " + QString::number(lnb) + dvbnames.voltage[cindex]);
+		curve[cindex]->setTitle(mysettings->value("lnb" + ui->comboBox_lnb->currentData().toString() + "_name").toString() + " -" + dvbnames.voltage[cindex]);
 		curve[cindex]->setSamples(x, y);
 	}
 	set_colors();
