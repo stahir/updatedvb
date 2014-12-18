@@ -945,3 +945,19 @@ void MainWindow::on_checkBox_waterfall_clicked()
 {
 	ui->checkBox_loop->setChecked(ui->checkBox_waterfall->isChecked());
 }
+
+void MainWindow::on_actionSave_Screenshot_triggered()
+{
+	static QString filename;
+	if (filename.isEmpty()) {
+		filename = QFileDialog::getSaveFileName(this, "Save Screen Shot", QDir::currentPath() + "/rfscan.png");
+	} else {
+		filename = QFileDialog::getSaveFileName(this, "Save Screen Shot", filename);
+	}
+	if (filename.isEmpty()) {
+		return;
+	}
+
+	QPixmap p = ui->qwtPlot->grab();
+	p.save(filename, "PNG");
+}

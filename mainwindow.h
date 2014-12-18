@@ -97,6 +97,8 @@ private slots:
 	void adapter_status(int adapter);
 	void setup_tuning_options();
 
+	void on_actionSave_Screenshot_triggered();
+
 private:
 	Ui::MainWindow *ui;
 	QVector< QPointer<tuning> > mytuning;
