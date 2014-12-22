@@ -467,17 +467,17 @@ void tuning::on_pushButton_ipcleaner_clicked()
 
 void tuning::on_pushButton_play_clicked()
 {
+	if (myProcess.pid()) {
+		qDebug() << "stopping previous player first...";
+		myProcess.kill();
+		myProcess.waitForFinished();
+	}
+
 	while (mythread.parsetp_running) {
 		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
-	}
-
-	if (myProcess.pid()) {
-		qDebug() << "stopping previous player first...";
-		myProcess.kill();
-		myProcess.waitForFinished();
 	}
 
 	mytune->close_dvr();
