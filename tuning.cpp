@@ -68,7 +68,7 @@ tuning::~tuning()
 		mythread.loop				= false;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	if (!myiqplot.isNull()) {
@@ -83,7 +83,7 @@ tuning::~tuning()
 	mystream_thread.quit();
 	mystream_thread.wait(1000);
 	while (mystream_thread.isRunning()) {
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	mythread.quit();
@@ -91,7 +91,7 @@ tuning::~tuning()
 	while (mythread.isRunning()) {
 		mythread.ready			= true;
 		mythread.loop			= false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	mytune->status = unsetbit(mytune->status, 0xff);
@@ -105,7 +105,7 @@ tuning::~tuning()
 	mytune->wait(1000);
 	while (mytune->isRunning()) {
 		mytune->loop = false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	status_timer->deleteLater();
@@ -449,7 +449,7 @@ void tuning::on_pushButton_ipcleaner_clicked()
 		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 	if (myProcess.pid()) {
 		myProcess.terminate();
@@ -471,7 +471,7 @@ void tuning::on_pushButton_play_clicked()
 		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	if (myProcess.pid()) {
@@ -495,7 +495,7 @@ void tuning::on_pushButton_demux_clicked()
 		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	mytune->close_dvr();
@@ -521,7 +521,7 @@ void tuning::on_pushButton_file_clicked()
 		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	ui->pushButton_file->setEnabled(false);
@@ -556,7 +556,7 @@ void tuning::on_pushButton_stream_clicked()
 		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
-		QThread::msleep(100);
+		QThread::msleep(10);
 	}
 
 	if (mystream.server && mystream.server->isListening()) {
