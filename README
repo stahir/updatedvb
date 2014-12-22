@@ -24,6 +24,8 @@
 
 	sudo apt-get install git build-essential subversion libgl1-mesa-dev mesa-common-dev
 
+# As well as Qt 5.4
+#
 # 64bit
 
 	wget http://download.qt-project.org/official_releases/online_installers/qt-opensource-linux-x64-online.run

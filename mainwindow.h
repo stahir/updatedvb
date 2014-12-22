@@ -70,7 +70,7 @@ public:
 	void clear_qwtplot();
 
 public slots:
-	void qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
+	void qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex, unsigned int scale);
 	void markers_draw();
 	void qwtPlot_selected(QPointF pos);
 	void update_status(QString text, int time = STATUS_REMOVE);

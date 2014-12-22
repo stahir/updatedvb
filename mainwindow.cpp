@@ -58,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	mysettings	= new QSettings("UDL", "updateDVB");
 	myscan		= new scan;
-	connect(myscan, SIGNAL(signaldraw(QVector<double>, QVector<double>, int, int, int)), this, SLOT(qwt_draw(QVector<double>, QVector<double>, int, int, int)));
+	connect(myscan, SIGNAL(signaldraw(QVector<double>, QVector<double>, int, int, int, unsigned int)), this, SLOT(qwt_draw(QVector<double>, QVector<double>, int, int, int, unsigned int)));
 	connect(myscan, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 	connect(myscan, SIGNAL(markers_draw()), this, SLOT(markers_draw()));
 
@@ -179,7 +179,7 @@ void MainWindow::closeEvent(QCloseEvent* ce)
 	}
 }
 
-void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex)
+void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max, int cindex, unsigned int scale)
 {
 	int lnb = ui->comboBox_lnb->currentData().toInt();
 
@@ -206,6 +206,21 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 		waterfall_curve = &waterfall_curve_N;
 		waterfall_x		= &waterfall_x_N;
 		waterfall_y		= &waterfall_y_N;
+		break;
+	}
+
+	QString scale_text;
+	switch (scale) {
+	case SC_DB:
+		scale_text = "dB (dB x 100)";
+		break;
+	case SC_DBM:
+		scale_text = "dBm (dB x 100)";
+		break;
+	case SC_GAIN:
+		scale_text = "AGC Gain (0 - (dB x 100)";
+		break;
+	default:
 		break;
 	}
 
@@ -246,6 +261,7 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 	} else {
 		curve[cindex]->setTitle(mysettings->value("lnb" + ui->comboBox_lnb->currentData().toString() + "_name").toString() + " -" + dvbnames.voltage[cindex]);
 		curve[cindex]->setSamples(x, y);
+		ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, scale_text);
 	}
 	set_colors();
 }
@@ -513,6 +529,8 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 			mytuning.at(i)->raise();
 		}
 	}
+
+	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
 }
 
 void MainWindow::on_comboBox_frontend_currentIndexChanged(int index)

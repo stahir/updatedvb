@@ -29,7 +29,7 @@ class scan : public QThread
 {
     Q_OBJECT
 signals:
-	void signaldraw(QVector<double> x, QVector<double> y, int min, int max, int cindex);
+	void signaldraw(QVector<double> x, QVector<double> y, int min, int max, int cindex, unsigned int scale);
 	void update_status(QString text, int time);
 	void markers_draw();
 
@@ -48,6 +48,7 @@ public:
 	void sweep();
 	void rescale();
 private:
+	struct dvb_fe_spectrum_scan fe_scan;
 	dvb_settings dvbnames;
 	int f_start, f_stop;
 

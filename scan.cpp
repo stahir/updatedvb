@@ -74,12 +74,8 @@ void scan::rescale() {
 
 	QVector<double> ys = y;
 	qSort(ys);
-	for (int i = 0; i < y.size(); i++) {
-		if (y.at(i) == 0) {
-			ys.remove(0);
-		}
-	}
-	if (ys.size() <= 1) {
+	ys.removeAll(0);
+	if (ys.isEmpty()) {
 		return;
 	}
 	min = ys[ys.size() * 0.05];
@@ -105,7 +101,7 @@ void scan::rescale() {
 		}
 	}
 	for (int i = 0; i < y.size(); i++) {
-		if (y.at(i) < min) {
+		if (y.at(i) < min || y.at(i) == 0) {
 			y[i] = min;
 		}
 	}
@@ -115,7 +111,7 @@ void scan::rescale() {
 	unsigned int threshold = (max-min)/8;
 	unsigned int start = 0;
 	unsigned int end = 0;
-	unsigned int tmax = 0;
+	int tmax = 0;
 	for(int i = slope; i < x.size(); i++) {
 		if ( (y.at(i) - y.at(i-slope)) > threshold ) {
 			start = x.at(i-slope);
@@ -126,7 +122,7 @@ void scan::rescale() {
 		if (tmax && y.at(i) > tmax) {
 			tmax = y.at(i);
 		}
-		if ( start && (y.at(i-slope) - y.at(i)) > threshold && tmax > (unsigned int)min) {
+		if ( start && (y.at(i-slope) - y.at(i)) > threshold && tmax > min) {
 			end = x.at(i);
 			tmp.frequency			= (start + end)/2;
 			tmp.voltage				= mytune->tp.voltage;
@@ -139,7 +135,7 @@ void scan::rescale() {
 		}
 	}
 
-	emit signaldraw(x, y, min, max, mytune->tp.voltage);
+	emit signaldraw(x, y, min, max, mytune->tp.voltage, *fe_scan.type);
 }
 
 void scan::sweep()
@@ -175,26 +171,27 @@ void scan::sweep()
 
 	emit update_status("Scanning...", STATUS_NOEXP);
 
-	short unsigned int rf_levels_h[65535];
-	struct dvb_fe_spectrum_scan scan;
+	short int rf_levels_h[65535];
 
 	if (isSatellite(mytune->tp.system) || step == 1) {
 		if (!isSatellite(mytune->tp.system)) {
 			step *= 1000;
 		}
-		scan.rf_level	= rf_levels_h;
-		scan.num_freq	= ((f_stop - f_start) / step) + 1;
-		scan.freq		= (__u32*) malloc(scan.num_freq * sizeof(__u32));
-		for (int i = 0; i < scan.num_freq; i++) {
-			*(scan.freq + i) = (f_start + (i * step)) * 1000;
+
+		fe_scan.type		= new __u32;
+		fe_scan.rf_level	= rf_levels_h;
+		fe_scan.num_freq	= ((f_stop - f_start) / step) + 1;
+		fe_scan.freq		= (__u32*) malloc(fe_scan.num_freq * sizeof(__u32));
+		for (int i = 0; i < fe_scan.num_freq; i++) {
+			*(fe_scan.freq + i) = (f_start + (i * step)) * 1000;
 		}
 
-		mytune->spectrum_scan(&scan);
+		mytune->spectrum_scan(&fe_scan);
 
 		x.clear();
 		y.clear();
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
+		for(unsigned int i = 0; i < fe_scan.num_freq; i++) {
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(fe_scan.freq + i)/1000)));
 			y.append(rf_levels_h[i]);
 		}
 	} else {
@@ -214,31 +211,34 @@ void scan::sweep()
 			}
 		}
 
-		scan.rf_level	= rf_levels_h;
-		scan.num_freq	= freq.size();
-		scan.freq		= (__u32*) malloc(freq.size() * sizeof(__u32));
-		for (int i = 0; i < scan.num_freq; i++) {
-			*(scan.freq + i) = freq.at(i) * 1000;
+		fe_scan.type		= new __u32;
+		fe_scan.rf_level	= rf_levels_h;
+		fe_scan.num_freq	= freq.size();
+		fe_scan.freq		= (__u32*) malloc(freq.size() * sizeof(__u32));
+		for (int i = 0; i < fe_scan.num_freq; i++) {
+			*(fe_scan.freq + i) = freq.at(i) * 1000;
 		}
 
-		mytune->spectrum_scan(&scan);
+		mytune->spectrum_scan(&fe_scan);
 
 		x.clear();
 		y.clear();
-		for(unsigned int i = 0; i < scan.num_freq; i++) {
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) - 3000);
+		for(unsigned int i = 0; i < fe_scan.num_freq; i++) {
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(fe_scan.freq + i)/1000)) - 3000);
 			y.append(0);
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)));
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(fe_scan.freq + i)/1000)));
 			y.append(rf_levels_h[i]);
-			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(scan.freq + i)/1000)) + 3000);
+			x.append(abs(mytune->tune_ops.f_lof + ((long int)*(fe_scan.freq + i)/1000)) + 3000);
 			y.append(0);
 		}
 	}
-	free(scan.freq);
 
 	rescale();
 	emit update_status("", STATUS_CLEAR);
 	emit update_status("Completed in " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 2);
+
+	free(fe_scan.type);
+	free(fe_scan.freq);
 }
 
 void scan::setup()
