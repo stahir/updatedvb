@@ -60,10 +60,8 @@ public:
 	QVector<dvb_data> dvbdata;
 	QVector<QByteArray> packet_processed;
 
-	int frontend_fd, dvr_fd, out_fd;
-	QVector<int> dmx_fd;
-	int sec_fd;
-	QString frontend_name, dvr_name, dmx_name, sec_name, out_name;
+	int frontend_fd, dmx_fd, dvr_fd, out_fd;
+	QString frontend_name, dvr_name, dmx_name, out_name;
 	struct timeval fd_timeout;
 	QVector<unsigned int> pids;
 	QVector<unsigned int> pids_rate;
