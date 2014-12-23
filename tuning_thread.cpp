@@ -333,7 +333,7 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		data_service ds;
 		while (mytune->index < desc_end) {
 			unsigned int data_service_id = mytune->read8();
-			item->text = QString("Data Service ID: % - %11").arg(data_service_id).arg(ds.text.at(data_service_id));
+			item->text = QString("Data Service ID: %1 - %2").arg(data_service_id).arg(ds.text.at(data_service_id));
 			tree_create_wait(item);
 			unsigned int data_service_descriptor_length = mytune->read8();
 			switch (data_service_id) {
