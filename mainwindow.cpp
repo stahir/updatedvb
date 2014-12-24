@@ -336,7 +336,7 @@ void MainWindow::update_status(QString text, int time)
 
 void MainWindow::on_pushButton_spectrumscan_clicked()
 {
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->status != TUNER_AVAIL) {
+	if (!(mytuners.at(ui->comboBox_adapter->currentIndex())->status & TUNER_AVAIL)) {
 		update_status("Adapter " + QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->adapter) + " is currently busy", 1);
 		return;
 	}
@@ -360,7 +360,7 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 
 void MainWindow::on_pushButton_blindscan_clicked()
 {
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->status != TUNER_AVAIL) {
+	if (!(mytuners.at(ui->comboBox_adapter->currentIndex())->status & TUNER_AVAIL)) {
 		update_status("Adapter " + QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->adapter) + " is currently busy", 1);
 		return;
 	}
@@ -616,9 +616,12 @@ void MainWindow::adapter_status(int adapter)
 	if (index < 0) {
 		return;
 	}
-	if (mytuners.at(index)->status == TUNER_AVAIL) {
+	if (mytuners.at(index)->status & TUNER_AVAIL) {
 		ui->comboBox_adapter->setItemText(index, QString::number(adapter) + " " + mysettings->value("adapter" + QString::number(adapter) + "_name").toString());
 		ui->comboBox_adapter->setItemData(index, QColor(Qt::black), Qt::TextColorRole);
+	} else {
+		ui->comboBox_adapter->setItemText(index, QString::number(adapter) + " Unavailible");
+		ui->comboBox_adapter->setItemData(index, QColor(Qt::red), Qt::TextColorRole);
 	}
 	if (mytuners.at(index)->status & TUNER_TUNED) {
 		ui->comboBox_adapter->setItemText(index, QString::number(adapter) + " Tuned");

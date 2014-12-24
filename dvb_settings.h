@@ -41,11 +41,11 @@
 #define PERSISTENCE 30
 
 // Status bits
-#define TUNER_AVAIL	0 // free todo anything
-#define TUNER_IOCTL	1 // busy sending ioctl
-#define TUNER_TUNED	2 // tuned
-#define TUNER_DEMUX	4 // demux'ing
-#define TUNER_RDING	8 // read()'ing
+#define TUNER_AVAIL	1 // free todo anything
+#define TUNER_IOCTL	2 // busy sending ioctl
+#define TUNER_TUNED	4 // tuned
+#define TUNER_DEMUX	8 // demux'ing
+#define TUNER_RDING	16 // read()'ing
 
 #define STATUS_NOEXP   0
 #define STATUS_REMOVE -1
