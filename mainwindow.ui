@@ -110,7 +110,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -132,7 +132,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -170,7 +170,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -192,7 +192,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -246,7 +246,7 @@
             <item row="0" column="1">
              <widget class="QComboBox" name="comboBox_adapter">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -260,7 +260,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="insertPolicy">
@@ -279,7 +279,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="frame">
@@ -340,7 +340,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
              </widget>
@@ -388,7 +388,7 @@
             <item row="0" column="1">
              <widget class="QComboBox" name="comboBox_system">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -402,7 +402,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
              </widget>
@@ -410,7 +410,7 @@
             <item row="2" column="1">
              <widget class="QComboBox" name="comboBox_modulation">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -424,7 +424,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
              </widget>
@@ -466,7 +466,7 @@
             <item row="0" column="1">
              <widget class="QComboBox" name="comboBox_voltage">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -480,7 +480,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <item>
@@ -576,7 +576,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -601,7 +601,7 @@
               <property name="maximumSize">
                <size>
                 <width>55</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -681,7 +681,7 @@
             <item row="0" column="1">
              <widget class="QPushButton" name="pushButton_spectrumscan">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -695,7 +695,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="baseSize">
@@ -736,7 +736,7 @@
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="baseSize">
@@ -813,7 +813,7 @@
               <property name="maximumSize">
                <size>
                 <width>25</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -863,7 +863,7 @@
               <property name="maximumSize">
                <size>
                 <width>40</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -882,7 +882,7 @@
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="baseSize">
@@ -943,7 +943,7 @@
             <item row="0" column="1">
              <widget class="QLineEdit" name="lineEdit_symbolrate">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -957,7 +957,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -981,7 +981,7 @@
             <item row="1" column="1">
              <widget class="QComboBox" name="comboBox_fec">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -995,7 +995,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
              </widget>
@@ -1043,7 +1043,7 @@
             <item row="0" column="1">
              <widget class="QPushButton" name="pushButton_blindscan">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -1057,7 +1057,7 @@
               <property name="maximumSize">
                <size>
                 <width>130</width>
-                <height>20</height>
+                <height>22</height>
                </size>
               </property>
               <property name="text">
@@ -1085,7 +1085,7 @@
      <x>0</x>
      <y>0</y>
      <width>1046</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
