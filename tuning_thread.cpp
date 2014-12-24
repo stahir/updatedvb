@@ -1246,6 +1246,7 @@ void tuning_thread::parsetp()
 		emit list_create();
 	}
 	mytune->stop_demux();
+	mytune->close_demux();
 	parsetp_running = false;
 	emit parsetp_done();
 }
