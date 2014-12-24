@@ -88,7 +88,7 @@ public:
 	void close_demux();
 	void setup_switch();
 	void spectrum_scan(dvb_fe_spectrum_scan *scan);
-	void openfd();
+	bool openfd();
 	void closefd();
 	void close_dvr();
 	void getops();

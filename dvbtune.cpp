@@ -204,23 +204,25 @@ void dvbtune::closefd()
 	close_demux();
 	close_dvr();
 
-	if (frontend_name.isEmpty()) {
-		return;
+	if (!frontend_name.isEmpty()) {
+		close(frontend_fd);
+		frontend_fd = -1;
+		frontend_name.clear();
 	}
-	close(frontend_fd);
-	frontend_name.clear();
 }
 
-void dvbtune::openfd()
+bool dvbtune::openfd()
 {
 	if (frontend_name.isEmpty()) {
 		frontend_name = "/dev/dvb/adapter" + QString::number(adapter) + "/frontend" + QString::number(frontend);
 		frontend_fd = open(frontend_name.toStdString().c_str(), O_RDWR|O_NONBLOCK);
 		if (frontend_fd < 0) {
 			qDebug() << "Failed to open" << frontend_name;
-			return;
+			status = unsetbit(status, TUNER_AVAIL);
+			return false;
 		}
 	}
+	return true;
 }
 
 double dvbtune::radian( double number )
@@ -235,7 +237,9 @@ double dvbtune::degree( double number )
 
 void dvbtune::getops()
 {
-	openfd();
+	if (!openfd()) {
+		return;
+	}
 	
 	struct dtv_property p[1];
 	p[0].cmd = DTV_ENUM_DELSYS;
@@ -303,7 +307,9 @@ void dvbtune::step_motor(int direction, int steps)
 
 void dvbtune::usals_drive(double sat_long)
 {
-	openfd();
+	if (!openfd()) {
+		return;
+	}
 
 	double r_eq = 6378.14;		// Earth radius
 	double r_sat = 42164.57;	// Distance from earth centre to satellite
@@ -665,13 +671,17 @@ int dvbtune::tune_clear()
 
 int dvbtune::tune()
 {
+	if (!openfd()) {
+		return -1;
+	}
+
 	stop_demux();
 	close_demux();
 	close_dvr();
 
 	iq_x.clear();
 	iq_y.clear();
-	openfd();
+
 	if (isSatellite(tp.system)) {
 		setup_switch();	
 	}
@@ -1142,7 +1152,9 @@ void dvbtune::stop_demux()
 
 void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 {
-	openfd();
+	if (!openfd()) {
+		return;
+	}
 
 	if (isSatellite(tp.system)) {
 		setup_switch();	

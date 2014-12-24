@@ -529,6 +529,11 @@ void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
 			mytuning.at(i)->raise();
 		}
 	}
+	for (int i = 0; i < mytuners.size(); i++) {
+		if (!(mytuners.at(i)->status & TUNER_AVAIL)) {
+			mytuners.at(i)->closefd();
+		}
+	}
 
 	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
 }
