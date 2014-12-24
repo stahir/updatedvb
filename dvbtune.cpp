@@ -56,7 +56,6 @@ dvbtune::~dvbtune()
 	}
 	mydvr->deleteLater();
 
-	stop_demux();
 	close_demux();
 	close_dvr();
 	closefd();
@@ -222,6 +221,7 @@ bool dvbtune::openfd()
 			status = unsetbit(status, TUNER_AVAIL);
 			return false;
 		}
+		status = setbit(status, TUNER_AVAIL);
 	}
 	return true;
 }

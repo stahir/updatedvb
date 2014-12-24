@@ -94,13 +94,10 @@ tuning::~tuning()
 		QThread::msleep(10);
 	}
 
-	mytune->status = unsetbit(mytune->status, 0xff);
+	mytune->status = TUNER_AVAIL;
 	emit adapter_status(mytune->adapter);
 
 	mytune->loop		= false;
-	mytune->stop_demux();
-	mytune->close_demux();
-	mytune->close_dvr();
 	mytune->quit();
 	mytune->wait(1000);
 	while (mytune->isRunning()) {
