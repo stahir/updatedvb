@@ -801,6 +801,9 @@ void dvbtune::get_bitrate()
 	char buf[LIL_BUFSIZE];
 	buffer.clear();
 
+	close_dvr();
+	close_demux();
+
 	pids.clear();
 	pids.append(0x2000);
 	demux_video();
@@ -870,7 +873,7 @@ int dvbtune::demux_packets(dvb_pids mypids)
 
 	demux_packets_loop = true;
 
-	stop_demux();
+	close_demux();
 	if (dmx_name.isEmpty()) {
 		dmx_name	= "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
 		dmx_fd		= open(dmx_name.toStdString().c_str(), O_RDWR);
@@ -928,7 +931,8 @@ int dvbtune::demux_packets(dvb_pids mypids)
 
 void dvbtune::demux_bbframe()
 {
-	stop_demux();
+	close_dvr();
+	close_demux();
 	if (dmx_name.isEmpty()) {
 		dmx_name	= "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
 		dmx_fd		= open(dmx_name.toStdString().c_str(), O_RDWR);
@@ -967,7 +971,8 @@ void dvbtune::demux_bbframe()
 
 void dvbtune::demux_video()
 {
-	stop_demux();
+	close_dvr();
+	close_demux();
 	if (dmx_name.isEmpty()) {
 		dmx_name	= "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
 		dmx_fd		= open(dmx_name.toStdString().c_str(), O_RDWR);
@@ -1004,6 +1009,8 @@ void dvbtune::demux_video()
 
 void dvbtune::demux_stream(bool start)
 {
+	close_dvr();
+	close_demux();
 	if (start) {
 		status = setbit(status, TUNER_DEMUX);
 		mydvr->thread_function.append("demux_stream");
@@ -1022,6 +1029,8 @@ void dvbtune::demux_stream(bool start)
 
 void dvbtune::demux_file(bool start)
 {
+	close_dvr();
+	close_demux();
 	if (start) {
 		status = setbit(status, TUNER_DEMUX);
 		mydvr->file_name = out_name;
