@@ -31,6 +31,7 @@ dvbtune::dvbtune()
 	frontend	= 0;
 	index		= 0;
 	frontend_fd	= -1;
+	dmx_fd		= -1;
 	dvr_fd		= -1;
 	out_fd		= -1;
 	old_position	= 0;
@@ -1133,6 +1134,7 @@ void dvbtune::close_demux()
 	stop_demux();
 	if (!dmx_name.isEmpty()) {
 		close(dmx_fd);
+		dmx_fd = -1;
 		dmx_name.clear();
 	}
 }
