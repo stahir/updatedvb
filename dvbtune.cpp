@@ -206,6 +206,11 @@ void dvbtune::closefd()
 		frontend_fd = -1;
 		frontend_name.clear();
 	}
+
+	myswitch.tone			= -1;
+	myswitch.voltage		= -1;
+	myswitch.committed		= -1;
+	myswitch.uncommitted	= -1;
 }
 
 bool dvbtune::openfd()
