@@ -265,7 +265,7 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 	}
 	set_colors();
 
-	if (mysettings->value("adapter" + ui->comboBox_adapter->currentData().toString() + "_save_images").toBool() && ui->checkBox_loop->isChecked()) {
+	if (mysettings->value("adapter" + ui->comboBox_adapter->currentData().toString() + "_save_images").toBool() && ui->checkBox_loop->isChecked() && !ui->checkBox_waterfall->isChecked()) {
 		on_actionSave_Screenshot_triggered();
 	}
 }
@@ -923,18 +923,21 @@ void MainWindow::set_colors()
 			pen_color = azero(100 * (1 - c / max_waterfall));
 			brush_color = azero(255 * (1 - c / max_waterfall));
 			waterfall_curve_V.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
+			waterfall_curve_V.at(c)->setBaseline(-32767);
 			waterfall_curve_V.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_V));
 		}
 		for (int c = 0; c < waterfall_curve_H.size(); c++) {
 			pen_color = azero(100 * (1 - c / max_waterfall));
 			brush_color = azero(255 * (1 - c / max_waterfall));
 			waterfall_curve_H.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
+			waterfall_curve_H.at(c)->setBaseline(-32767);
 			waterfall_curve_H.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_H));
 		}
 		for (int c = 0; c < waterfall_curve_N.size(); c++) {
 			pen_color = azero(100 * (1 - c / max_waterfall));
 			brush_color = azero(255 * (1 - c / max_waterfall));
 			waterfall_curve_N.at(c)->setPen(QPen(QColor(0, pen_color, 0), 2));
+			waterfall_curve_N.at(c)->setBaseline(-32767);
 			waterfall_curve_N.at(c)->setBrush(QBrush(QColor(0, brush_color, 0), pattern_N));
 		}
 	} else {
