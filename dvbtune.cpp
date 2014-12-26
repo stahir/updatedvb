@@ -311,7 +311,7 @@ void dvbtune::step_motor(int direction, int steps)
 	msleep(20);
 	status = unsetbit(status, TUNER_IOCTL);
 
-	setup_switch();
+	closefd();
 }
 
 void dvbtune::usals_drive(double sat_long)
@@ -379,7 +379,7 @@ void dvbtune::usals_drive(double sat_long)
 	old_position = degree(sat_long);
 	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move";
 
-	setup_switch();
+	closefd();
 }
 
 void dvbtune::gotox_drive(unsigned int position)
@@ -409,7 +409,7 @@ void dvbtune::gotox_drive(unsigned int position)
 	msleep(20);
 	status = unsetbit(status, TUNER_IOCTL);
 
-	setup_switch();
+	closefd();
 }
 
 void dvbtune::gotox_save(unsigned int position)
@@ -439,7 +439,7 @@ void dvbtune::gotox_save(unsigned int position)
 	msleep(20);
 	status = unsetbit(status, TUNER_IOCTL);
 
-	setup_switch();
+	closefd();
 }
 
 void dvbtune::setup_switch()
