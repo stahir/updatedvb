@@ -494,7 +494,7 @@ void dvbtune::setup_switch()
 		if (ioctl(frontend_fd, FE_SET_TONE, !tune_ops.tone) == -1) {
 			qDebug() << "FE_SET_TONE ERROR!";
 		}
-		msleep(500);
+		msleep(20);
 	}
 	status = unsetbit(status, TUNER_IOCTL);
 
