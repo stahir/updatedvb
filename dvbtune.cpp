@@ -284,6 +284,10 @@ void dvbtune::getops()
 
 void dvbtune::step_motor(int direction, int steps)
 {
+	if (!openfd()) {
+		return;
+	}
+
 	// 0x68 = East
 	// 0x69 = West
 	// 0xFF = 1 step
@@ -380,6 +384,10 @@ void dvbtune::usals_drive(double sat_long)
 
 void dvbtune::gotox_drive(unsigned int position)
 {
+	if (!openfd()) {
+		return;
+	}
+
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6B, (__u8)position, 0x00, 0x00 }, 4 };
 	
 	while (status & TUNER_IOCTL) {
@@ -406,6 +414,10 @@ void dvbtune::gotox_drive(unsigned int position)
 
 void dvbtune::gotox_save(unsigned int position)
 {
+	if (!openfd()) {
+		return;
+	}
+
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6A, (__u8)position, 0x00, 0x00 }, 4 };
 
 	while (status & TUNER_IOCTL) {
@@ -432,6 +444,10 @@ void dvbtune::gotox_save(unsigned int position)
 
 void dvbtune::setup_switch()
 {
+	if (!openfd()) {
+		return;
+	}
+
 	struct dvb_diseqc_master_cmd committed_switch_cmds[] = {
 		{ { 0xE0, 0x10, 0x38, 0xF0, 0x00, 0x00 }, 4 },
 		{ { 0xE0, 0x10, 0x38, 0xF4, 0x00, 0x00 }, 4 },
@@ -506,6 +522,10 @@ void dvbtune::setup_switch()
 
 void dvbtune::check_frontend()
 {
+	if (!openfd()) {
+		return;
+	}
+
 	fe_status_t festatus;
 
 	while (status & TUNER_IOCTL) {
@@ -650,6 +670,10 @@ QString dvbtune::format_freq(int frequency, int system)
 
 int dvbtune::tune_clear()
 {
+	if (!openfd()) {
+		return -1;
+	}
+
 	pids_rate.clear();
 	pids_rate.fill(0, 0x2000+1);
 
