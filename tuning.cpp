@@ -104,6 +104,7 @@ tuning::~tuning()
 		mytune->loop = false;
 		QThread::msleep(10);
 	}
+	mytune->closefd();
 
 	status_timer->deleteLater();
 

@@ -56,8 +56,6 @@ dvbtune::~dvbtune()
 	}
 	mydvr->deleteLater();
 
-	close_demux();
-	close_dvr();
 	closefd();
 }
 
@@ -200,7 +198,6 @@ QString dvbtune::readstr16(unsigned int len)
 
 void dvbtune::closefd()
 {
-	stop_demux();
 	close_demux();
 	close_dvr();
 
@@ -276,6 +273,8 @@ void dvbtune::getops()
 	fmin	= fe_info.frequency_min;
 	fmax	= fe_info.frequency_max;
 	fstep	= fe_info.frequency_stepsize;
+
+	closefd();
 }
 
 void dvbtune::step_motor(int direction, int steps)
@@ -1182,6 +1181,8 @@ void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 		return;
 	}
 	status = unsetbit(status, TUNER_IOCTL);
+
+	closefd();
 }
 
 void dvbtune::iqplot()
