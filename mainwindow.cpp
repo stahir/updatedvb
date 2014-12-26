@@ -264,6 +264,10 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 		ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, scale_text);
 	}
 	set_colors();
+
+	if (mysettings->value("adapter" + ui->comboBox_adapter->currentData().toString() + "_save_images").toBool() && ui->checkBox_loop->isChecked()) {
+		on_actionSave_Screenshot_triggered();
+	}
 }
 
 void MainWindow::qwtPlot_selected(QPointF pos)
@@ -763,6 +767,8 @@ void MainWindow::getadapters()
 		mytuners.last()->frontend	= ui->comboBox_frontend->currentData().toInt();
 		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentData().toInt()];
 		mytuners.last()->getops();
+
+		ss_filename.append(QString());
 	}
 
 	if (!mytuners.size()) {
@@ -975,12 +981,21 @@ void MainWindow::on_checkBox_waterfall_clicked()
 
 void MainWindow::on_actionSave_Screenshot_triggered()
 {
-	static QString filename;
-	if (filename.isEmpty()) {
-		filename = QFileDialog::getSaveFileName(this, "Save Screen Shot", QDir::currentPath() + "/rfscan.png");
+	QString filename;
+
+	if (mysettings->value("adapter" + ui->comboBox_adapter->currentData().toString() + "_save_images").toBool() && ui->checkBox_loop->isChecked()) {
+		filename = QDir::currentPath() + "/rfscan_adapter" + ui->comboBox_adapter->currentData().toString();
+		filename.append(QDateTime::currentDateTime().toString("_yyyyMMdd_hhmmss"));
+		filename.append(".png");
 	} else {
-		filename = QFileDialog::getSaveFileName(this, "Save Screen Shot", filename);
+		filename = ss_filename.at(ui->comboBox_adapter->currentIndex());
+		if (filename.isEmpty()) {
+			filename = QDir::currentPath() + "/rfscan_adapter" + ui->comboBox_adapter->currentData().toString() + ".png";
+		}
+		filename = QFileDialog::getSaveFileName(this, "Save Screen Shot", filename, tr("Image Files (*.png)"));
+		ss_filename[ui->comboBox_adapter->currentIndex()] = filename;
 	}
+
 	if (filename.isEmpty()) {
 		return;
 	}

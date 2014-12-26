@@ -96,7 +96,6 @@ private slots:
 	void on_actionExit_triggered();
 	void adapter_status(int adapter);
 	void setup_tuning_options();
-
 	void on_actionSave_Screenshot_triggered();
 
 private:
@@ -126,6 +125,7 @@ private:
 	QVector<QString> mystatus;
 	QSignalMapper status_mapper;
 	QTimer *status_timer;
+	QVector<QString> ss_filename;
 
 	void getadapters();
 	void reload_settings();

@@ -92,6 +92,7 @@ void settings::load_settings()
 	ui->lineEdit_asc1_serialport->setText(mysettings->value("asc1_serialport").toString());
 
 	ui->lineEdit_loop_delay->setText(QString::number(mysettings->value("adapter"+QString::number(adp)+"_loop_delay").toInt()));
+	ui->checkBox_save_images->setChecked(mysettings->value("adapter"+QString::number(adp)+"_save_images").toBool());
 
 	ui->checkBox_diseqc_v13->setChecked(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v13").toBool());
 	on_checkBox_diseqc_v13_clicked();
@@ -158,6 +159,7 @@ void settings::save_settings()
 	mysettings->setValue("adapter"+QString::number(adp)+"_frontend"+QString::number(fnd)+"_name", ui->lineEdit_frontend_name->text());
 	mysettings->setValue("adapter"+QString::number(adp)+"_default_lnb", ui->comboBox_default_lnb->currentIndex());
 	mysettings->setValue("adapter"+QString::number(adp)+"_loop_delay", ui->lineEdit_loop_delay->text());
+	mysettings->setValue("adapter"+QString::number(adp)+"_save_images", ui->checkBox_save_images->isChecked());
 
 	for (int i = 1; i < 100; i++) {
 		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i-1, 0)->text());
