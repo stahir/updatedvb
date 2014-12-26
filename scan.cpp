@@ -25,6 +25,7 @@ scan::scan()
 	min_old = -1;
 	max_old = -1;
 	loop	= false;
+	loop_delay	= 0;
 	ready	= true;
 	step	= 5;
 	mytune	= NULL;
@@ -38,6 +39,8 @@ scan::~scan()
 
 void scan::run()
 {
+	QTime t;
+	t.start();
 	do {
 		while (!ready) {
 			msleep(10);
@@ -64,6 +67,11 @@ void scan::run()
 			break;
 		}
 		emit markers_draw();
+
+		while (t.elapsed() < loop_delay*1000 && loop) {
+			msleep(100);
+		}
+		t.restart();
 	} while(loop);
 }
 

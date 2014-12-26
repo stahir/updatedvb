@@ -41,6 +41,7 @@ public:
 	int min, max, min_old, max_old;
 	QVector<double> x;
 	QVector<double> y;
+	int loop_delay;
 
 	scan();
 	~scan();
