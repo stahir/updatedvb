@@ -47,6 +47,7 @@ blindscan::~blindscan()
 		mytune->loop = false;
 		QThread::msleep(100);
 	}
+	mytune->closefd();
 
 	if (mytuning_running) {
 		mytuning->deleteLater();
