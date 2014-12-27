@@ -88,8 +88,10 @@ void tuning_thread::parse_etm(tree_item *item, QString desc)
 			item->text = QString("Text Encoding: %1").arg(em.whatis(mytune->read8()));
 			tree_create_wait(item);
 			unsigned int num_bytes = mytune->read8();
-			item->text = QString("%1: %2").arg(desc).arg(mytune->readstr(num_bytes));
-			tree_create_wait(item);
+			if (num_bytes > 0) {
+				item->text = QString("%1: %2").arg(desc).arg(mytune->readstr(num_bytes));
+				tree_create_wait(item);
+			}
 		}
 	}
 	item->parent		= orig.parent;
@@ -363,11 +365,11 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		mytune->index += 1;
 		mysdt.pname.append(mytune->readstr(mytune->read8()));
 		mysdt.sname.append(mytune->readstr(mytune->read8()));
-		if (mysdt.sname.last() != "") {
+		if (!mysdt.sname.last().isEmpty()) {
 			item->text = QString("Service Name: %1").arg(mysdt.sname.last());
 			tree_create_wait(item);
 		}
-		if (mysdt.pname.last() != "") {
+		if (!mysdt.pname.last().isEmpty()) {
 			item->text = QString("Provider Name: %1").arg(mysdt.pname.last());
 			tree_create_wait(item);
 		}
@@ -525,7 +527,7 @@ void tuning_thread::parse_descriptor(tree_item *item)
 				for (int a = 0; a < number_segments; a++) {
 					mytune->index += 2;
 					unsigned int num_bytes = mytune->read8();
-					if (num_bytes) {
+					if (num_bytes > 0) {
 						item->text = QString("Long Channel Name: %1").arg(mytune->readstr(num_bytes));
 						tree_create_wait(item);
 					}
