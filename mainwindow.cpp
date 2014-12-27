@@ -261,8 +261,8 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 	} else {
 		curve[cindex]->setTitle(mysettings->value("lnb" + ui->comboBox_lnb->currentData().toString() + "_name").toString() + " -" + dvbnames.voltage[cindex]);
 		curve[cindex]->setSamples(x, y);
-		ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, scale_text);
 	}
+	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, scale_text);
 	set_colors();
 
 	if (mysettings->value("adapter" + ui->comboBox_adapter->currentData().toString() + "_save_images").toBool() && ui->checkBox_loop->isChecked() && !ui->checkBox_waterfall->isChecked()) {
