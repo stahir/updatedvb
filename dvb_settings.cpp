@@ -291,6 +291,48 @@ atsc_service_type::atsc_service_type()
 	min.append(0x06);	max.append(0x3F);	text.append("[Reserved – see ATSC Code Points Registry3]");
 }
 
+QString dvb_service_type::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+dvb_service_type::dvb_service_type()
+{
+	min.append(0x00);	max.append(0x00);	text.append("reserved for future use");
+	min.append(0x01);	max.append(0x01);	text.append("digital television service (see note 1)");
+	min.append(0x02);	max.append(0x02);	text.append("digital radio sound service (see note 2)");
+	min.append(0x03);	max.append(0x03);	text.append("Teletext service");
+	min.append(0x04);	max.append(0x04);	text.append("NVOD reference service (see note 1)");
+	min.append(0x05);	max.append(0x05);	text.append("NVOD time-shifted service (see note 1)");
+	min.append(0x06);	max.append(0x06);	text.append("mosaic service");
+	min.append(0x07);	max.append(0x07);	text.append("FM radio service");
+	min.append(0x08);	max.append(0x08);	text.append("DVB SRM service [48]");
+	min.append(0x09);	max.append(0x09);	text.append("reserved for future use");
+	min.append(0x0A);	max.append(0x0A);	text.append("advanced codec digital radio sound service");
+	min.append(0x0B);	max.append(0x0B);	text.append("advanced codec mosaic service");
+	min.append(0x0C);	max.append(0x0C);	text.append("data broadcast service");
+	min.append(0x0D);	max.append(0x0D);	text.append("reserved for Common Interface Usage (EN 50221 [37])");
+	min.append(0x0E);	max.append(0x0E);	text.append("RCS Map (see EN 301 790 [7])");
+	min.append(0x0F);	max.append(0x0F);	text.append("RCS FLS (see EN 301 790 [7])");
+	min.append(0x10);	max.append(0x10);	text.append("DVB MHP service");
+	min.append(0x11);	max.append(0x11);	text.append("MPEG-2 HD digital television service");
+	min.append(0x12);	max.append(0x15);	text.append("reserved for future use");
+	min.append(0x16);	max.append(0x16);	text.append("advanced codec SD digital television service");
+	min.append(0x17);	max.append(0x17);	text.append("advanced codec SD NVOD time-shifted service");
+	min.append(0x18);	max.append(0x18);	text.append("advanced codec SD NVOD reference service");
+	min.append(0x19);	max.append(0x19);	text.append("advanced codec HD digital television service");
+	min.append(0x1A);	max.append(0x1A);	text.append("advanced codec HD NVOD time-shifted service");
+	min.append(0x1B);	max.append(0x1B);	text.append("advanced codec HD NVOD reference service");
+	min.append(0x1C);	max.append(0x7F);	text.append("reserved for future use");
+	min.append(0x80);	max.append(0xFE);	text.append("user defined");
+	min.append(0xFF);	max.append(0xFF);	text.append("reserved for future use");
+}
+
 etm_location::etm_location()
 {
 	text.append("No ETM");
@@ -685,6 +727,7 @@ dvb_settings::dvb_settings()
 	stream_type[0x0C] = "Data Broadcast Service";
 	stream_type[0x0D] = "ISO/IEC 13818-6 Sections (any type, including private data)";
 	stream_type[0x0F] = "ISO/IEC 13818-7 Audio with ADTS transport syntax";
+	stream_type[0x11] = "MPEG-2 HD digital television service";
 	stream_type[0x14] = "DSM-CC sections containing non-streaming, synchronized data per A/90 [17]";
 	stream_type[0x1B] = "AVC video stream as defined in ITU-T Rec. H.264";
 	stream_type[0x56] = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 reserved";

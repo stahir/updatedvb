@@ -177,6 +177,17 @@ public:
 	QVector<unsigned int> max;
 };
 
+class dvb_service_type
+{
+public:
+	dvb_service_type();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class etm_location
 {
 public:

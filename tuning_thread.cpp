@@ -362,7 +362,11 @@ void tuning_thread::parse_descriptor(tree_item *item)
 	}
 		break;
 	case 0x48: // service_descriptor
-		mytune->index += 1;
+	{
+		unsigned int service_type = mytune->read8();
+		dvb_service_type dst;
+		item->text = QString("Service Type: %1").arg(dst.whatis(service_type));
+		tree_create_wait(item);
 		mysdt.pname.append(mytune->readstr(mytune->read8()));
 		mysdt.sname.append(mytune->readstr(mytune->read8()));
 		if (!mysdt.sname.last().isEmpty()) {
@@ -373,6 +377,7 @@ void tuning_thread::parse_descriptor(tree_item *item)
 			item->text = QString("Provider Name: %1").arg(mysdt.pname.last());
 			tree_create_wait(item);
 		}
+	}
 		break;
 	case 0x4d: // short_event_descriptor
 	{
@@ -1139,7 +1144,7 @@ void tuning_thread::parse_tdt()
 	__u8  t4 = mytune->read8();
 
 	// If you change this text, change it in tuning::tree_create_child() as well
-	item->text = QString("UTC Date/Time: %1 %2:%3:%4").arg(QDate::fromJulianDay(t1 + 2400000.5).toString()).arg(tohex(dtag_convert(t2),2)).arg(tohex(dtag_convert(t3),2)).arg(tohex(dtag_convert(t4),2));
+	item->text = QString("UTC Date/Time: %1 %2:%3:%4").arg(QDate::fromJulianDay(t1 + 2400000.5).toString()).arg(dtag_convert(t2),2).arg(dtag_convert(t3),2).arg(dtag_convert(t4),2);
 	tree_create_wait(item);
 }
 

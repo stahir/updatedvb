@@ -86,12 +86,33 @@ public:
 	void demux_stream(bool start);
 	void stop_demux();
 	void close_demux();
+	bool open_demux();
 	void setup_switch();
 	void spectrum_scan(dvb_fe_spectrum_scan *scan);
 	bool openfd();
 	void closefd();
 	void close_dvr();
 	void getops();
+
+	bool ioctl_FE_SET_TONE(bool tone);
+	bool ioctl_FE_DISEQC_SEND_MASTER_CMD(dvb_diseqc_master_cmd diseqc_cmd);
+	bool ioctl_FE_SET_VOLTAGE(int voltage);
+	bool ioctl_FE_READ_STATUS(fe_status_t *fe_status);
+	bool ioctl_FE_GET_PROPERTY(dtv_properties *p_status);
+	bool ioctl_FE_GET_INFO(dvb_frontend_info *fe_info);
+	bool ioctl_FE_READ_SIGNAL_STRENGTH(int *lvl);
+	bool ioctl_FE_READ_SNR(unsigned int *snr);
+	bool ioctl_FE_READ_BER(unsigned int *ber);
+	bool ioctl_FE_SET_PROPERTY(dtv_properties *p_status);
+	bool ioctl_FE_GET_SPECTRUM_SCAN(dvb_fe_spectrum_scan *scan);
+	bool ioctl_FE_GET_CONSTELLATION_SAMPLES(dvb_fe_constellation_samples *const_samples);
+	bool ioctl_DMX_SET_BUFFER_SIZE(unsigned int size);
+	bool ioctl_DMX_SET_FILTER(dmx_sct_filter_params *sctfilter);
+	bool ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams);
+	bool ioctl_DMX_SET_PES_FILTER(dmx_pes_filter_params *pesFilterParams);
+	bool ioctl_DMX_STOP();
+//	bool ioctl_();
+
 	__u64 maskbits(__u64 value, __u64 mask = 0xFFFFFFFFFFFFFFFF);
 	__u64 read64(__u64 mask = 0xFFFFFFFFFFFFFFFF);
 	__u64 read56(__u64 mask = 0x00FFFFFFFFFFFFFF);
