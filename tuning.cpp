@@ -360,7 +360,13 @@ void tuning::tree_create(tree_item *item)
 
 	if (item->pid != 0xFFFF) {
 		for (int i = 0; i < tree_items.size(); i++) {
-			if (item->pid == tree_items.at(i).pid && item->text == tree_items.at(i).text) {
+			if (item->pid == tree_items.at(i).pid && item->text == tree_items.at(i).text
+					&&  (  item->text.startsWith("TDT")
+						|| item->text.startsWith("PSIP")
+						|| item->text.startsWith("MGT")
+						|| item->text.startsWith("STT")
+						)
+					) {
 				item->parent = i;
 				mythread.ready = true;
 				return;
