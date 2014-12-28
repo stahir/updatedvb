@@ -221,6 +221,7 @@ bool dvbtune::openfd()
 		if (frontend_fd < 0) {
 			qDebug() << "Failed to open" << frontend_name;
 			status = unsetbit(status, TUNER_AVAIL);
+			emit adapter_status(adapter);
 			frontend_fd = -1;
 			frontend_name.clear();
 			return false;
@@ -249,7 +250,10 @@ void dvbtune::getops()
 	p_status.num = 1;
 	p_status.props = p;
 
-	ioctl_FE_GET_PROPERTY(&p_status);
+	if (!ioctl_FE_GET_PROPERTY(&p_status)) {
+		status = unsetbit(status, TUNER_AVAIL);
+		return;
+	}
 
 	delsys.clear();
 	for (;p[0].u.buffer.len > 0; p[0].u.buffer.len--) {

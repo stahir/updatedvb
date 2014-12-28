@@ -272,6 +272,11 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 
 void MainWindow::qwtPlot_selected(QPointF pos)
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
+
 	if (myscan->loop) {
 		update_status("Please wait for spectrum scan to finish first", 1);
 		return;
@@ -340,8 +345,8 @@ void MainWindow::update_status(QString text, int time)
 
 void MainWindow::on_pushButton_spectrumscan_clicked()
 {
-	if (!(mytuners.at(ui->comboBox_adapter->currentIndex())->status & TUNER_AVAIL)) {
-		update_status("Adapter " + QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->adapter) + " is currently busy", 1);
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
 		return;
 	}
 
@@ -365,8 +370,8 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 
 void MainWindow::on_pushButton_blindscan_clicked()
 {
-	if (!(mytuners.at(ui->comboBox_adapter->currentIndex())->status & TUNER_AVAIL)) {
-		update_status("Adapter " + QString::number(mytuners.at(ui->comboBox_adapter->currentIndex())->adapter) + " is currently busy", 1);
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
 		return;
 	}
 
@@ -475,6 +480,10 @@ void MainWindow::on_pushButton_blindscan_clicked()
 
 void MainWindow::on_pushButton_usals_go_clicked()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->old_position = mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_usals_position").toDouble();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->usals_drive(ui->lineEdit_usals->text().toDouble());
 	mysettings->setValue("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_usals_position", ui->lineEdit_usals->text().toDouble());
@@ -482,31 +491,55 @@ void MainWindow::on_pushButton_usals_go_clicked()
 
 void MainWindow::on_pushButton_gotox_go_clicked()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->comboBox_gotox->currentData().toInt());
 }
 
 void MainWindow::on_pushButton_gotox_save_clicked()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->comboBox_gotox->currentData().toInt());
 }
 
 void MainWindow::on_pushButton_drive_east_L_clicked()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 5);
 }
 
 void MainWindow::on_pushButton_drive_east_S_clicked()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 1);
 }
 
 void MainWindow::on_pushButton_drive_west_S_clicked()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 1);
 }
 
 void MainWindow::on_pushButton_drive_west_L_clicked()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 5);
 }
 
@@ -640,6 +673,10 @@ void MainWindow::adapter_status(int adapter)
 
 void MainWindow::setup_tuning_options()
 {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		update_status("Tuner not available", 1);
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentData().toInt();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
