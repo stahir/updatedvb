@@ -414,10 +414,6 @@ void tuning::update_results()
 		return;
 	}
 
-	mytune->pids.clear();
-	mytune->pids.append(0x2000);
-	mytune->demux_video();
-
 	parsetp_started = true;
 	mythread.loop	= false;
 	mythread.thread_function.append("parsetp");

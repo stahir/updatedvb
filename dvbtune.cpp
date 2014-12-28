@@ -963,7 +963,7 @@ void dvbtune::close_dvr()
 	while(status & TUNER_RDING) {
 		msleep(10);
 	}
-	stop_demux();
+	close_demux();
 
 	if (!dvr_name.isEmpty()) {
 		close(dvr_fd);
