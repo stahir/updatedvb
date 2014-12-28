@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QDir>
 #include <QStatusBar>
+#include <QFileDialog>
 #include "dvbtune.h"
 
 namespace Ui {
@@ -27,6 +28,8 @@ public slots:
 private slots:
 	void on_pushButton_start_clicked();
 	void demux_status(int bytes);
+
+	void on_pushButton_browse_clicked();
 
 private:
 	Ui::demux_file *ui;

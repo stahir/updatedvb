@@ -57,6 +57,7 @@ public:
 
 signals:
 	void server_new();
+	void server_close();
 	void adapter_status(int adapter);
 
 public slots:

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>343</width>
-    <height>96</height>
+    <height>126</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,20 +19,27 @@
      <property name="spacing">
       <number>0</number>
      </property>
-     <item row="0" column="0">
-      <widget class="QLineEdit" name="lineEdit_filename"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="pushButton_stop">
+     <item row="2" column="1">
+      <widget class="QPushButton" name="pushButton_start">
        <property name="text">
-        <string>Stop</string>
+        <string>Start</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QPushButton" name="pushButton_start">
+      <widget class="QPushButton" name="pushButton_browse">
        <property name="text">
-        <string>Start</string>
+        <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLineEdit" name="lineEdit_filename"/>
+     </item>
+     <item row="3" column="1">
+      <widget class="QPushButton" name="pushButton_stop">
+       <property name="text">
+        <string>Stop</string>
        </property>
       </widget>
      </item>

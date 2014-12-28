@@ -132,6 +132,7 @@ void tuning::init()
 	connect(&mythread, SIGNAL(tree_create(tree_item *)), this, SLOT(tree_create(tree_item *)));
 	connect(&mythread, SIGNAL(parsetp_done()), this, SLOT(parsetp_done()));
 	connect(&mystream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
+	connect(this, SIGNAL(server_close()), &mystream, SLOT(server_close()));
 	connect(this, SIGNAL(server_new()), &mystream, SLOT(server_new()));
 	connect(mytune->mydvr, SIGNAL(data(QByteArray)), &mystream, SLOT(stream(QByteArray)));
 	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
@@ -564,7 +565,7 @@ void tuning::on_pushButton_stream_clicked()
 	}
 
 	if (mystream.server && mystream.server->isListening()) {
-		mystream.server_close();
+		emit server_close();
 		parsetp_start();
 	} else {
 		setup_demux();

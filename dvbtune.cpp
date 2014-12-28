@@ -662,6 +662,10 @@ void dvbtune::get_bitrate()
 		return;
 	}
 
+	while (status & TUNER_RDING) {
+		msleep(10);
+	}
+
 	QTime stime;
 	int ttime = 0;
 
@@ -825,9 +829,11 @@ void dvbtune::demux_video()
 
 void dvbtune::demux_stream(bool start)
 {
-	close_dvr();
-	close_demux();
 	if (start) {
+		close_dvr();
+		close_demux();
+		demux_video();
+
 		status = setbit(status, TUNER_DEMUX);
 		mydvr->thread_function.append("demux_stream");
 		mydvr->start();
@@ -845,9 +851,11 @@ void dvbtune::demux_stream(bool start)
 
 void dvbtune::demux_file(bool start)
 {
-	close_dvr();
-	close_demux();
 	if (start) {
+		close_dvr();
+		close_demux();
+		demux_video();
+
 		status = setbit(status, TUNER_DEMUX);
 		mydvr->file_name = out_name;
 		mydvr->thread_function.append("demux_file");
@@ -952,19 +960,15 @@ bool dvbtune::open_dvr()
 
 void dvbtune::close_dvr()
 {
-	stop_demux();
 	while(status & TUNER_RDING) {
 		msleep(10);
 	}
+	stop_demux();
+
 	if (!dvr_name.isEmpty()) {
 		close(dvr_fd);
 		dvr_fd = -1;
 		dvr_name.clear();
-	}
-	if (!out_name.isEmpty()) {
-		close(out_fd);
-		out_fd = -1;
-		out_name.clear();
 	}
 	emit adapter_status(adapter);
 }

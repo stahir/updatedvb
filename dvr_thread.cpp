@@ -25,12 +25,13 @@ void dvr_thread::run()
 			msleep(100);
 		}
 	}
+	loop = false;
 	close_file();
 }
 
 void dvr_thread::close_file()
 {
-	if (file_fd >= 0) {
+	if (file_fd > 0) {
 		close(file_fd);
 		file_fd = -1;
 		file_name.clear();
@@ -45,7 +46,7 @@ void dvr_thread::demux_file()
 	if (file_fd < 0) {
 		file_fd = open(file_name.toStdString().c_str(), O_CREAT|O_TRUNC|O_RDWR|O_NONBLOCK, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 		if (file_fd < 0) {
-			qDebug() << "Failed to open" << file_name;
+			qDebug() << Q_FUNC_INFO << "Failed to open" << file_name;
 			return;
 		}
 	}
@@ -54,21 +55,19 @@ void dvr_thread::demux_file()
 	FD_ZERO(&set);
 	FD_SET(mytune->dvr_fd, &set);
 
-	int len = 0;
+	int len = -1;
 	char buf[LIL_BUFSIZE];
 	memset(buf, 0, LIL_BUFSIZE);
 
 	mytune->status = setbit(mytune->status, TUNER_RDING);
 	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
 		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
-		if (len > 0) {
-			ssize_t wlen = write(file_fd, buf, len);
-			Q_UNUSED(wlen);
-		}
-	} else {
-		qDebug() << "read(dvr_fd) timeout";
 	}
 	mytune->status = unsetbit(mytune->status, TUNER_RDING);
+	if (len > 0) {
+		ssize_t wlen = write(file_fd, buf, len);
+		Q_UNUSED(wlen);
+	}
 
 	emit data_size(len);
 }
@@ -90,11 +89,11 @@ void dvr_thread::demux_stream()
 	mytune->status = setbit(mytune->status, TUNER_RDING);
 	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
 		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
-		if (len > 0) {
-			emit data(QByteArray(buf, len));
-		}
 	}
 	mytune->status = unsetbit(mytune->status, TUNER_RDING);
+	if (len > 0) {
+		emit data(QByteArray(buf, len));
+	}
 
 	if (len == -1 || len != LIL_BUFSIZE) {
 		qDebug() << Q_FUNC_INFO << "read issue:" << len << "of" << LIL_BUFSIZE;

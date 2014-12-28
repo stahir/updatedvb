@@ -266,7 +266,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Save Stream</string>
+             <string>Save TS</string>
             </property>
            </widget>
           </item>
