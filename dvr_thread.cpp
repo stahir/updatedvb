@@ -39,13 +39,8 @@ void dvr_thread::close_file()
 
 void dvr_thread::demux_file()
 {
-	if (mytune->dvr_name.isEmpty()) {
-		mytune->dvr_name = "/dev/dvb/adapter" + QString::number(mytune->adapter) + "/dvr0";
-		mytune->dvr_fd = open(mytune->dvr_name.toStdString().c_str(), O_RDONLY);
-		if (mytune->dvr_fd < 0) {
-			qDebug() << "Failed to open" << mytune->dvr_name;
-			return;
-		}
+	if (!mytune->open_dvr()) {
+		return;
 	}
 	if (file_fd < 0) {
 		file_fd = open(file_name.toStdString().c_str(), O_CREAT|O_TRUNC|O_RDWR|O_NONBLOCK, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
@@ -80,13 +75,8 @@ void dvr_thread::demux_file()
 
 void dvr_thread::demux_stream()
 {
-	if (mytune->dvr_name.isEmpty()) {
-		mytune->dvr_name = "/dev/dvb/adapter" + QString::number(mytune->adapter) + "/dvr0";
-		mytune->dvr_fd = open(mytune->dvr_name.toStdString().c_str(), O_RDONLY);
-		if (mytune->dvr_fd < 0) {
-			qDebug() << "Failed to open" << mytune->dvr_name;
-			return;
-		}
+	if (!mytune->open_dvr()) {
+		return;
 	}
 
 	fd_set set;
