@@ -421,7 +421,7 @@ void dvbtune::check_frontend()
 	ioctl_FE_READ_STATUS(&festatus);
 	tp.status = festatus;
 
-	struct dtv_property p[12];
+	struct dtv_property p[13];
 	p[0].cmd = DTV_FREQUENCY;
 	p[1].cmd = DTV_DELIVERY_SYSTEM;
 	p[2].cmd = DTV_SYMBOL_RATE;
@@ -434,9 +434,10 @@ void dvbtune::check_frontend()
 	p[9].cmd = DTV_STAT_SIGNAL_STRENGTH;
 	p[10].cmd = DTV_STAT_CNR;
 	p[11].cmd = DTV_STAT_POST_ERROR_BIT_COUNT;
+	p[12].cmd = DTV_FRAME_LEN;
 
 	struct dtv_properties p_status;
-	p_status.num = 12;
+	p_status.num = 13;
 	p_status.props = p;
 
 	// get the actual parameters from the driver for that channel
@@ -487,6 +488,8 @@ void dvbtune::check_frontend()
 		tp.ber = 0;
 		ioctl_FE_READ_BER(&tp.ber);
 	}
+	tp.frame_len = p_status.props[12].u.data;
+
 	status = unsetbit(status, TUNER_IOCTL);
 
 	emit update_signal();

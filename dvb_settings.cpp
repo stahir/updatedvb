@@ -129,6 +129,7 @@ tp_info::tp_info()
 	rolloff		= ROLLOFF_AUTO;
 	pilot		= PILOT_AUTO;
 	matype		= 0;
+	frame_len	= 0;
 	ber			= 0;
 	ucb			= 0;
 	snr			= 0;

@@ -95,6 +95,7 @@ public:
 	int rolloff;
 	int pilot;
 	int matype;
+	int frame_len;
 	unsigned int ucb;
 	unsigned int ber;
 	unsigned int ber_scale;

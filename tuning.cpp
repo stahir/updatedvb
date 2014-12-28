@@ -283,6 +283,8 @@ void tuning::update_signal()
 			ui->label_mis->setText("false");
 		}
 
+		ui->label_frame_len->setText(mytune->tp.frame_len ? "Short" : "Long");
+
 		if (!mytune->tp.matype) {
 			return;
 		}
@@ -411,6 +413,9 @@ void tuning::tree_create(tree_item *item)
 void tuning::update_results()
 {
 	if (mytune->tp.system == SYS_DSS) {
+		return;
+	}
+	if (mytune->tp.matype > 0 && mytune->maskbits(mytune->tp.matype >> 8, 0xC0) != 3) { // maskbits(tp.matype >> 8, 0xC0) == 3 is TS
 		return;
 	}
 
