@@ -91,6 +91,7 @@ public:
 	void spectrum_scan(dvb_fe_spectrum_scan *scan);
 	bool openfd();
 	void closefd();
+	bool open_dvr();
 	void close_dvr();
 	void getops();
 

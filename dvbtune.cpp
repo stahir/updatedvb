@@ -685,18 +685,13 @@ void dvbtune::get_bitrate()
 	pids.append(0x2000);
 	demux_video();
 
-	if (dvr_name.isEmpty()) {
-		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
-		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
-		if (dvr_fd < 0) {
-			qDebug() << "Failed to open" << dvr_name;
-			return;
-		}
+	if (!open_dvr()) {
+		return;
 	}
 
 	status = setbit(status, TUNER_RDING);
 	stime.start();
-	for (unsigned long i = 0; i < BIG_BUFSIZE; i += len) {
+	for (unsigned long i = 0; i < BIG_BUFSIZE && demux_packets_loop; i += len) {
 		len = 0;
 		memset(buf, 0, LIL_BUFSIZE);
 		len = read(dvr_fd, buf, LIL_BUFSIZE);
@@ -938,6 +933,21 @@ int dvbtune::crc32()
 		qDebug() << "CRC mismatch: " << hex << crc_buffer << ":" << hex << crc_calc;
 		return 0;
 	}
+}
+
+bool dvbtune::open_dvr()
+{
+	if (dvr_name.isEmpty()) {
+		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
+		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
+		if (dvr_fd < 0) {
+			qDebug() << "Failed to open" << dvr_name;
+			dvr_fd = -1;
+			dvr_name.clear();
+			return false;
+		}
+	}
+	return true;
 }
 
 void dvbtune::close_dvr()
