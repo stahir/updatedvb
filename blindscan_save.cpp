@@ -53,9 +53,9 @@ void blindscan_save::on_pushButton_save_clicked()
 		out << QString::number(mytp_info[i].frequency*1000);
 		out << dvbnames.voltage[mytp_info[i].voltage];
 		out << QString::number(mytp_info[i].symbolrate*1000) << " ";
-		out << dvbnames.fec[mytp_info[i].fec] << " ";
-		out << dvbnames.rolloff[mytp_info[i].rolloff] << " ";
-		out << dvbnames.modulation[mytp_info[i].modulation] << "\n";
+		out << dvbnames.fec(mytp_info[i].fec) << " ";
+		out << dvbnames.rolloff(mytp_info[i].rolloff) << " ";
+		out << dvbnames.modulation(mytp_info[i].modulation) << "\n";
 	}
 	mystatus->showMessage("Saved");
 	emit QDialog::accept();

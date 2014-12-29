@@ -232,16 +232,22 @@ class dvb_settings
 {
 public:
 	dvb_settings();
-	QVector<QString> fec;
-	QVector<QString> system;
-	QVector<QString> modulation;
+	QVector<QString> fec_name;
+	QString fec(int val);
+	QVector<QString> system_name;
+	QString system(int val);
+	QVector<QString> modulation_name;
+	QString modulation(int val);
 	QVector<QString> dtag_modulation;
 	QVector<QString> dtag_rolloff;
 	QVector<QString> dtag_fec;
 	QVector<QString> dtag_polarization;
-	QVector<QString> rolloff;
-	QVector<QString> pilot;
-	QVector<QString> inversion;
+	QVector<QString> rolloff_name;
+	QString rolloff(int val);
+	QVector<QString> pilot_name;
+	QString pilot(int val);
+	QVector<QString> inversion_name;
+	QString inversion(int val);
 	QVector<QString> tone;
 	QVector<QString> voltage;
 	QVector<QString> stream_type;

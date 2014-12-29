@@ -297,10 +297,10 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 	mytuning.last()->mytune->tp.voltage		= ui->comboBox_voltage->currentIndex();
 
 	if (ui->gridWidget_system->isVisible()) {
-		mytuning.last()->mytune->tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
-		mytuning.last()->mytune->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
+		mytuning.last()->mytune->tp.modulation	= dvbnames.modulation_name.indexOf(ui->comboBox_modulation->currentText());
+		mytuning.last()->mytune->tp.system		= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
 		mytuning.last()->mytune->tp.symbolrate	= ui->lineEdit_symbolrate->text().toInt();
-		mytuning.last()->mytune->tp.fec			= dvbnames.fec.indexOf(ui->comboBox_fec->currentText());
+		mytuning.last()->mytune->tp.fec			= dvbnames.fec_name.indexOf(ui->comboBox_fec->currentText());
 	} else {
 		mytuning.last()->mytune->tp.modulation	= QPSK;
 		mytuning.last()->mytune->tp.system		= SYS_DVBS;
@@ -358,7 +358,7 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 	}
 
 	myscan->mytune->tune_ops	= tune_ops.at(ui->comboBox_lnb->currentData().toInt());
-	myscan->mytune->tp.system	= dvbnames.system.indexOf(ui->comboBox_system->currentText());
+	myscan->mytune->tp.system	= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
 	myscan->loop				= ui->checkBox_loop->isChecked();
 	myscan->loop_delay			= mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_loop_delay").toInt();
 	myscan->setup();
@@ -378,10 +378,10 @@ void MainWindow::on_pushButton_blindscan_clicked()
 
 	tp_info tp;
 	if (ui->gridWidget_system->isVisible()) {
-		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
-		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
-		tp.system		= dvbnames.system.indexOf(ui->comboBox_system->currentText());
-		tp.modulation	= dvbnames.modulation.indexOf(ui->comboBox_modulation->currentText());
+		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
+		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= dvbnames.modulation_name.indexOf(ui->comboBox_modulation->currentText());
+		tp.system		= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
+		tp.modulation	= dvbnames.modulation_name.indexOf(ui->comboBox_modulation->currentText());
 	} else {
 		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= SYS_DVBS;
 		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= QPSK;
@@ -416,14 +416,14 @@ void MainWindow::on_pushButton_blindscan_clicked()
 
 	freq_list myfreq;
 	if (ui->checkBox_smart->isChecked() && mytuners.at(ui->comboBox_adapter->currentIndex())->tp_try.size()) {
-		if (!isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
-			if (isQAM(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+		if (!isSatellite(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
+			if (isQAM(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
 				qDebug() << "QAM";
 				myfreq.qam();
-			} else if (isATSC(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			} else if (isATSC(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
 				myfreq.atsc();
 				qDebug() << "ATSC";
-			} else if (isDVBT(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			} else if (isDVBT(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
 				myfreq.dvbt();
 				qDebug() << "DVBT";
 			}
@@ -449,14 +449,14 @@ void MainWindow::on_pushButton_blindscan_clicked()
 		}
 		myblindscan.last()->smartscan();
 	} else {
-		if (!isSatellite(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
-			if (isQAM(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+		if (!isSatellite(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
+			if (isQAM(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
 				qDebug() << "QAM";
 				myfreq.qam();
-			} else if (isATSC(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			} else if (isATSC(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
 				qDebug() << "ATSC";
 				myfreq.atsc();
-			} else if (isDVBT(dvbnames.system.indexOf(ui->comboBox_system->currentText()))) {
+			} else if (isDVBT(dvbnames.system_name.indexOf(ui->comboBox_system->currentText()))) {
 				qDebug() << "DVBT";
 				myfreq.dvbt();
 			}
@@ -676,7 +676,7 @@ void MainWindow::setup_tuning_options()
 	ui->comboBox_system->clear();
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.size()) {
 		for(int i = 0; i < mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.size(); i++) {
-			ui->comboBox_system->addItem(dvbnames.system.at(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.at(i)));
+			ui->comboBox_system->addItem(dvbnames.system(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.at(i)));
 		}
 	} else { // This should never happen, just in case some driver is seriously messed up
 		ui->comboBox_system->addItem("DVB-S");

@@ -267,15 +267,15 @@ void tuning::update_signal()
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "%");
 	}
 	ui->label_ber->setText(QString::number(mytune->tp.ber));
-	ui->label_system->setText(dvbnames.system[mytune->tp.system]);
-	ui->label_modulation->setText(dvbnames.modulation[mytune->tp.modulation]);
+	ui->label_system->setText(dvbnames.system(mytune->tp.system));
+	ui->label_modulation->setText(dvbnames.modulation(mytune->tp.modulation));
 
 	if (isSatellite(mytune->tp.system)) {
 		ui->label_frequency->setText(QString::number(mytune->tp.frequency) + dvbnames.voltage[mytune->tp.voltage] + QString::number(mytune->tp.symbolrate));
-		ui->label_fec->setText(dvbnames.fec[mytune->tp.fec]);
-		ui->label_inversion->setText(dvbnames.inversion[mytune->tp.inversion]);
-		ui->label_rolloff->setText(dvbnames.rolloff[mytune->tp.rolloff]);
-		ui->label_pilot->setText(dvbnames.pilot[mytune->tp.pilot]);
+		ui->label_fec->setText(dvbnames.fec(mytune->tp.fec));
+		ui->label_inversion->setText(dvbnames.inversion(mytune->tp.inversion));
+		ui->label_rolloff->setText(dvbnames.rolloff(mytune->tp.rolloff));
+		ui->label_pilot->setText(dvbnames.pilot(mytune->tp.pilot));
 		if (mytune->tune_ops.mis >= 0) {
 			ui->label_mis->setText("True, filter = " + QString::number(mytune->tune_ops.mis));
 		} else {

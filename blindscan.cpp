@@ -150,19 +150,19 @@ void blindscan::update_signal()
 	} else {
 		ptree[parent_1]->setForeground(0, QBrush(Qt::red));
 	}
-	text = "System: " + dvbnames.system[mytune->tp.system];
+	text = "System: " + dvbnames.system(mytune->tp.system);
 	tree_create_child(parent_1, text);
-	text = "Modulation: " + dvbnames.modulation[mytune->tp.modulation];
+	text = "Modulation: " + dvbnames.modulation(mytune->tp.modulation);
 	tree_create_child(parent_1, text);
 
 	if (isSatellite(mytune->tp.system)) {
-		text = "FEC: " + dvbnames.fec[mytune->tp.fec];
+		text = "FEC: " + dvbnames.fec(mytune->tp.fec);
 		tree_create_child(parent_1, text);
-		text = "Inversion: " + dvbnames.inversion[mytune->tp.inversion];
+		text = "Inversion: " + dvbnames.inversion(mytune->tp.inversion);
 		tree_create_child(parent_1, text);
-		text = "Rolloff: " + dvbnames.rolloff[mytune->tp.rolloff];
+		text = "Rolloff: " + dvbnames.rolloff(mytune->tp.rolloff);
 		tree_create_child(parent_1, text);
-		text = "Pilot: " + dvbnames.pilot[mytune->tp.pilot];
+		text = "Pilot: " + dvbnames.pilot(mytune->tp.pilot);
 		tree_create_child(parent_1, text);
 	}
 

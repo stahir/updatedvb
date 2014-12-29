@@ -607,62 +607,110 @@ void tree_item::restore()
 	parent = saved;
 }
 
+QString dvb_settings::fec(int val)
+{
+	if (val >= 0 && val < fec_name.size()) {
+		return fec_name.at(val);
+	}
+	return "Unknown";
+}
+
+QString dvb_settings::system(int val)
+{
+	if (val >= 0 && val < system_name.size()) {
+		return system_name.at(val);
+	}
+	return "Unknown";
+}
+
+QString dvb_settings::modulation(int val)
+{
+	if (val >= 0 && val < modulation_name.size()) {
+		return modulation_name.at(val);
+	}
+	return "Unknown";
+}
+
+QString dvb_settings::pilot(int val)
+{
+	if (val >= 0 && val < pilot_name.size()) {
+		return pilot_name.at(val);
+	}
+	return "Unknown";
+}
+
+QString dvb_settings::rolloff(int val)
+{
+	if (val >= 0 && val < rolloff_name.size()) {
+		return rolloff_name.at(val);
+	}
+	return "Unknown";
+}
+
+QString dvb_settings::inversion(int val)
+{
+	if (val >= 0 && val < inversion_name.size()) {
+		return inversion_name.at(val);
+	}
+	return "Unknown";
+}
+
 dvb_settings::dvb_settings()
 {
-	fec.append("None");
-	fec.append("1/2");
-	fec.append("2/3");
-	fec.append("3/4");
-	fec.append("4/5");
-	fec.append("5/6");
-	fec.append("6/7");
-	fec.append("7/8");
-	fec.append("8/9");
-	fec.append("Auto");
-	fec.append("3/5");
-	fec.append("9/10");
-	fec.append("2/5");
-	fec.append("5/11");
+	fec_name.append("None");
+	fec_name.append("1/2");
+	fec_name.append("2/3");
+	fec_name.append("3/4");
+	fec_name.append("4/5");
+	fec_name.append("5/6");
+	fec_name.append("6/7");
+	fec_name.append("7/8");
+	fec_name.append("8/9");
+	fec_name.append("Auto");
+	fec_name.append("3/5");
+	fec_name.append("9/10");
+	fec_name.append("2/5");
+	fec_name.append("5/11");
 
-	system.append("Undefined");
-	system.append("DVB-C A");
-	system.append("DVB-C B");
-	system.append("DVB-T");
-	system.append("DSS");
-	system.append("DVB-S");
-	system.append("DVB-S2");
-	system.append("DVB-H");
-	system.append("ISDB-T");
-	system.append("ISDB-S");
-	system.append("ISDB-C");
-	system.append("ATSC");
-	system.append("ATSC-MH");
-	system.append("DMB-TH");
-	system.append("CMMB");
-	system.append("DAB");
-	system.append("DVB-T2");
-	system.append("TURBO");
-	system.append("DVB-C C");
-	system.append("DCII");
+	system_name.append("Undefined");
+	system_name.append("DVB-C A");
+	system_name.append("DVB-C B");
+	system_name.append("DVB-T");
+	system_name.append("DSS");
+	system_name.append("DVB-S");
+	system_name.append("DVB-S2");
+	system_name.append("DVB-H");
+	system_name.append("ISDB-T");
+	system_name.append("ISDB-S");
+	system_name.append("ISDB-C");
+	system_name.append("ATSC");
+	system_name.append("ATSC-MH");
+	system_name.append("DMB-TH");
+	system_name.append("CMMB");
+	system_name.append("DAB");
+	system_name.append("DVB-T2");
+	system_name.append("TURBO");
+	system_name.append("DVB-C C");
+	system_name.append("DCII");
 
-	modulation.append("QPSK");
-	modulation.append("QAM 16");
-	modulation.append("QAM 32");
-	modulation.append("QAM 64");
-	modulation.append("QAM 128");
-	modulation.append("QAM 256");
-	modulation.append("QAM Auto");
-	modulation.append("VSB 8");
-	modulation.append("VSB 16");
-	modulation.append("8PSK");
-	modulation.append("16PSK");
-	modulation.append("32PSK");
-	modulation.append("DQPSK");
-	modulation.append("QAM 4NR");
-	modulation.append("C QPSK");
-	modulation.append("I QPSK");
-	modulation.append("Q QPSK");
-	modulation.append("C OQPSK");
+	modulation_name.append("QPSK");
+	modulation_name.append("QAM 16");
+	modulation_name.append("QAM 32");
+	modulation_name.append("QAM 64");
+	modulation_name.append("QAM 128");
+	modulation_name.append("QAM 256");
+	modulation_name.append("QAM Auto");
+	modulation_name.append("VSB 8");
+	modulation_name.append("VSB 16");
+	modulation_name.append("8PSK");
+	modulation_name.append("16PSK");
+	modulation_name.append("32PSK");
+	modulation_name.append("DQPSK");
+	modulation_name.append("QAM 4NR");
+	modulation_name.append("C QPSK");
+	modulation_name.append("I QPSK");
+	modulation_name.append("Q QPSK");
+	modulation_name.append("C OQPSK");
 
 	dtag_modulation.fill("Unknown", 0xFF + 1);
 	dtag_modulation[0] = "Auto";
@@ -703,18 +751,18 @@ dvb_settings::dvb_settings()
 	tone.append("ON");
 	tone.append("OFF");
 
-	rolloff.append("35");
-	rolloff.append("20");
-	rolloff.append("25");
-	rolloff.append("AUTO");
+	rolloff_name.append("35");
+	rolloff_name.append("20");
+	rolloff_name.append("25");
+	rolloff_name.append("AUTO");
 
-	pilot.append("OFF");
-	pilot.append("ON");
-	pilot.append("AUTO");
+	pilot_name.append("OFF");
+	pilot_name.append("ON");
+	pilot_name.append("AUTO");
 
-	inversion.append("OFF");
-	inversion.append("ON");
-	inversion.append("AUTO");
+	inversion_name.append("OFF");
+	inversion_name.append("ON");
+	inversion_name.append("AUTO");
 
 	stream_type.fill("", 0xFF + 1);
 	stream_type[0x00] = "ITU-T | ISO-IE Reserved";
