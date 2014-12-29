@@ -140,7 +140,6 @@ void tuning::init()
 	update_status("Tuning...", STATUS_NOEXP);
 	mytune->start();
 	mytune->thread_function.append("tune");
-	mytune->status = setbit(mytune->status, TUNER_TUNED);
 	emit adapter_status(mytune->adapter);
 	mythread.mytune = mytune;
 

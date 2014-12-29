@@ -85,7 +85,6 @@ private slots:
 	void on_pushButton_drive_east_S_clicked();
 	void on_pushButton_drive_west_S_clicked();
 	void on_pushButton_drive_west_L_clicked();
-	void on_comboBox_adapter_currentIndexChanged(int index);
 	void on_comboBox_frontend_currentIndexChanged(int index);
 	void on_comboBox_lnb_currentIndexChanged(int index);
 	void on_comboBox_voltage_currentIndexChanged(int index);
@@ -97,6 +96,7 @@ private slots:
 	void adapter_status(int adapter);
 	void setup_tuning_options();
 	void on_actionSave_Screenshot_triggered();
+	void on_comboBox_adapter_activated(int index);
 
 private:
 	Ui::MainWindow *ui;

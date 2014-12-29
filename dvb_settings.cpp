@@ -1608,15 +1608,6 @@ int azero(int num)
 	return num;
 }
 
-unsigned int setbit(unsigned int var, unsigned int MASK)
-{
-	return var | MASK;
-}
-unsigned int unsetbit(unsigned int var, unsigned int MASK)
-{
-	return var & ~MASK;
-}
-
 QString tohex(unsigned long int val, int length)
 {
 	return QString("0x%1").arg(val, length, 16, QChar('0'));

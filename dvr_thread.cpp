@@ -59,11 +59,11 @@ void dvr_thread::demux_file()
 	char buf[LIL_BUFSIZE];
 	memset(buf, 0, LIL_BUFSIZE);
 
-	mytune->status = setbit(mytune->status, TUNER_RDING);
+	mytune->setbit(TUNER_RDING);
 	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
 		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
 	}
-	mytune->status = unsetbit(mytune->status, TUNER_RDING);
+	mytune->unsetbit(TUNER_RDING);
 	if (len > 0) {
 		ssize_t wlen = write(file_fd, buf, len);
 		Q_UNUSED(wlen);
@@ -86,11 +86,11 @@ void dvr_thread::demux_stream()
 	char buf[LIL_BUFSIZE];
 	memset(buf, 0, LIL_BUFSIZE);
 
-	mytune->status = setbit(mytune->status, TUNER_RDING);
+	mytune->setbit(TUNER_RDING);
 	if (select(mytune->dvr_fd + 1, &set, NULL, NULL, &mytune->fd_timeout) > 0) {
 		len = read(mytune->dvr_fd, buf, LIL_BUFSIZE);
 	}
-	mytune->status = unsetbit(mytune->status, TUNER_RDING);
+	mytune->unsetbit(TUNER_RDING);
 	if (len > 0) {
 		emit data(QByteArray(buf, len));
 	}

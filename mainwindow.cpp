@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	qRegisterMetaType<short int>("short int");
 	qRegisterMetaType<QVector<short int> >("QVector<short int>");
 
+	status_timer = new QTimer;
+
 	curve.append(new QwtPlotCurve("V"));
 	curve.append(new QwtPlotCurve("H"));
 	curve.append(new QwtPlotCurve("N"));
@@ -91,8 +93,6 @@ MainWindow::MainWindow(QWidget *parent) :
 		noload = false;
 		setup_tuning_options();
 	}
-
-	status_timer = new QTimer;
 }
 
 MainWindow::~MainWindow()
@@ -273,10 +273,8 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 void MainWindow::qwtPlot_selected(QPointF pos)
 {
 	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
 		return;
 	}
-
 	if (myscan->loop) {
 		update_status("Please wait for spectrum scan to finish first", 1);
 		return;
@@ -346,7 +344,6 @@ void MainWindow::update_status(QString text, int time)
 void MainWindow::on_pushButton_spectrumscan_clicked()
 {
 	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
 		return;
 	}
 
@@ -371,7 +368,6 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 void MainWindow::on_pushButton_blindscan_clicked()
 {
 	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
 		return;
 	}
 
@@ -480,10 +476,6 @@ void MainWindow::on_pushButton_blindscan_clicked()
 
 void MainWindow::on_pushButton_usals_go_clicked()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->old_position = mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_usals_position").toDouble();
 	mytuners.at(ui->comboBox_adapter->currentIndex())->usals_drive(ui->lineEdit_usals->text().toDouble());
 	mysettings->setValue("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_usals_position", ui->lineEdit_usals->text().toDouble());
@@ -491,59 +483,35 @@ void MainWindow::on_pushButton_usals_go_clicked()
 
 void MainWindow::on_pushButton_gotox_go_clicked()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_drive(ui->comboBox_gotox->currentData().toInt());
 }
 
 void MainWindow::on_pushButton_gotox_save_clicked()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->gotox_save(ui->comboBox_gotox->currentData().toInt());
 }
 
 void MainWindow::on_pushButton_drive_east_L_clicked()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 5);
 }
 
 void MainWindow::on_pushButton_drive_east_S_clicked()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(0, 1);
 }
 
 void MainWindow::on_pushButton_drive_west_S_clicked()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 1);
 }
 
 void MainWindow::on_pushButton_drive_west_L_clicked()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->step_motor(1, 5);
 }
 
-void MainWindow::on_comboBox_adapter_currentIndexChanged(int index)
+void MainWindow::on_comboBox_adapter_activated(int index)
 {
 	if (index < 0) {
 		return;
@@ -673,13 +641,12 @@ void MainWindow::adapter_status(int adapter)
 
 void MainWindow::setup_tuning_options()
 {
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
-		update_status("Tuner not available", 1);
-		return;
-	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentData().toInt();
-	mytuners.at(ui->comboBox_adapter->currentIndex())->closefd();
+
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+		return;
+	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
 
 	if (mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_diseqc_v12").toBool()) {
@@ -800,6 +767,7 @@ void MainWindow::getadapters()
 	for (int i = 0; i < adaps.size(); i++) {
 		mytuners.append(new dvbtune);
 		connect(mytuners.last(), SIGNAL(adapter_status(int)), this, SLOT(adapter_status(int)));
+		connect(mytuners.last(), SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
 		mytuners.last()->adapter	= adaps.at(i);
 		mytuners.last()->frontend	= ui->comboBox_frontend->currentData().toInt();
 		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentData().toInt()];

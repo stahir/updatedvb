@@ -94,6 +94,8 @@ public:
 	bool open_dvr();
 	void close_dvr();
 	void getops();
+	void setbit(unsigned int MASK);
+	void unsetbit(unsigned int MASK);
 
 	bool ioctl_FE_SET_TONE(bool tone);
 	bool ioctl_FE_DISEQC_SEND_MASTER_CMD(dvb_diseqc_master_cmd diseqc_cmd);
@@ -112,7 +114,6 @@ public:
 	bool ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams);
 	bool ioctl_DMX_SET_PES_FILTER(dmx_pes_filter_params *pesFilterParams);
 	bool ioctl_DMX_STOP();
-//	bool ioctl_();
 
 	__u64 maskbits(__u64 value, __u64 mask = 0xFFFFFFFFFFFFFFFF);
 	__u64 read64(__u64 mask = 0xFFFFFFFFFFFFFFFF);

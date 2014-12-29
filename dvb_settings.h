@@ -41,11 +41,13 @@
 #define PERSISTENCE 30
 
 // Status bits
-#define TUNER_AVAIL	1 // free todo anything
-#define TUNER_IOCTL	2 // busy sending ioctl
-#define TUNER_TUNED	4 // tuned
-#define TUNER_DEMUX	8 // demux'ing
-#define TUNER_RDING	16 // read()'ing
+#define TUNER_AVAIL			1  // free todo anything
+#define TUNER_IOCTL			2  // busy sending ioctl
+#define TUNER_IOCTL_QUEUE	4  // busy sending ioctl
+#define TUNER_TUNED			8  // tuned
+#define TUNER_DEMUX			16 // demux'ing
+#define TUNER_RDING			32 // read()'ing
+#define TUNER_SCAN			64 // busying scanning
 
 #define STATUS_NOEXP   0
 #define STATUS_REMOVE -1
@@ -388,8 +390,6 @@ bool isVectorDVBT(QVector<int> system);
 bool isQAM(int system);
 bool isDVBT(int system);
 int azero(int num);
-unsigned int setbit(unsigned int var, unsigned int MASK);
-unsigned int unsetbit(unsigned int var, unsigned int MASK);
 QString tohex(unsigned long val, int length);
 
 #endif // DVB_SETTINGS_H

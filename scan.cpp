@@ -39,6 +39,7 @@ scan::~scan()
 
 void scan::run()
 {
+	mytune->setbit(TUNER_SCAN);
 	QTime t;
 	t.start();
 	do {
@@ -73,6 +74,8 @@ void scan::run()
 		}
 		t.restart();
 	} while(loop);
+	mytune->unsetbit(TUNER_SCAN);
+	mytune->closefd();
 }
 
 void scan::rescale() {
