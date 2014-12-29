@@ -1297,7 +1297,7 @@ bool dvbtune::ioctl_FE_SET_TONE(bool tone)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_SET_TONE, tone) == -1) {
+	if (ioctl(frontend_fd, FE_SET_TONE, tone) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1324,7 +1324,7 @@ bool dvbtune::ioctl_FE_DISEQC_SEND_MASTER_CMD(dvb_diseqc_master_cmd diseqc_cmd)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) == -1) {
+	if (ioctl(frontend_fd, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1351,7 +1351,7 @@ bool dvbtune::ioctl_FE_SET_VOLTAGE(int voltage)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_SET_VOLTAGE, voltage) == -1) {
+	if (ioctl(frontend_fd, FE_SET_VOLTAGE, voltage) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1378,7 +1378,7 @@ bool dvbtune::ioctl_FE_READ_STATUS(fe_status_t *fe_status)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_READ_STATUS, fe_status) == -1) {
+	if (ioctl(frontend_fd, FE_READ_STATUS, fe_status) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1404,7 +1404,7 @@ bool dvbtune::ioctl_FE_SET_PROPERTY(dtv_properties *p_status)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_SET_PROPERTY, p_status) == -1) {
+	if (ioctl(frontend_fd, FE_SET_PROPERTY, p_status) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1430,7 +1430,7 @@ bool dvbtune::ioctl_FE_GET_PROPERTY(dtv_properties *p_status)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_GET_PROPERTY, p_status) == -1) {
+	if (ioctl(frontend_fd, FE_GET_PROPERTY, p_status) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1456,7 +1456,7 @@ bool dvbtune::ioctl_FE_GET_INFO(dvb_frontend_info *fe_info)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_GET_INFO, fe_info) == -1) {
+	if (ioctl(frontend_fd, FE_GET_INFO, fe_info) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1482,7 +1482,7 @@ bool dvbtune::ioctl_FE_READ_SIGNAL_STRENGTH(int *lvl)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_READ_SIGNAL_STRENGTH, lvl) == -1) {
+	if (ioctl(frontend_fd, FE_READ_SIGNAL_STRENGTH, lvl) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1508,7 +1508,7 @@ bool dvbtune::ioctl_FE_READ_SNR(unsigned int *snr)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_READ_SNR, snr) == -1) {
+	if (ioctl(frontend_fd, FE_READ_SNR, snr) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1534,7 +1534,7 @@ bool dvbtune::ioctl_FE_READ_BER(unsigned int *ber)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_READ_BER, ber) == -1) {
+	if (ioctl(frontend_fd, FE_READ_BER, ber) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1560,7 +1560,7 @@ bool dvbtune::ioctl_FE_GET_SPECTRUM_SCAN(dvb_fe_spectrum_scan *scan)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_GET_SPECTRUM_SCAN, scan) == -1) {
+	if (ioctl(frontend_fd, FE_GET_SPECTRUM_SCAN, scan) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1586,7 +1586,7 @@ bool dvbtune::ioctl_FE_GET_CONSTELLATION_SAMPLES(dvb_fe_constellation_samples *c
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(frontend_fd, FE_GET_CONSTELLATION_SAMPLES, const_samples) == -1) {
+	if (ioctl(frontend_fd, FE_GET_CONSTELLATION_SAMPLES, const_samples) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1612,7 +1612,7 @@ bool dvbtune::ioctl_DMX_SET_BUFFER_SIZE(unsigned int size)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_BUFFER_SIZE, size) == -1) {
+	if (ioctl(dmx_fd, DMX_SET_BUFFER_SIZE, size) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1638,7 +1638,7 @@ bool dvbtune::ioctl_DMX_SET_FILTER(dmx_sct_filter_params *sctfilter)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_FILTER, sctfilter) == -1) {
+	if (ioctl(dmx_fd, DMX_SET_FILTER, sctfilter) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1664,7 +1664,7 @@ bool dvbtune::ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_BB_FILTER, bbFilterParams) == -1) {
+	if (ioctl(dmx_fd, DMX_SET_BB_FILTER, bbFilterParams) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1690,7 +1690,7 @@ bool dvbtune::ioctl_DMX_SET_PES_FILTER(dmx_pes_filter_params *pesFilterParams)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_PES_FILTER, pesFilterParams) == -1) {
+	if (ioctl(dmx_fd, DMX_SET_PES_FILTER, pesFilterParams) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1716,7 +1716,7 @@ bool dvbtune::ioctl_DMX_STOP()
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_STOP) == -1) {
+	if (ioctl(dmx_fd, DMX_STOP) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
