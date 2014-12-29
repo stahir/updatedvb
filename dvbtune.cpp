@@ -30,8 +30,8 @@ dvbtune::dvbtune()
 	adapter		= 0;
 	frontend	= 0;
 	index		= 0;
+	dmx_fd.clear();
 	frontend_fd	= -1;
-	dmx_fd		= -1;
 	dvr_fd		= -1;
 	out_fd		= -1;
 	old_position	= 0;
@@ -271,7 +271,9 @@ void dvbtune::getops()
 	fmax	= fe_info.frequency_max;
 	fstep	= fe_info.frequency_stepsize;
 
-	closefd();
+	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
+		closefd();
+	}
 }
 
 void dvbtune::step_motor(int direction, int steps)
@@ -702,6 +704,7 @@ void dvbtune::get_bitrate()
 
 	pids.clear();
 	pids.append(0x2000);
+
 	demux_video();
 
 	if (!open_dvr()) {
@@ -785,7 +788,7 @@ int dvbtune::demux_packets(dvb_pids mypids)
 		len = 0;
 		memset(buf, 0, TNY_BUFSIZE);
 		setbit(TUNER_RDING);
-		len = read(dmx_fd, buf, TNY_BUFSIZE);
+		len = read(dmx_fd.first(), buf, TNY_BUFSIZE);
 		unsetbit(TUNER_RDING);
 		if (len > 0) {
 			buffer.clear();
@@ -836,7 +839,7 @@ void dvbtune::demux_video()
 		pesFilterParams.output = DMX_OUT_TS_TAP;
 		pesFilterParams.pes_type = DMX_PES_OTHER;
 		pesFilterParams.flags = DMX_IMMEDIATE_START;
-		ioctl_DMX_SET_PES_FILTER(&pesFilterParams);
+		ioctl_DMX_SET_PES_FILTER(a, &pesFilterParams);
 	}
 	setbit(TUNER_DEMUX);
 	emit adapter_status(adapter);
@@ -991,15 +994,18 @@ void dvbtune::close_dvr()
 bool dvbtune::open_demux()
 {
 	if (dmx_name.isEmpty()) {
-		dmx_name	= "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
-		dmx_fd		= open(dmx_name.toStdString().c_str(), O_RDWR);
-		if (dmx_fd < 0) {
+		dmx_name = "/dev/dvb/adapter" + QString::number(adapter) + "/demux0";
+	}
+	int dmx_size = pids.size() ? pids.size() : 1; // We need at least one so the sct filter has something
+	while (dmx_fd.size() < dmx_size) {
+		int tmp_fd = open(dmx_name.toStdString().c_str(), O_RDWR);
+		if (tmp_fd < 0) {
 			qDebug() << "Failed to open" << dmx_name;
-			dmx_fd = -1;
-			dmx_name.clear();
 			return false;
+		} else {
+			dmx_fd.append(tmp_fd);
+			ioctl_DMX_SET_BUFFER_SIZE(BIG_BUFSIZE);
 		}
-		ioctl_DMX_SET_BUFFER_SIZE(BIG_BUFSIZE);
 	}
 	return true;
 }
@@ -1008,8 +1014,10 @@ void dvbtune::close_demux()
 {
 	stop_demux();
 	if (!dmx_name.isEmpty()) {
-		close(dmx_fd);
-		dmx_fd = -1;
+		while (!dmx_fd.isEmpty()) {
+			close(dmx_fd.last());
+			dmx_fd.removeLast();
+		}
 		dmx_name.clear();
 	}
 }
@@ -1020,6 +1028,7 @@ void dvbtune::stop_demux()
 		msleep(10);
 	}
 	ioctl_DMX_STOP();
+
 	emit adapter_status(adapter);
 }
 
@@ -1612,7 +1621,7 @@ bool dvbtune::ioctl_DMX_SET_BUFFER_SIZE(unsigned int size)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_BUFFER_SIZE, size) < 0) {
+	if (ioctl(dmx_fd.last(), DMX_SET_BUFFER_SIZE, size) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1638,7 +1647,7 @@ bool dvbtune::ioctl_DMX_SET_FILTER(dmx_sct_filter_params *sctfilter)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_FILTER, sctfilter) < 0) {
+	if (ioctl(dmx_fd.first(), DMX_SET_FILTER, sctfilter) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1664,7 +1673,7 @@ bool dvbtune::ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_BB_FILTER, bbFilterParams) < 0) {
+	if (ioctl(dmx_fd.first(), DMX_SET_BB_FILTER, bbFilterParams) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1678,7 +1687,7 @@ bool dvbtune::ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams)
 	return true;
 }
 
-bool dvbtune::ioctl_DMX_SET_PES_FILTER(dmx_pes_filter_params *pesFilterParams)
+bool dvbtune::ioctl_DMX_SET_PES_FILTER(int index, dmx_pes_filter_params *pesFilterParams)
 {
 	if (!open_demux()) {
 		return false;
@@ -1690,7 +1699,7 @@ bool dvbtune::ioctl_DMX_SET_PES_FILTER(dmx_pes_filter_params *pesFilterParams)
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_SET_PES_FILTER, pesFilterParams) < 0) {
+	if (ioctl(dmx_fd.at(index), DMX_SET_PES_FILTER, pesFilterParams) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
 		unsetbit(TUNER_IOCTL);
 		return false;
@@ -1716,10 +1725,10 @@ bool dvbtune::ioctl_DMX_STOP()
 	unsetbit(TUNER_IOCTL_QUEUE);
 
 	setbit(TUNER_IOCTL);
-	if (ioctl(dmx_fd, DMX_STOP) < 0) {
-		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
-		unsetbit(TUNER_IOCTL);
-		return false;
+	for (int i = 0; i < dmx_fd.size(); i++) {
+		if (ioctl(dmx_fd.at(i), DMX_STOP) < 0) {
+			qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
+		}
 	}
 	unsetbit(TUNER_IOCTL);
 

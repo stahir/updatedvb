@@ -60,7 +60,8 @@ public:
 	QVector<dvb_data> dvbdata;
 	QVector<QByteArray> packet_processed;
 
-	int frontend_fd, dmx_fd, dvr_fd, out_fd;
+	int frontend_fd, dvr_fd, out_fd;
+	QVector<int> dmx_fd;
 	QString frontend_name, dvr_name, dmx_name, out_name;
 	struct timeval fd_timeout;
 	QVector<unsigned int> pids;
@@ -112,7 +113,7 @@ public:
 	bool ioctl_DMX_SET_BUFFER_SIZE(unsigned int size);
 	bool ioctl_DMX_SET_FILTER(dmx_sct_filter_params *sctfilter);
 	bool ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams);
-	bool ioctl_DMX_SET_PES_FILTER(dmx_pes_filter_params *pesFilterParams);
+	bool ioctl_DMX_SET_PES_FILTER(int index, dmx_pes_filter_params *pesFilterParams);
 	bool ioctl_DMX_STOP();
 
 	__u64 maskbits(__u64 value, __u64 mask = 0xFFFFFFFFFFFFFFFF);
