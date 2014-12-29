@@ -778,7 +778,7 @@ int dvbtune::demux_packets(dvb_pids mypids)
 			sctfilter.filter.filter[0] = (unsigned int)mypids.tbl.at(a);
 			sctfilter.filter.mask[0] = 0xFF;
 		}
-		sctfilter.timeout = 300;
+		sctfilter.timeout = 1000;
 		sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 		ioctl_DMX_SET_FILTER(&sctfilter);
 
