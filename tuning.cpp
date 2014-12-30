@@ -335,6 +335,8 @@ void tuning::list_create()
 			if (i == 0x1fff || i == 0x2000) {
 				list_item.at(i)->setTextColor(QColor(Qt::green));
 			}
+		} else {
+			list_item.at(i)->setHidden(true);
 		}
 	}
 	for (int i = 0; i < tree_items.size(); i++) { // 0x1fff padding packets and 0x2000 entire mux should show as green
