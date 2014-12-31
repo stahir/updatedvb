@@ -570,6 +570,9 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		break;
 	default:
 		qDebug() << Q_FUNC_INFO << "Unknown Descriptor" << tohex(desc_tag,2) << ":" << desc_len << "bytes";
+		qDebug() << "ASCII:";
+		qDebug() << mytune->buffer.mid(mytune->index, desc_len);
+		qDebug() << "HEX:";
 		QString output;
 		for (unsigned int i = 0; i < desc_len; i++) {
 			if (i % 8 == 0 && !output.isEmpty()) {
