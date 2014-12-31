@@ -133,7 +133,8 @@ private:
 	void set_colors();
 
 protected:
-	void closeEvent(QCloseEvent *event);	
+	void closeEvent(QCloseEvent *event);
+	void focusInEvent(QFocusEvent * event);
 };
 
 #endif // MAINWINDOW_H

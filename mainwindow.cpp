@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	qRegisterMetaType<short int>("short int");
 	qRegisterMetaType<QVector<short int> >("QVector<short int>");
 
+	this->setFocusPolicy(Qt::StrongFocus);
+
 	status_timer = new QTimer;
 
 	curve.append(new QwtPlotCurve("V"));
@@ -1010,4 +1012,15 @@ void MainWindow::on_actionSave_Screenshot_triggered()
 
 	QPixmap p = ui->qwtPlot->grab();
 	p.save(filename, "PNG");
+}
+
+void MainWindow::focusInEvent(QFocusEvent * event)
+{
+	Q_UNUSED(event);
+	for (int i = 0; i < mytuning.size(); i++) {
+		if (!mytuning.at(i).isNull()) {
+			mytuning.at(i)->raise();
+			mytuning.at(i)->show();
+		}
+	}
 }
