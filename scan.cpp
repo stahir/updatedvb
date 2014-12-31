@@ -94,11 +94,9 @@ void scan::rescale() {
 	int dev = (max - min);
 	int slope;
 	if (isSatellite(mytune->tp.system)) {
-		min += dev * 0.10;
 		max += dev * 0.10;
 		slope = 10 / step;
 	} else {
-		min += dev * 0.10;
 		max += dev * 0.40; // non-satellite needs a little extra room because of the channel number
 		slope = 1;
 	}
