@@ -485,7 +485,7 @@ void dvbtune::check_frontend()
 	} else {
 		unsigned int snr = 0;
 		if (ioctl_FE_READ_SNR(&snr)) {
-			if (isATSC(tp.system) || isQAM(tp.system)) {
+			if (isATSC(tp.system) || isQAM(tp.system) || isSatellite(tp.system)) {
 				tp.snr_scale = FE_SCALE_DECIBEL;
 				tp.snr = snr/10.0;
 			}
