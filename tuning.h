@@ -67,7 +67,6 @@ private slots:
 	void update_signal();
 	void update_results();
 	void on_pushButton_play_clicked();
-	void on_pushButton_ipcleaner_clicked();
 	void on_pushButton_demux_clicked();
 	void on_pushButton_file_clicked();
 	void on_pushButton_expand_clicked();

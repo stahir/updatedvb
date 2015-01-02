@@ -152,8 +152,8 @@ void tuning::init()
 	this->setWindowTitle("Tuning Adapter " + QString::number(mytune->adapter) + ", Frontend " + QString::number(mytune->frontend) + " : " + mytune->name);
 
 	ui->pushButton_demux->setEnabled(false);
+	ui->pushButton_bbframe->setEnabled(false);
 	ui->pushButton_file->setEnabled(false);
-	ui->pushButton_ipcleaner->setEnabled(false);
 	ui->pushButton_play->setEnabled(false);
 	ui->pushButton_stream->setEnabled(false);
 	ui->pushButton_iqplot->setEnabled(false);
@@ -228,7 +228,7 @@ void tuning::update_signal()
 		if (mydemux_file.isNull()) {
 			ui->pushButton_file->setEnabled(true);
 		}
-		ui->pushButton_ipcleaner->setEnabled(true);
+		ui->pushButton_bbframe->setEnabled(true);
 		ui->pushButton_play->setEnabled(true);
 		ui->pushButton_stream->setEnabled(true);
 		ui->label_lock->setText("Locked");
@@ -237,7 +237,7 @@ void tuning::update_signal()
 		unlock_t.restart();
 		ui->pushButton_demux->setEnabled(false);
 		ui->pushButton_file->setEnabled(false);
-		ui->pushButton_ipcleaner->setEnabled(false);
+		ui->pushButton_bbframe->setEnabled(false);
 		ui->pushButton_play->setEnabled(false);
 		ui->pushButton_stream->setEnabled(false);
 		ui->label_lock->setText("Unlocked");
@@ -448,28 +448,6 @@ void tuning::setup_demux(QString type)
 	} else {
 		mytune->demux_video();
 	}
-}
-
-void tuning::on_pushButton_ipcleaner_clicked()
-{
-	while (mythread.parsetp_running) {
-		mythread.ready				= true;
-		mythread.parsetp_loop		= false;
-		mytune->demux_packets_loop	= false;
-		QThread::msleep(10);
-	}
-	if (myProcess.pid()) {
-		myProcess.terminate();
-		myProcess.waitForFinished();
-	}
-
-	mytune->close_dvr();
-	setup_demux();
-	QString cmd = mysettings->value("cmd_ipcleaner").toString();
-	cmd.replace("{}", QString::number(mytune->adapter));
-	myProcess.start(cmd);
-
-	parsetp_start();
 }
 
 void tuning::on_pushButton_play_clicked()

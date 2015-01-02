@@ -135,10 +135,8 @@ void settings::load_settings()
 	if (mysettings->value("cmd_play").toString() != "") {
 		ui->lineEdit_play->setText(mysettings->value("cmd_play").toString());
 	} else {
-		ui->lineEdit_play->setText("/usr/bin/mplayer /dev/dvb/adapter{}/dvr0");
+		ui->lineEdit_play->setText("/usr/bin/mpv /dev/dvb/adapter{}/dvr0");
 	}
-
-	ui->lineEdit_ipcleaner->setText(mysettings->value("cmd_ipcleaner").toString());
 
 	if (mytuners.size() > ui->comboBox_adapter->currentIndex()) {
 		update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
@@ -180,7 +178,6 @@ void settings::save_settings()
 	mysettings->setValue("lnb"+QString::number(lnb)+"_freqstop", ui->lineEdit_f_stop->text().toInt());
 
 	mysettings->setValue("cmd_play", ui->lineEdit_play->text());
-	mysettings->setValue("cmd_ipcleaner", ui->lineEdit_ipcleaner->text());
 
 	mysettings->setValue("site_lat", ui->lineEdit_lat->text());
 	mysettings->setValue("site_long", ui->lineEdit_long->text());
@@ -535,4 +532,18 @@ void settings::on_comboBox_frontend_currentIndexChanged(int index)
 		mytuners.at(ui->comboBox_adapter->currentIndex())->getops();
 		update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
 	}
+}
+
+void settings::on_pushButton_play_browse_clicked()
+{
+	QString ppath = ui->lineEdit_play->text().section(' ', 0, 0);
+	if (ppath.isEmpty()) {
+		ppath = QFileDialog::getOpenFileName(this, "Select Media Player", "/usr/bin");
+	} else {
+		ppath = QFileDialog::getOpenFileName(this, "Select Media Player", ppath);
+	}
+	if (ppath.isEmpty()) {
+		return;
+	}
+	ui->lineEdit_play->setText(ppath + " /dev/dvb/adapter{}/dvr0");
 }

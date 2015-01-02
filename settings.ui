@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>439</width>
+    <width>537</width>
     <height>728</height>
    </rect>
   </property>
@@ -95,7 +95,7 @@
           <rect>
            <x>10</x>
            <y>10</y>
-           <width>391</width>
+           <width>491</width>
            <height>321</height>
           </rect>
          </property>
@@ -372,7 +372,7 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>411</width>
+           <width>511</width>
            <height>631</height>
           </rect>
          </property>
@@ -673,8 +673,8 @@
           <rect>
            <x>0</x>
            <y>10</y>
-           <width>404</width>
-           <height>80</height>
+           <width>509</width>
+           <height>41</height>
           </rect>
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
@@ -682,13 +682,6 @@
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>Play cmd</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>IPcleaner cmd</string>
             </property>
            </widget>
           </item>
@@ -707,26 +700,14 @@
              </size>
             </property>
             <property name="text">
-             <string>mplayer /dev/dvb/adapter{}/dvr0</string>
+             <string>/usr/bin/mpv /dev/dvb/adapter{}/dvr0</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="lineEdit_ipcleaner">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>300</width>
-              <height>0</height>
-             </size>
-            </property>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButton_play_browse">
             <property name="text">
-             <string>wine ipcleaner /dev/dvb/adapter{}/dvr0</string>
+             <string>Browse</string>
             </property>
            </widget>
           </item>
@@ -763,7 +744,6 @@
   <tabstop>pushButton_asc1_upload</tabstop>
   <tabstop>pushButton_asc1_download</tabstop>
   <tabstop>lineEdit_play</tabstop>
-  <tabstop>lineEdit_ipcleaner</tabstop>
   <tabstop>pushButton_save</tabstop>
   <tabstop>pushButton_close</tabstop>
  </tabstops>
