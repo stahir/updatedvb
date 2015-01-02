@@ -51,22 +51,36 @@ void dvbstream_thread::socket_new()
 	emit update_status(QString("Streaming to %1").arg(socket->peerAddress().toString()), STATUS_NOEXP);
 }
 
+void dvbstream_thread::process_data()
+{
+	if (data.last() == "\r\n") {
+		qDebug() << data;
+		if (data.at(0).contains("GET / HTTP")) {
+			for (int i = 1; i < data.size(); i++) {
+				// VLC/MPV/MPlayer clients
+				if (data.at(i).section(" ", 0, 0) == "User-Agent:"
+						&& (data.at(i).contains("VLC") || data.at(i).contains("mpv") || data.at(i).contains("MPlayer"))) {
+					emit update_status(QString("Streaming to %1 @ %2").arg(data.at(i).section(" ", 1, 1)).arg(socket->peerAddress().toString()), STATUS_NOEXP);
+					mytune->demux_stream(true);
+
+					socket->write("HTTP/1.0 200 OK\r\n");
+					socket->write("Content-type: application/octet-stream\r\n");
+					socket->write("Cache-Control : no-cache\r\n");
+					socket->write("\r\n");
+					socket->waitForBytesWritten(2000);
+				}
+			}
+		}
+		data.clear();
+	}
+}
+
 void dvbstream_thread::read_data()
 {
-	QString line;
 	while (socket->bytesAvailable()) {
-		line = socket->readLine();
-		if (line.section(" ", 0, 0) == "User-Agent:") {
-			emit update_status(QString("Streaming to %1 @ %2").arg(line.section(" ", 1, 1)).arg(socket->peerAddress().toString()), STATUS_NOEXP);
-			mytune->demux_stream(true);
-		}
+		data.append(socket->readLine());
 	}
-
-	socket->write("HTTP/1.0 200 OK\r\n");
-	socket->write("Content-type: application/octet-stream\r\n");
-	socket->write("Cache-Control : no-cache\r\n");
-	socket->write("\r\n");
-	socket->waitForBytesWritten(2000);
+	process_data();
 }
 
 void dvbstream_thread::socket_close()

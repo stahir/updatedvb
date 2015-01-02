@@ -39,6 +39,7 @@ public:
 	int port;
 	QPointer<QTcpServer> server;
 	QPointer<QTcpSocket> socket;
+	QVector<QString> data;
 
 public slots:
 	void socket_new();
@@ -47,6 +48,7 @@ public slots:
 	void server_close();
 	void read_data();
 	void stream(QByteArray data);
+	void process_data();
 
 signals:
 	void update_status(QString text, int time);
