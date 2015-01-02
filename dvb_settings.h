@@ -147,6 +147,17 @@ public:
 	QVector<unsigned int> max;
 };
 
+class audio_type
+{
+public:
+	audio_type();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class encoding_mode
 {
 public:

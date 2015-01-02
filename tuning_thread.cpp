@@ -207,11 +207,15 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 		break;
 	case 0x0A: // ISO_639_language_descriptor
+	{
+		audio_type at;
 		while (mytune->index < desc_end) {
 			item->text = QString("Language: %1").arg(mytune->readstr(3));
 			tree_create_wait(item);
-			mytune->index++;
+			item->text = QString("Audio Type: %1").arg(at.whatis(mytune->read8()));
+			tree_create_wait(item);
 		}
+	}
 		break;
 	case 0x28: // AVC_video_descriptor
 	{

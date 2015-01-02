@@ -250,6 +250,26 @@ compression_type::compression_type()
 	min.append(0xB0);	max.append(0xFF);	text.append("Used in other systems");
 }
 
+QString audio_type::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+audio_type::audio_type()
+{
+	min.append(0x00);	max.append(0x00);	text.append("Undefined");
+	min.append(0x01);	max.append(0x01);	text.append("Clean effects");
+	min.append(0x02);	max.append(0x02);	text.append("Hearing impaired");
+	min.append(0x03);	max.append(0x03);	text.append("Visual impaired commentary");
+	min.append(0x04);	max.append(0x7F);	text.append("User Private");
+	min.append(0x80);	max.append(0xFF);	text.append("Reserved");
+}
+
 QString cue_stream::whatis(unsigned int val)
 {
 	for (int i = 0; i < text.size(); i++) {
