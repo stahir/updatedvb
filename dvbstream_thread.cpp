@@ -54,7 +54,6 @@ void dvbstream_thread::socket_new()
 void dvbstream_thread::process_data()
 {
 	if (data.last() == "\r\n") {
-		qDebug() << data;
 		if (data.at(0).contains("GET / HTTP")) {
 			for (int i = 1; i < data.size(); i++) {
 				// VLC/MPV/MPlayer clients
