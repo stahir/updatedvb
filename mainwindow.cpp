@@ -277,7 +277,7 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
 		return;
 	}
-	if (myscan->loop) {
+	if (myscan->isRunning()) {
 		update_status("Please wait for spectrum scan to finish first", 1);
 		return;
 	}
