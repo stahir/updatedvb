@@ -46,7 +46,11 @@ settings::settings(QWidget *parent) :
 	}
 	qSort(adaps);
 	for (int i = 0; i < adaps.size(); i++) {
-		ui->comboBox_adapter->insertItem(adaps.at(i), QString::number(adaps.at(i)), adaps.at(i));
+		if (!mysettings->value("adapter"+QString::number(adaps.at(i))+"_name").toString().isEmpty()) {
+			ui->comboBox_adapter->insertItem(adaps.at(i), QString("%1 - %2").arg(adaps.at(i)).arg(mysettings->value("adapter"+QString::number(adaps.at(i))+"_name").toString()), adaps.at(i));
+		} else {
+			ui->comboBox_adapter->insertItem(adaps.at(i), QString("%1").arg(adaps.at(i)), adaps.at(i));
+		}
 	}
 	for (int i = 0; i < MAX_LNBS; i++) {
 		if (!mysettings->value("lnb"+QString::number(i)+"_name").toString().isEmpty()) {
@@ -201,6 +205,12 @@ void settings::save_settings()
 		}
 	}
 	ui->comboBox_default_lnb->setCurrentIndex(mysettings->value("adapter"+QString::number(adp)+"_default_lnb").toInt());
+
+	if (!mysettings->value("adapter"+QString::number(adp)+"_name").toString().isEmpty()) {
+		ui->comboBox_adapter->setItemText(ui->comboBox_adapter->currentIndex(), QString("%1 - %2").arg(adp).arg(mysettings->value("adapter"+QString::number(adp)+"_name").toString()));
+	} else {
+		ui->comboBox_adapter->setItemText(ui->comboBox_adapter->currentIndex(), QString("%1").arg(adp));
+	}
 
 	update_status("Saved", 2);
 }
