@@ -49,7 +49,13 @@ settings::settings(QWidget *parent) :
 		ui->comboBox_adapter->insertItem(adaps.at(i), QString::number(adaps.at(i)), adaps.at(i));
 	}
 	for (int i = 0; i < MAX_LNBS; i++) {
-		ui->comboBox_lnb->insertItem(i, QString::number(i), i);
+		if (!mysettings->value("lnb"+QString::number(i)+"_name").toString().isEmpty()) {
+			ui->comboBox_lnb->insertItem(i, QString("%1 - %2").arg(i).arg(mysettings->value("lnb"+QString::number(i)+"_name").toString()) , i);
+			ui->comboBox_default_lnb->insertItem(i, QString("%1 - %2").arg(i).arg(mysettings->value("lnb"+QString::number(i)+"_name").toString()) , i);
+		} else {
+			ui->comboBox_lnb->insertItem(i, QString("%1").arg(i) , i);
+			ui->comboBox_default_lnb->insertItem(i, QString("%1").arg(i) , i);
+		}
 	}
 
 	noload = false;
@@ -78,14 +84,6 @@ void settings::load_settings()
 	lnb = ui->comboBox_lnb->currentIndex();
 	adp = ui->comboBox_adapter->currentData().toInt();
 	fnd = ui->comboBox_frontend->currentData().toInt();
-
-	ui->comboBox_default_lnb->clear();
-	for (int i = 0; i < MAX_LNBS; i++) {
-		if (mysettings->value("lnb"+QString::number(i)+"_name").toString() != "") {
-			ui->comboBox_default_lnb->insertItem(i, QString::number(i) + " - " + mysettings->value("lnb"+QString::number(i)+"_name").toString(), i);
-		}
-	}
-	ui->comboBox_default_lnb->setCurrentIndex(mysettings->value("adapter"+QString::number(adp)+"_default_lnb").toInt());
 
 	ui->lineEdit_lat->setText(mysettings->value("site_lat").toString());
 	ui->lineEdit_long->setText(mysettings->value("site_long").toString());
@@ -145,6 +143,8 @@ void settings::load_settings()
 	if (mytuners.size() > ui->comboBox_adapter->currentIndex()) {
 		update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
 	}
+
+	ui->comboBox_default_lnb->setCurrentIndex(mysettings->value("adapter"+QString::number(adp)+"_default_lnb").toInt());
 }
 
 void settings::save_settings()
@@ -189,8 +189,21 @@ void settings::save_settings()
 	mysettings->setValue("adapter"+QString::number(adp)+"_asc1", ui->checkBox_asc1->isChecked());
 	mysettings->setValue("adapter"+QString::number(adp)+"_servo", ui->checkBox_servo->isChecked());
 
+	mysettings->sync();
+
 	lnb = ui->comboBox_lnb->currentIndex();
-	adp = ui->comboBox_adapter->currentText().toInt();
+	adp = ui->comboBox_adapter->currentData().toInt();
+
+	for (int i = 0; i < MAX_LNBS; i++) {
+		if (!mysettings->value("lnb"+QString::number(i)+"_name").toString().isEmpty()) {
+			ui->comboBox_lnb->setItemText(i, QString("%1 - %2").arg(i).arg(mysettings->value("lnb"+QString::number(i)+"_name").toString()));
+			ui->comboBox_default_lnb->setItemText(i, QString("%1 - %2").arg(i).arg(mysettings->value("lnb"+QString::number(i)+"_name").toString()));
+		} else {
+			ui->comboBox_lnb->setItemText(i, QString("%1").arg(i));
+			ui->comboBox_default_lnb->setItemText(i, QString("%1").arg(i));
+		}
+	}
+	ui->comboBox_default_lnb->setCurrentIndex(mysettings->value("adapter"+QString::number(adp)+"_default_lnb").toInt());
 
 	update_status("Saved", 2);
 }
