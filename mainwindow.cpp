@@ -537,11 +537,6 @@ void MainWindow::on_comboBox_adapter_activated(int index)
 			mytuning.at(i)->raise();
 		}
 	}
-	for (int i = 0; i < mytuners.size(); i++) {
-		if (!(mytuners.at(i)->status & TUNER_AVAIL)) {
-			mytuners.at(i)->closefd();
-		}
-	}
 
 	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
 }
@@ -646,7 +641,15 @@ void MainWindow::setup_tuning_options()
 	mytuners.at(ui->comboBox_adapter->currentIndex())->tune_ops = tune_ops[ui->comboBox_lnb->currentData().toInt()];
 	mytuners.at(ui->comboBox_adapter->currentIndex())->frontend	= ui->comboBox_frontend->currentData().toInt();
 
-	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd()) {
+	if (!mytuners.at(ui->comboBox_adapter->currentIndex())->openfd() || !(mytuners.at(ui->comboBox_adapter->currentIndex())->status & TUNER_AVAIL)) {
+		ui->gridWidget_blindscan->hide();
+		ui->gridWidget_gotox->hide();
+		ui->gridWidget_positioner->hide();
+		ui->gridWidget_satellite->hide();
+		ui->gridWidget_spectrumscan->hide();
+		ui->gridWidget_usals->hide();
+		ui->gridWidget_system->hide();
+		ui->gridWidget_voltage->hide();
 		return;
 	}
 	mytuners.at(ui->comboBox_adapter->currentIndex())->getops();

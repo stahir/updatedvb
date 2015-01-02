@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1046</width>
-    <height>500</height>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1005,7 +1005,7 @@
          </item>
          <item row="2" column="0">
           <widget class="QWidget" name="gridWidget_blindscan" native="true">
-           <layout class="QGridLayout" name="gridLayout_blindscan" rowminimumheight="0" columnminimumwidth="0,0">
+           <layout class="QGridLayout" name="gridLayout_blindscan" rowminimumheight="0" columnminimumwidth="0,0,0">
             <property name="sizeConstraint">
              <enum>QLayout::SetDefaultConstraint</enum>
             </property>
@@ -1024,23 +1024,7 @@
             <property name="spacing">
              <number>0</number>
             </property>
-            <item row="0" column="0">
-             <widget class="QCheckBox" name="checkBox_smart">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Smart</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
+            <item row="0" column="2">
              <widget class="QPushButton" name="pushButton_blindscan">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1068,6 +1052,22 @@
               </property>
              </widget>
             </item>
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="checkBox_smart">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Smart</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -1085,7 +1085,7 @@
      <x>0</x>
      <y>0</y>
      <width>1046</width>
-     <height>27</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1130,7 +1130,6 @@
   <tabstop>comboBox_adapter</tabstop>
   <tabstop>comboBox_frontend</tabstop>
   <tabstop>comboBox_lnb</tabstop>
-  <tabstop>checkBox_smart</tabstop>
   <tabstop>checkBox_loop</tabstop>
   <tabstop>checkBox_fast</tabstop>
   <tabstop>pushButton_blindscan</tabstop>
