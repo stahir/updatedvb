@@ -343,15 +343,18 @@ public:
 class dvb_pids
 {
 public:
-	QVector<unsigned int> pid;
+	unsigned int pid;
 	QVector<unsigned int> tbl;
+	QVector<unsigned int> msk;
+	unsigned int timeout;
 };
 
 class dvb_data
 {
 public:
 	unsigned int pid;
-	unsigned int table;
+	QVector<unsigned int> table;
+	QVector<unsigned int> mask;
 	QByteArray buffer;
 };
 
@@ -408,5 +411,6 @@ bool isQAM(int system);
 bool isDVBT(int system);
 int azero(int num);
 QString tohex(unsigned long val, int length);
+bool dvb_pids_containts(QVector<dvb_pids> vec, dvb_pids elm);
 
 #endif // DVB_SETTINGS_H

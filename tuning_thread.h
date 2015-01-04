@@ -52,6 +52,7 @@ public:
 	void parse_tdt();
 	void parse_etm(tree_item *item, QString desc = "Text");
 	void parse_descriptor(tree_item *item);
+	void filter_pids(unsigned int pid, QVector<unsigned int> table, QVector<unsigned int> mask, unsigned int timeout = 300);
 
 	dvb_settings dvbnames;
 	dvbtune *mytune;
@@ -64,9 +65,7 @@ public:
 	bool ready;
 	QVector<QString> thread_function;
 	QVector<int> pid_parent;
-	dvb_pids fpids;
-
-	void filter_pids(unsigned int pid, unsigned int table = 0xFFFF);
+	QVector<dvb_pids> fpids;
 	
 signals:
 	void list_create();

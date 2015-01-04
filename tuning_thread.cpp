@@ -793,13 +793,13 @@ void tuning_thread::parse_psip_mgt()
 		tree_create_wait(item);
 
 		if (table_type >= 0x0100 && table_type <= 0x17F) {
-			filter_pids(table_pid, 0xCB);
+			filter_pids(table_pid, {0xCB}, {0xFF}, 1000);
 		} else if ((table_type >= 0x0200 && table_type <= 0x27F) || table_type == 0x0004) {
-			filter_pids(table_pid, 0xCC);
+			filter_pids(table_pid, {0xCC}, {0xFF}, 1000);
 		} else if ((table_type >= 0x0301 && table_type <= 0x3FF)) {
-			filter_pids(table_pid, 0xCA);
+			filter_pids(table_pid, {0xCA}, {0xFF}, 1000);
 		} else if (table_type == 0x0000) {
-			filter_pids(table_pid, 0xC8);
+			filter_pids(table_pid, {0xC8}, {0xFF}, 1000);
 		} else {
 			qDebug() << Q_FUNC_INFO << "Unknown PID:" << tohex(table_pid,4) << "& table_type:" << tohex(table_type,4);
 		}
@@ -1166,16 +1166,18 @@ void tuning_thread::parse_dcii_sdt()
 //	tree_create_child_wait(&parent_2, QString("Service Name: %1").arg(mytune->readstr(mytune->read8())));
 }
 
-void tuning_thread::filter_pids(unsigned int pid, unsigned int table)
+void tuning_thread::filter_pids(unsigned int pid, QVector<unsigned int> table, QVector<unsigned int> mask, unsigned int timeout)
 {
 	if (mytune->pids_rate.at(pid) > 0) {
-		for (int i = 0; i < fpids.pid.size(); i++) {
-			if (fpids.pid.at(i) == pid && fpids.tbl.at(i) == table) {
-				return;
-			}
+		dvb_pids tmp;
+		tmp.pid		= pid;
+		tmp.tbl		= table;
+		tmp.msk		= mask;
+		tmp.timeout	= timeout;
+		if (dvb_pids_containts(fpids, tmp)) {
+			return;
 		}
-		fpids.pid.append(pid);
-		fpids.tbl.append(table);
+		fpids.append(tmp);
 	}
 }
 
@@ -1188,19 +1190,22 @@ void tuning_thread::parsetp()
 
 	parsetp_loop = true;
 	while (parsetp_loop) {
-		filter_pids(0x01, 0x01);
-		filter_pids(0x11, 0x42);
-		filter_pids(0x1FFB, 0xC7);
-		filter_pids(0x1FFB, 0xC8);
-		filter_pids(0x1FFB, 0xCB);
-		filter_pids(0x1FFB, 0xCD);
-		filter_pids(0x1FFB, 0xCA);
-		filter_pids(0x12, 0x4E);
-		filter_pids(0x10, 0x40);
-		filter_pids(0x00, 0x00);
-		filter_pids(0x14, 0x70);
+		filter_pids(0x0001, {0x01}, {0xFF}, 1000);
+		filter_pids(0x0011, {0x42}, {0xFF}, 1000);
+		filter_pids(0x1FFB, {0xC7}, {0xFF}, 1000);
+		filter_pids(0x1FFB, {0xC8}, {0xFF}, 1000);
+		filter_pids(0x1FFB, {0xCB}, {0xFF}, 1000);
+		filter_pids(0x1FFB, {0xCD}, {0xFF}, 1000);
+		filter_pids(0x1FFB, {0xCA}, {0xFF}, 1000);
+		filter_pids(0x0012, {0x4E}, {0xFF}, 1000);
+		filter_pids(0x0010, {0x40}, {0xFF}, 1000);
+		filter_pids(0x0000, {0x00}, {0xFF}, 1000);
+		filter_pids(0x0014, {0x70}, {0xFF}, 1000);
 		for (int i = 0; i < mypat.pid.size(); i++) {
-			filter_pids(mypat.pid.at(i), 0x02);
+			filter_pids(mypat.pid.at(i),
+						{0x02, (mypat.number.at(i) >> 8) & 0xFF, mypat.number.at(i) & 0xFF},
+						{0xFF, 0xFF, 0xFF},
+						1000);
 		}
 		mytune->demux_packets(fpids);
 

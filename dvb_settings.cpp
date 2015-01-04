@@ -1423,3 +1423,12 @@ QString tohex(unsigned long int val, int length)
 	return QString("0x%1").arg(val, length, 16, QChar('0'));
 }
 
+bool dvb_pids_containts(QVector<dvb_pids> vec, dvb_pids elm) {
+	for (int i = 0; i < vec.size(); i++) {
+		if (vec.at(i).pid == elm.pid && vec.at(i).tbl == elm.tbl && vec.at(i).msk == elm.msk) { // Ignore timeout
+			return true;
+		}
+	}
+	return false;
+}
+

@@ -759,7 +759,7 @@ void dvbtune::get_bitrate()
 	}
 }
 
-int dvbtune::demux_packets(dvb_pids mypids)
+int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 {
 	if (!(festatus & FE_HAS_LOCK)) {
 		return -1;
@@ -772,16 +772,16 @@ int dvbtune::demux_packets(dvb_pids mypids)
 	int len = 0;
 	char buf[TNY_BUFSIZE];
 
-	for(int a = 0; a < mypids.pid.size() && demux_packets_loop; a++)
+	for(int a = 0; a < mypids.size() && demux_packets_loop; a++)
 	{
 		struct dmx_sct_filter_params sctfilter;
 		memset(&sctfilter, 0, sizeof(struct dmx_sct_filter_params));
-		sctfilter.pid = mypids.pid.at(a);
-		if (mypids.tbl.at(a) != 0xFFFF) {
-			sctfilter.filter.filter[0] = (unsigned int)mypids.tbl.at(a);
-			sctfilter.filter.mask[0] = 0xFF;
+		sctfilter.pid = mypids.at(a).pid;
+		for (int i = 0; i < mypids.at(a).tbl.size(); i++) {
+			sctfilter.filter.filter[i]	= (unsigned int)mypids.at(a).tbl.at(i);
+			sctfilter.filter.mask[i]	= (unsigned int)mypids.at(a).msk.at(i);
 		}
-		sctfilter.timeout = 1000;
+		sctfilter.timeout = mypids.at(a).timeout;
 		sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 		ioctl_DMX_SET_FILTER(&sctfilter);
 
@@ -794,10 +794,13 @@ int dvbtune::demux_packets(dvb_pids mypids)
 			buffer.clear();
 			buffer.append(buf, len);
 			dvb_data tmp;
-			tmp.pid		= mypids.pid.at(a);
-			tmp.table	= mypids.tbl.at(a);
+			tmp.pid		= mypids.at(a).pid;
+			tmp.table	= mypids.at(a).tbl;
+			tmp.mask	= mypids.at(a).msk;
 			tmp.buffer	= buffer;
 			dvbdata.append(tmp);
+			// We start at 1000 to find a packet, then goto 300 after to speed things up
+			mypids[a].timeout = 300;
 		}
 	}
 	setbit(TUNER_DEMUX);

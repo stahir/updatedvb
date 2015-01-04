@@ -57,6 +57,7 @@ FORMS    += mainwindow.ui \
 INCLUDEPATH += /usr/local/qwt-6.1.3-svn/include
 INCLUDEPATH += /usr/include/qwt
 LIBS += -Wl,-rpath,/usr/local/qwt-6.1.3-svn/lib -L /usr/local/qwt-6.1.3-svn/lib -l:libqwt.so
+QMAKE_CXXFLAGS += -std=c++11
 
 OTHER_FILES +=
 

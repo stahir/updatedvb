@@ -79,7 +79,7 @@ public:
 	void get_bitrate();
 	int tune();
 	int tune_clear();
-	int demux_packets(dvb_pids mypids);
+	int demux_packets(QVector<dvb_pids> mypids);
 	bool demux_packets_loop;
 	void demux_file(bool start);
 	void demux_video();
