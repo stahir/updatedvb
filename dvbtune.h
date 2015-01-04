@@ -27,6 +27,7 @@
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/dmx.h>
 #include <math.h>
+#include <sys/poll.h>
 #include "dvb_settings.h"
 #include "dvr_thread.h"
 

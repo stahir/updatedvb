@@ -704,23 +704,31 @@ void dvbtune::get_bitrate()
 
 	pids.clear();
 	pids.append(0x2000);
-
 	demux_video();
 
 	if (!open_dvr()) {
 		return;
 	}
 
+	struct pollfd pfd[1];
+	pfd[0].fd = dvr_fd;
+	pfd[0].events = POLLIN;
+
 	setbit(TUNER_RDING);
 	stime.start();
 	for (unsigned long i = 0; i < BIG_BUFSIZE && demux_packets_loop; i += len) {
-		len = 0;
-		memset(buf, 0, LIL_BUFSIZE);
-		len = read(dvr_fd, buf, LIL_BUFSIZE);
-		if (len > 0) {
-			buffer.append(buf, len);
-		} else {
-			len = LIL_BUFSIZE;
+		if (poll(pfd, 1, 1000)) {
+			len = 0;
+			memset(buf, 0, LIL_BUFSIZE);
+			if (pfd[0].revents & POLLIN) {
+				len = read(dvr_fd, buf, LIL_BUFSIZE);
+				if (len > 0) {
+					buffer.append(buf, len);
+				} else {
+					// Even if read failed we do eventually want to exit this loop
+					len = LIL_BUFSIZE;
+				}
+			}
 		}
 	}
 	ttime = stime.elapsed();
