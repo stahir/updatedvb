@@ -94,6 +94,19 @@ MainWindow::MainWindow(QWidget *parent) :
 		ui->comboBox_adapter->setCurrentIndex(0);
 		noload = false;
 		setup_tuning_options();
+	} else {
+		update_status("No Adapters Found", STATUS_NOEXP);
+
+		ui->qwtPlot->hide();
+		ui->gridWidget_adapterlnb->hide();
+		ui->gridWidget_blindscan->hide();
+		ui->gridWidget_gotox->hide();
+		ui->gridWidget_positioner->hide();
+		ui->gridWidget_satellite->hide();
+		ui->gridWidget_spectrumscan->hide();
+		ui->gridWidget_usals->hide();
+		ui->gridWidget_system->hide();
+		ui->gridWidget_voltage->hide();
 	}
 }
 
