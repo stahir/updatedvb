@@ -56,6 +56,7 @@ public:
 	bool shutdown;
 
 signals:
+	void appletv_new();
 	void server_new();
 	void server_close();
 	void adapter_status(int adapter);
@@ -87,6 +88,7 @@ private slots:
 	void on_pushButton_save_tree_clicked();
 	void save_children(QTreeWidgetItem *item, QTextStream *out);
 	void set_tree_color(QTreeWidgetItem *item, QColor color);
+	void on_pushButton_appletv_clicked();
 
 private:
 	Ui::tuning *ui;
@@ -102,6 +104,8 @@ private:
 	QPointer<demux_file> mydemux_file;
 	bool parsetp_started;
 	QTime unlock_t;
+	dvbstream_thread atvstream;
+	QThread atvstream_thread;
 	dvbstream_thread mystream;
 	QThread mystream_thread;
 	QThread reader_thread;

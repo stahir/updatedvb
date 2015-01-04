@@ -33,6 +33,7 @@ class dvbstream_thread : public QObject
 public:
 	dvbstream_thread();
 	~dvbstream_thread();
+	QString user_agent();
 
 	dvbtune *mytune;
 	QHostAddress IP;
@@ -44,6 +45,7 @@ public:
 public slots:
 	void socket_new();
 	void socket_close();
+	void appletv_new();
 	void server_new();
 	void server_close();
 	void read_data();

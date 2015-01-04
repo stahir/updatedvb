@@ -55,6 +55,8 @@ tuning::tuning(QWidget *parent) :
 		list_item.append(new QListWidgetItem(ui->listWidget));
 		list_item.last()->setHidden(true);
 	}
+
+	ui->pushButton_appletv->hide();
 }
 
 tuning::~tuning()
@@ -79,10 +81,15 @@ tuning::~tuning()
 		mydemux_file->deleteLater();
 	}
 
-	mystream.server_close();
+	emit server_close();
 	mystream_thread.quit();
 	mystream_thread.wait(1000);
 	while (mystream_thread.isRunning()) {
+		QThread::msleep(10);
+	}
+	atvstream_thread.quit();
+	atvstream_thread.wait(1000);
+	while (atvstream_thread.isRunning()) {
 		QThread::msleep(10);
 	}
 
@@ -135,6 +142,8 @@ void tuning::init()
 	connect(this, SIGNAL(server_close()), &mystream, SLOT(server_close()));
 	connect(this, SIGNAL(server_new()), &mystream, SLOT(server_new()));
 	connect(mytune->mydvr, SIGNAL(data(QByteArray)), &mystream, SLOT(stream(QByteArray)));
+	connect(&atvstream, SIGNAL(update_status(QString,int)), this, SLOT(update_status(QString,int)));
+	connect(this, SIGNAL(appletv_new()), &atvstream, SLOT(appletv_new()));
 	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
 
 	update_status("Tuning...", STATUS_NOEXP);
@@ -146,6 +155,10 @@ void tuning::init()
 	mystream.mytune	= mytune;
 	mystream.moveToThread(&mystream_thread);
 	mystream_thread.start();
+
+	atvstream.mytune = mytune;
+	atvstream.moveToThread(&atvstream_thread);
+	atvstream_thread.start();
 
 	unlock_t.start();
 
@@ -549,6 +562,25 @@ void tuning::on_pushButton_stream_clicked()
 		parsetp_start();
 	} else {
 		setup_demux();
+		emit server_new();
+	}
+}
+
+void tuning::on_pushButton_appletv_clicked()
+{
+	while (mythread.parsetp_running) {
+		mythread.ready				= true;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
+		QThread::msleep(10);
+	}
+
+	if (mystream.server && mystream.server->isListening()) {
+		emit server_close();
+		parsetp_start();
+	} else {
+		setup_demux();
+		emit appletv_new();
 		emit server_new();
 	}
 }

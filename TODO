@@ -17,4 +17,5 @@
 - Bar widget for signal Qal/Lvl with text and max SNR and dbvm etc
 - scan channels and display SDT info along with FTA flag on blindscan
 - Add support for AppleTV
+- Expand apon table filter/mask into qvector to allow even better filtering
 - clear up this TODO :)

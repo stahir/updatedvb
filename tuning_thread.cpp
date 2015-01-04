@@ -995,7 +995,7 @@ void tuning_thread::parse_pat()
 	item->pid		= pid;
 	item->text		= QString("PAT pid: %1").arg(tohex(pid,4));
 	tree_create_wait(item);
-	item->pid			= 0xFFFF;
+	item->pid		= 0xFFFF;
 
 	mypat.number.clear();
 	mypat.pid.clear();
