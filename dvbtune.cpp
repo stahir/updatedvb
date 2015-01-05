@@ -220,7 +220,7 @@ bool dvbtune::openfd()
 		frontend_name = "/dev/dvb/adapter" + QString::number(adapter) + "/frontend" + QString::number(frontend);
 		frontend_fd = open(frontend_name.toStdString().c_str(), O_RDWR|O_NONBLOCK);
 		if (frontend_fd < 0) {
-			qDebug() << "Failed to open" << frontend_name;
+			qDebug() << "Failed to open" << frontend_name << "-" << strerror(errno);
 			unsetbit(TUNER_AVAIL);
 			emit adapter_status(adapter);
 			emit update_status("Tuner not available", 1);
@@ -580,7 +580,6 @@ int dvbtune::tune_clear()
 
 int dvbtune::tune()
 {
-	stop_demux();
 	close_demux();
 	close_dvr();
 
@@ -699,9 +698,6 @@ void dvbtune::get_bitrate()
 	char buf[LIL_BUFSIZE];
 	buffer.clear();
 
-	close_dvr();
-	close_demux();
-
 	pids.clear();
 	pids.append(0x2000);
 	demux_video();
@@ -734,8 +730,8 @@ void dvbtune::get_bitrate()
 	ttime = stime.elapsed();
 	unsetbit(TUNER_RDING);
 
-	if (buffer.size() < 188) {
-		qDebug() << Q_FUNC_INFO << "Empty Buffer";
+	if (buffer.size() != BIG_BUFSIZE) {
+		qDebug() << Q_FUNC_INFO << "Buffer size mismatch:" << buffer.size() << "vs" << BIG_BUFSIZE;
 		return;
 	}
 		
@@ -769,13 +765,14 @@ void dvbtune::get_bitrate()
 
 int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 {
+	//	qDebug() << Q_FUNC_INFO << QThread::currentThread();
 	if (!(festatus & FE_HAS_LOCK)) {
 		return -1;
 	}
 
 	demux_packets_loop = true;
 
-	close_demux();
+	stop_demux();
 
 	int len = 0;
 	char buf[TNY_BUFSIZE];
@@ -811,7 +808,6 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 			mypids[a].timeout = 300;
 		}
 	}
-	setbit(TUNER_DEMUX);
 	stop_demux();
 
 	return 1;
@@ -819,9 +815,6 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 
 void dvbtune::demux_bbframe()
 {
-	close_dvr();
-	close_demux();
-
 	struct dmx_bb_filter_params bbFilterParams;
 	memset(&bbFilterParams, 0, sizeof (struct dmx_bb_filter_params));
 	bbFilterParams.isi		= DMX_ISI_ALL;
@@ -831,14 +824,12 @@ void dvbtune::demux_bbframe()
 	bbFilterParams.flags	= DMX_IMMEDIATE_START;
 	ioctl_DMX_SET_BB_FILTER(&bbFilterParams);
 
-	setbit(TUNER_DEMUX);
 	emit adapter_status(adapter);
 }
 
 void dvbtune::demux_video()
 {
-	close_dvr();
-	close_demux();
+	stop_demux();
 
 	struct dmx_pes_filter_params pesFilterParams;
 	memset(&pesFilterParams, 0, sizeof(pesFilterParams));
@@ -852,18 +843,14 @@ void dvbtune::demux_video()
 		pesFilterParams.flags = DMX_IMMEDIATE_START;
 		ioctl_DMX_SET_PES_FILTER(a, &pesFilterParams);
 	}
-	setbit(TUNER_DEMUX);
 	emit adapter_status(adapter);
 }
 
 void dvbtune::demux_stream(bool start)
 {
 	if (start) {
-		close_dvr();
-		close_demux();
 		demux_video();
 
-		setbit(TUNER_DEMUX);
 		mydvr->thread_function.append("demux_stream");
 		mydvr->start();
 	} else {
@@ -872,7 +859,6 @@ void dvbtune::demux_stream(bool start)
 			while (status & TUNER_RDING) {
 				msleep(10);
 			}
-			unsetbit(TUNER_DEMUX);
 		}
 	}
 	emit adapter_status(adapter);
@@ -881,11 +867,8 @@ void dvbtune::demux_stream(bool start)
 void dvbtune::demux_file(bool start)
 {
 	if (start) {
-		close_dvr();
-		close_demux();
 		demux_video();
 
-		setbit(TUNER_DEMUX);
 		mydvr->file_name = out_name;
 		mydvr->thread_function.append("demux_file");
 		mydvr->start();
@@ -896,7 +879,6 @@ void dvbtune::demux_file(bool start)
 				msleep(10);
 			}
 			mydvr->close_file();
-			unsetbit(TUNER_DEMUX);
 		}
 	}
 	emit adapter_status(adapter);
@@ -978,7 +960,8 @@ bool dvbtune::open_dvr()
 		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
 		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
 		if (dvr_fd < 0) {
-			qDebug() << "Failed to open" << dvr_name;
+			qDebug() << Q_FUNC_INFO << QThread::currentThread();
+			qDebug() << "Failed to open" << dvr_name << "-" << strerror(errno);
 			dvr_fd = -1;
 			dvr_name.clear();
 			return false;
@@ -1011,7 +994,7 @@ bool dvbtune::open_demux()
 	while (dmx_fd.size() < dmx_size) {
 		int tmp_fd = open(dmx_name.toStdString().c_str(), O_RDWR);
 		if (tmp_fd < 0) {
-			qDebug() << "Failed to open" << dmx_name;
+			qDebug() << "Failed to open" << dmx_name << "-" << strerror(errno);
 			return false;
 		} else {
 			dmx_fd.append(tmp_fd);
@@ -1657,6 +1640,8 @@ bool dvbtune::ioctl_DMX_SET_FILTER(dmx_sct_filter_params *sctfilter)
 	}
 	unsetbit(TUNER_IOCTL_QUEUE);
 
+	setbit(TUNER_DEMUX);
+
 	setbit(TUNER_IOCTL);
 	if (ioctl(dmx_fd.first(), DMX_SET_FILTER, sctfilter) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
@@ -1683,6 +1668,8 @@ bool dvbtune::ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams)
 	}
 	unsetbit(TUNER_IOCTL_QUEUE);
 
+	setbit(TUNER_DEMUX);
+
 	setbit(TUNER_IOCTL);
 	if (ioctl(dmx_fd.first(), DMX_SET_BB_FILTER, bbFilterParams) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << dmx_name;
@@ -1708,6 +1695,8 @@ bool dvbtune::ioctl_DMX_SET_PES_FILTER(int index, dmx_pes_filter_params *pesFilt
 		msleep(10);
 	}
 	unsetbit(TUNER_IOCTL_QUEUE);
+
+	setbit(TUNER_DEMUX);
 
 	setbit(TUNER_IOCTL);
 	if (ioctl(dmx_fd.at(index), DMX_SET_PES_FILTER, pesFilterParams) < 0) {
@@ -1746,6 +1735,8 @@ bool dvbtune::ioctl_DMX_STOP()
 	while (status & TUNER_IOCTL_QUEUE) { // Give other functions a chance to send ioctl's
 		msleep(100);
 	}
+
+	unsetbit(TUNER_DEMUX);
 
 	return true;
 }

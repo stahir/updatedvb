@@ -56,7 +56,7 @@ tuning::tuning(QWidget *parent) :
 		list_item.last()->setHidden(true);
 	}
 
-	ui->pushButton_appletv->hide();
+//	ui->pushButton_appletv->hide();
 }
 
 tuning::~tuning()
@@ -71,6 +71,11 @@ tuning::~tuning()
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
+	}
+
+	if (myProcess.pid()) {
+		myProcess.kill();
+		myProcess.waitForFinished();
 	}
 
 	if (!myiqplot.isNull()) {
@@ -648,11 +653,14 @@ void tuning::keyPressEvent(QKeyEvent *event)
 
 void tuning::on_pushButton_bbframe_clicked()
 {
-	if (mytune->status & TUNER_DEMUX) {
-		return;
+	while (mythread.parsetp_running) {
+		mythread.ready				= true;
+		mythread.parsetp_loop		= false;
+		mytune->demux_packets_loop	= false;
+		QThread::msleep(10);
 	}
 
-	ui->pushButton_file->setEnabled(false);
+	ui->pushButton_bbframe->setEnabled(false);
 
 	setup_demux("BBFrame");
 
