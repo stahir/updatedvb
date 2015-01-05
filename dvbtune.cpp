@@ -777,6 +777,7 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 	int len = 0;
 	char buf[TNY_BUFSIZE];
 
+	setbit(TUNER_RDING);
 	for(int a = 0; a < mypids.size() && demux_packets_loop; a++)
 	{
 		struct dmx_sct_filter_params sctfilter;
@@ -792,9 +793,7 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 
 		len = 0;
 		memset(buf, 0, TNY_BUFSIZE);
-		setbit(TUNER_RDING);
 		len = read(dmx_fd.first(), buf, TNY_BUFSIZE);
-		unsetbit(TUNER_RDING);
 		if (len > 0) {
 			buffer.clear();
 			buffer.append(buf, len);
@@ -808,6 +807,8 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 			mypids[a].timeout = 300;
 		}
 	}
+	unsetbit(TUNER_RDING);
+
 	stop_demux();
 
 	return 1;
