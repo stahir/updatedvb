@@ -765,7 +765,6 @@ void dvbtune::get_bitrate()
 
 int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 {
-	//	qDebug() << Q_FUNC_INFO << QThread::currentThread();
 	if (!(festatus & FE_HAS_LOCK)) {
 		return -1;
 	}
@@ -958,10 +957,12 @@ int dvbtune::crc32()
 bool dvbtune::open_dvr()
 {
 	if (dvr_name.isEmpty()) {
+		while(status & TUNER_RDING || status & TUNER_IOCTL) {
+			msleep(10);
+		}
 		dvr_name = "/dev/dvb/adapter" + QString::number(adapter) + "/dvr0";
 		dvr_fd = open(dvr_name.toStdString().c_str(), O_RDONLY);
 		if (dvr_fd < 0) {
-			qDebug() << Q_FUNC_INFO << QThread::currentThread();
 			qDebug() << "Failed to open" << dvr_name << "-" << strerror(errno);
 			dvr_fd = -1;
 			dvr_name.clear();
@@ -973,12 +974,12 @@ bool dvbtune::open_dvr()
 
 void dvbtune::close_dvr()
 {
-	while(status & TUNER_RDING) {
-		msleep(10);
-	}
 	close_demux();
 
 	if (!dvr_name.isEmpty()) {
+		while(status & TUNER_RDING || status & TUNER_IOCTL) {
+			msleep(10);
+		}
 		close(dvr_fd);
 		dvr_fd = -1;
 		dvr_name.clear();
@@ -993,6 +994,9 @@ bool dvbtune::open_demux()
 	}
 	int dmx_size = pids.size() ? pids.size() : 1; // We need at least one so the sct filter has something
 	while (dmx_fd.size() < dmx_size) {
+		while(status & TUNER_RDING || status & TUNER_IOCTL) {
+			msleep(10);
+		}
 		int tmp_fd = open(dmx_name.toStdString().c_str(), O_RDWR);
 		if (tmp_fd < 0) {
 			qDebug() << "Failed to open" << dmx_name << "-" << strerror(errno);
@@ -1009,6 +1013,9 @@ void dvbtune::close_demux()
 {
 	stop_demux();
 	if (!dmx_name.isEmpty()) {
+		while(status & TUNER_RDING || status & TUNER_IOCTL) {
+			msleep(10);
+		}
 		while (!dmx_fd.isEmpty()) {
 			close(dmx_fd.last());
 			dmx_fd.removeLast();
@@ -1019,9 +1026,6 @@ void dvbtune::close_demux()
 
 void dvbtune::stop_demux()
 {
-	while(status & TUNER_RDING) {
-		msleep(10);
-	}
 	ioctl_DMX_STOP();
 
 	emit adapter_status(adapter);
@@ -1719,7 +1723,7 @@ bool dvbtune::ioctl_DMX_STOP()
 	if (dmx_name.isEmpty()) { // If its not open we dont need to open it just to stop it. Better to just exit
 		return false;
 	}
-	while (status & TUNER_IOCTL) {
+	while (status & TUNER_IOCTL || status & TUNER_RDING) {
 		setbit(TUNER_IOCTL_QUEUE);
 		msleep(10);
 	}

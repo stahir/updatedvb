@@ -494,22 +494,24 @@ void tuning::on_pushButton_play_clicked()
 
 void tuning::on_pushButton_demux_clicked()
 {
-	while (mythread.parsetp_running) {
-		mythread.ready				= true;
-		mythread.parsetp_loop		= false;
-		mytune->demux_packets_loop	= false;
-		QThread::msleep(10);
+	static bool is_running = false;
+	if (is_running) {
+		parsetp_start();
+		update_status("Sending data to " + mytune->dvr_name, STATUS_REMOVE);
+		is_running = false;
+	} else {
+		while (mythread.parsetp_running) {
+			mythread.ready				= true;
+			mythread.parsetp_loop		= false;
+			mytune->demux_packets_loop	= false;
+			QThread::msleep(10);
+		}
+
+		mytune->close_dvr();
+		setup_demux();
+		update_status("Sending data to " + mytune->dvr_name, STATUS_NOEXP);
+		is_running = true;
 	}
-
-	mytune->close_dvr();
-	setup_demux();
-
-	demux_dvr demux_dvr_dialog;
-	demux_dvr_dialog.setModal(true);
-	demux_dvr_dialog.updatetxt("Saving data to /dev/dvb/adapter"+QString::number(mytune->adapter)+"/dvr0");
-	demux_dvr_dialog.exec();
-
-	parsetp_start();
 }
 
 void tuning::delete_demux_file()

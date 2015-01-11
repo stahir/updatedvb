@@ -81,16 +81,15 @@ void dvbstream_thread::process_data()
 			output.append("/stream/0.m3u8\r\n");
 			output.append("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=20000000,CODECS=\"ac-3,avc1.640028\",AUDIO=\"audio\"\r\n");
 			output.append("/stream/1.m3u8\r\n");
-//			output.append("#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=20000000,CODECS=\"avc1.640028\",URI=\"/iframes.m3u8\"\r\n");
 			output.append("#EXT-X-ENDLIST\r\n");
 			output.append("\r\n");
 
 			QString header;
-			header.append("HTTP/1.1 200 OK\r\n");
-			header.append("Content-Range: bytes\r\n");
-			header.append("Content-Length: %1\r\n").arg(output.size());
+			header.append("HTTP/1.1 206 Partial Content\r\n");
+			header.append(QString("Content-Range: bytes 0-%1/%2\r\n").arg(output.size()-1).arg(output.size()));
+			header.append(QString("Content-Length: %1\r\n").arg(output.size()));
+			header.append("Accept-Ranges: bytes\r\n");
 			header.append("Content-Type: application/vnd.apple.mpegurl\r\n");
-//			header.append("Date: Fri, 02 Jan 2015 06:25:13 GMT\r\n");
 			header.append(QString("Date: %1 GMT\r\n").arg(QDateTime::currentDateTime().toString("ddd, dd MMMM yyyy hh:mm:ss")));
 			header.append("\r\n");
 
@@ -104,12 +103,12 @@ void dvbstream_thread::process_data()
 	if (data.at(0).contains("GET /stream/0.m3u8 HTTP")) {
 		QString output;
 		output.append("#EXTM3U\r\n");
-		output.append("#EXT-X-TARGETDURATION:5\r\n");
+		output.append("#EXT-X-TARGETDURATION:10\r\n");
 		output.append("#EXT-X-PLAYLIST-TYPE:VOD\r\n");
 		output.append("#EXT-X-ALLOW-CACHE:YES\r\n");
 		output.append("#EXT-X-MEDIA-SEQUENCE:0\r\n");
-		for (int a = 0; a < 680; a++) {
-			output.append("#EXTINF:5,\r\n");
+		for (int a = 0; a < 100; a++) {
+			output.append("#EXTINF:10,\r\n");
 			output.append(QString("/stream/0/%1.ts\r\n").arg(a).toStdString().c_str());
 		}
 		output.append("#EXT-X-ENDLIST\r\n");
@@ -118,7 +117,7 @@ void dvbstream_thread::process_data()
 		QString header;
 		header.append("HTTP/1.1 200 OK\r\n");
 		header.append("Accept-Ranges: bytes\r\n");
-		header.append("Content-Length: %1\r\n").arg(output.size());
+		header.append(QString("Content-Length: %1\r\n").arg(output.size()));
 		header.append("Content-Type: application/vnd.apple.mpegurl\r\n");
 		header.append(QString("Date: %1 GMT\r\n").arg(QDateTime::currentDateTime().toString("ddd, dd MMMM yyyy hh:mm:ss")));
 		header.append("\r\n");
@@ -132,12 +131,12 @@ void dvbstream_thread::process_data()
 		QString output;
 		output.append("#EXTM3U\r\n");
 		output.append("#EXT-X-VERSION:3\r\n");
-		output.append("#EXT-X-TARGETDURATION:5\r\n");
+		output.append("#EXT-X-TARGETDURATION:10\r\n");
 		output.append("#EXT-X-PLAYLIST-TYPE:VOD\r\n");
 		output.append("#EXT-X-ALLOW-CACHE:YES\r\n");
 		output.append("#EXT-X-MEDIA-SEQUENCE:0\r\n");
-		for (int a = 0; a < 680; a++) {
-			output.append("#EXTINF:4.999999999999999,\r\n");
+		for (int a = 0; a < 100; a++) {
+			output.append("#EXTINF:10,\r\n");
 			output.append(QString("/stream/1/%1.ts\r\n").arg(a).toStdString().c_str());
 		}
 		output.append("#EXT-X-ENDLIST\r\n");
@@ -146,7 +145,7 @@ void dvbstream_thread::process_data()
 		QString header;
 		header.append("HTTP/1.1 200 OK\r\n");
 		header.append("Accept-Ranges: bytes\r\n");
-		header.append("Content-Length: %1\r\n").arg(output.size());
+		header.append(QString("Content-Length: %1\r\n").arg(output.size()));
 		header.append("Content-Type: application/vnd.apple.mpegurl\r\n");
 		header.append(QString("Date: %1 GMT\r\n").arg(QDateTime::currentDateTime().toString("ddd, dd MMMM yyyy hh:mm:ss")));
 		header.append("\r\n");
@@ -159,11 +158,37 @@ void dvbstream_thread::process_data()
 	if (data.at(0).contains("GET /stream/1/")) {
 		QString ua = user_agent();
 		if (ua.contains("AppleCoreMedia")) {
+			unsigned long int bitrate = 0;
+			for (int a = 0; a < mytune->pids.size(); a++) {
+				bitrate += mytune->pids_rate.at(mytune->pids.at(a));
+			}
+			bitrate *= 5000;
+			bitrate /= 8;
+
+			QString header;		
+			header.append("HTTP/1.1 200 OK\r\n");
+			header.append("Accept-Ranges: bytes\r\n");
+			header.append(QString("Content-Length: %1\r\n").arg(bitrate));
+			header.append("Content-Type: video/MP2T\r\n");
+			header.append(QString("Date: %1 GMT\r\n").arg(QDateTime::currentDateTime().toString("ddd, dd MMMM yyyy hh:mm:ss")));
+			header.append("\r\n");
+
+			socket->write(header.toStdString().c_str());
+			socket->waitForBytesWritten(2000);
+
+			emit update_status(QString("Streaming to %1 @ %2").arg(ua).arg(socket->peerAddress().toString()), STATUS_NOEXP);
+			mytune->demux_stream(true);
+		}
+	}
+	// Apple TV
+	if (data.at(0).contains("GET /stream/0/")) {
+		QString ua = user_agent();
+		if (ua.contains("AppleCoreMedia")) {
 			QString header;
 			header.append("HTTP/1.1 200 OK\r\n");
-			header.append("Accept-Ranges: bytes");
-			header.append("Content-Length: 65424");
-			header.append("Content-Type: video/MP2T");
+			header.append("Accept-Ranges: bytes\r\n");
+			header.append("Content-Length: 65424\r\n");
+			header.append("Content-Type: video/MP2T\r\n");
 			header.append(QString("Date: %1 GMT\r\n").arg(QDateTime::currentDateTime().toString("ddd, dd MMMM yyyy hh:mm:ss")));
 			header.append("\r\n");
 
@@ -191,20 +216,26 @@ void dvbstream_thread::appletv_new()
 {
 	socket = new QTcpSocket;
 	socket->setSocketOption(QAbstractSocket::LowDelayOption, 1);
-	socket->connectToHost("10.0.1.23", 7000);
+	socket->connectToHost("10.0.1.62", 7000);
 	if (!socket->waitForConnected(1000)) {
 		return;
 	}
 	connect(socket, SIGNAL(disconnected()), this, SLOT(socket_close()), Qt::DirectConnection);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(read_data()), Qt::DirectConnection);
 
-	socket->write("POST /play HTTP/1.1\r\n");
-	socket->write("User-Agent: iTunes/11.0.2\r\n");
-	socket->write("Content-Length: 68\r\n");
-	socket->write("\r\n");
-	socket->write("Content-Location: http://10.0.1.150:1241/\r\n");
-	socket->write("Start-Position: 0.000807\r\n");
-	socket->write("\r\n");
+	QString output;
+	output.append(QString("Content-Location: http://%1:%2/\r\n").arg(IP.toString()).arg(port));
+	output.append("Start-Position: 0.000000\r\n");
+	output.append("\r\n");
+
+	QString header;
+	header.append("POST /play HTTP/1.1\r\n");
+	header.append("User-Agent: iTunes/11.0.2\r\n");
+	header.append(QString("Content-Length: %1\r\n").arg(output.size()));
+	header.append("\r\n");
+
+	socket->write(header.toStdString().c_str());
+	socket->write(output.toStdString().c_str());
 	socket->waitForBytesWritten(1000);
 }
 
@@ -250,8 +281,7 @@ void dvbstream_thread::server_new()
 	if (IP.isNull()) {
 		IP = QHostAddress(QHostAddress::LocalHost);
 	}
-//	port = 1230 + mytune->adapter;
-	port = 1241;
+	port = 1230 + mytune->adapter;
 	server = new QTcpServer();
 	if (!server->listen(QHostAddress::Any, port)) {
 		qDebug() << "Server could not start";
