@@ -730,7 +730,7 @@ void dvbtune::get_bitrate()
 	ttime = stime.elapsed();
 	unsetbit(TUNER_RDING);
 
-	if (buffer.size() != BIG_BUFSIZE) {
+	if (buffer.size() < BIG_BUFSIZE) {
 		qDebug() << Q_FUNC_INFO << "Buffer size mismatch:" << buffer.size() << "vs" << BIG_BUFSIZE;
 		return;
 	}
