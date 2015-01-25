@@ -52,7 +52,7 @@
     git clone https://bitbucket.org/updatelee/updatedvb.git
 
 # To compile and run open updatedvb.pro in qtcreator
-# hit the green triangle that says 'Build and Run'
+# hit the green triangle in the lower left that says 'Build and Run'
 
 # Author: Chris Lee <updatelee@gmail.com>
 # URL: https://bitbucket.org/updatelee/updatedvb
