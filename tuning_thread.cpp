@@ -383,6 +383,14 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 	}
 		break;
+	case 0x49: // country_availability_descriptor
+	{
+		item->text = QString("Availability Flag: %1").arg(mytune->read8(0x80) ? "true" : "false");
+		tree_create_wait(item);
+		item->text = QString("Country Code: %1").arg(mytune->readstr(desc_len-1));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x4d: // short_event_descriptor
 	{
 		item->text = QString("Language: %1").arg(mytune->readstr(3));
