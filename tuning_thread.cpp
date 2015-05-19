@@ -429,6 +429,14 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		item->text = QString("Component Tag: %1").arg(mytune->read8());
 		tree_create_wait(item);
 		break;
+	case 0x55: // parental_rating_descriptor
+		while(mytune->index < desc_end) {
+			item->text = QString("Country Code: %1").arg(mytune->readstr(3));
+			tree_create_wait(item);
+			item->text = QString("Minimum Age: %1").arg(mytune->read8()+3);
+			tree_create_wait(item);
+		}
+		break;
 	case 0x5F: // private_data_specifier_descriptor
 	{
 		private_data_specifier prov;
