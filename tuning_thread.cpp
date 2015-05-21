@@ -485,6 +485,27 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x6a: // AC-3_descriptor
+	{
+		unsigned int tmp = mytune->read8();
+		if (mytune->maskbits(tmp, 0x80)) {
+			item->text = QString("Component Type: %1").arg(mytune->read8());
+			tree_create_wait(item);
+		}
+		if (mytune->maskbits(tmp, 0x40)) {
+			item->text = QString("BSID: %1").arg(mytune->read8());
+			tree_create_wait(item);
+		}
+		if (mytune->maskbits(tmp, 0x20)) {
+			item->text = QString("MANID: %1").arg(mytune->read8());
+			tree_create_wait(item);
+		}
+		if (mytune->maskbits(tmp, 0x10)) {
+			item->text = QString("ASVC: %1").arg(mytune->read8());
+			tree_create_wait(item);
+		}
+	}
+		break;
 	case 0x81: // AC-3_audio_stream_descriptor
 	{
 		ac3_desc ac3;
