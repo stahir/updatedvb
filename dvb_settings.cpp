@@ -691,6 +691,8 @@ dvb_settings::dvb_settings()
 	fec_name.append("9/10");
 	fec_name.append("2/5");
 	fec_name.append("5/11");
+	fec_name.append("1/4");
+	fec_name.append("1/3");
 
 	system_name.append("Undefined");
 	system_name.append("DVB-C A");
