@@ -408,6 +408,29 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 	}
 		break;
+	case 0x4e: // extended_event_descriptor
+	{
+		unsigned int tmp = mytune->read8();
+		item->text = QString("Descriptor Number: %1").arg(mytune->maskbits(tmp, 0xF0));
+		tree_create_wait(item);
+		item->text = QString("Last Descriptor Number: %1").arg(mytune->maskbits(tmp, 0x0F));
+		tree_create_wait(item);
+		item->text = QString("Country Code: %1").arg(mytune->readstr(3));
+		tree_create_wait(item);
+		unsigned int length_of_items = mytune->read8() + mytune->index;
+		while (mytune->index < length_of_items) {
+			unsigned int item_description_length = mytune->read8();
+			item->text = QString("Item Description: %1").arg(mytune->readstr(item_description_length));
+			tree_create_wait(item);
+			unsigned int item_length = mytune->read8();
+			item->text = QString("Item: %1").arg(mytune->readstr(item_length));
+			tree_create_wait(item);
+		}
+		unsigned int text_length = mytune->read8();
+		item->text = QString("Text: %1").arg(mytune->readstr(text_length));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x50: // component_descriptor
 	{
 		stream_content sm;
