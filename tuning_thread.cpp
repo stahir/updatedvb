@@ -280,6 +280,15 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		tree_create_wait(item);
 	}
 		break;
+	case 0x2b: // MPEG2_AAC_Audio_Descriptor
+	{
+		AAC aac;
+		item->text = QString("%1 Profile").arg(aac.profile.at(mytune->read8()));
+		tree_create_wait(item);
+		item->text = QString("Channel Configuration: %1").arg(aac.channel_configuration.at(mytune->read8()));
+		tree_create_wait(item);
+	}
+		break;
 	case 0x40: // network_name_descriptor
 		item->text = QString("Network Name: %1").arg(mytune->readstr(desc_len));
 		tree_create_wait(item);

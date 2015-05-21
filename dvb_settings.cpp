@@ -164,6 +164,24 @@ data_stream_type::data_stream_type()
 	name[0x04] = "SEQ";
 }
 
+AAC::AAC()
+{
+	profile.fill("Reserved", 0xFF);
+	profile[0x00] = "Main";
+	profile[0x01] = "Low Complexity";
+	profile[0x02] = "Scalable Sampling Rate";
+
+	channel_configuration.fill("Reserved", 0xFF);
+	channel_configuration[0x00] = "Invalid";
+	channel_configuration[0x01] = "center front speaker";
+	channel_configuration[0x02] = "left, right front speakers";
+	channel_configuration[0x03] = "center front speaker, left, right front speakers";
+	channel_configuration[0x04] = "center front speaker, left, right center front speakers, rear surround";
+	channel_configuration[0x05] = "center front speaker, left, right front speakers, left surround, right surround, rear speakers";
+	channel_configuration[0x06] = "center front speaker, left, right front speakers, left surround, right surround, rear speakers, front low frequency effects speaker";
+	channel_configuration[0x07] = "center front speaker, left, right center front speakers, left, right outside front speakers, left surround, right surround, rear speakers, front low frequency effects speaker";
+}
+
 frame_rate::frame_rate()
 {
 	rate.fill("Reserved", 0xFF);

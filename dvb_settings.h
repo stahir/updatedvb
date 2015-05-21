@@ -314,6 +314,14 @@ public:
 	QVector<QString> name;
 };
 
+class AAC
+{
+public:
+	AAC();
+	QVector<QString> profile;
+	QVector<QString> channel_configuration;
+};
+
 class tree_item
 {
 public:
