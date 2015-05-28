@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	grid->setMinorPen(QPen(DGRAY, 0, Qt::DotLine));
 	grid->attach(ui->qwtPlot);
 
-    qwt_picker = new PlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, qobject_cast<QwtPlotCanvas*>(ui->qwtPlot->canvas()));
+	qwt_picker = new PlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, qobject_cast<QwtPlotCanvas*>(ui->qwtPlot->canvas()));
 	qwt_picker->setStateMachine(new QwtPickerDragPointMachine());
 	qwt_picker->setRubberBandPen(QColor(Qt::darkMagenta));
 	qwt_picker->setRubberBand(QwtPicker::CrossRubberBand);
@@ -313,14 +313,17 @@ void MainWindow::qwtPlot_selected(QPointF pos)
 
 	if (ui->gridWidget_system->isVisible()) {
 		mytuning.last()->mytune->tp.modulation	= dvbnames.modulation_name.indexOf(ui->comboBox_modulation->currentText());
-		mytuning.last()->mytune->tp.system		= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
+		mytuning.last()->mytune->tp.system	= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
+		mytuning.last()->mytune->tp.rolloff	= dvbnames.rolloff_name.indexOf("25");
 		mytuning.last()->mytune->tp.symbolrate	= ui->lineEdit_symbolrate->text().toInt();
-		mytuning.last()->mytune->tp.fec			= dvbnames.fec_name.indexOf(ui->comboBox_fec->currentText());
+		mytuning.last()->mytune->tp.fec		= FEC_AUTO;
+		mytuning.last()->mytune->tune_ops.modcod = ui->comboBox_modcod->currentData().toUInt();
 	} else {
 		mytuning.last()->mytune->tp.modulation	= QPSK;
-		mytuning.last()->mytune->tp.system		= SYS_DVBS;
+		mytuning.last()->mytune->tp.system	= SYS_DVBS;
 		mytuning.last()->mytune->tp.symbolrate	= 1000;
-		mytuning.last()->mytune->tp.fec			= FEC_AUTO;
+		mytuning.last()->mytune->tp.fec		= FEC_AUTO;
+		mytuning.last()->mytune->tune_ops.modcod = ui->comboBox_modcod->currentData().toUInt();
 	}
 	
 	connect(mytuning.last(), SIGNAL(adapter_status(int)), this, SLOT(adapter_status(int)));
@@ -739,18 +742,48 @@ void MainWindow::setup_tuning_options()
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBS2) || mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_TURBO)) {
 		add_comboBox_modulation("QPSK");
 		add_comboBox_modulation("8PSK");
+		add_comboBox_modulation("16PSK");
+		add_comboBox_modulation("32PSK");
 	}
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->delsys.contains(SYS_DVBS)) {
 		add_comboBox_modulation("QPSK");
 	}
 
-	ui->comboBox_fec->clear();
-	ui->comboBox_fec->addItem("Auto");
+	ui->comboBox_modcod->clear();
+	ui->comboBox_modcod->addItem("Auto", 0x0fffffff);
+	ui->comboBox_modcod->addItem("QPSK 1/4", 0x8000000);
+	ui->comboBox_modcod->addItem("QPSK 1/3", 0x4000000);
+	ui->comboBox_modcod->addItem("QPSK 2/5", 0x2000000);
+	ui->comboBox_modcod->addItem("QPSK 1/2", 0x1000000);
+	ui->comboBox_modcod->addItem("QPSK 3/5", 0x800000);
+	ui->comboBox_modcod->addItem("QPSK 2/3", 0x400000);
+	ui->comboBox_modcod->addItem("QPSK 3/4", 0x200000);
+	ui->comboBox_modcod->addItem("QPSK 4/5", 0x100000);
+	ui->comboBox_modcod->addItem("QPSK 5/6", 0x80000);
+	ui->comboBox_modcod->addItem("QPSK 8/9", 0x40000);
+	ui->comboBox_modcod->addItem("QPSK 9/10", 0x20000);
+	ui->comboBox_modcod->addItem("8PSK 3/5", 0x10000);
+	ui->comboBox_modcod->addItem("8PSK 2/3", 0x8000);
+	ui->comboBox_modcod->addItem("8PSK 3/4", 0x4000);
+	ui->comboBox_modcod->addItem("8PSK 5/6", 0x2000);
+	ui->comboBox_modcod->addItem("8PSK 8/9", 0x1000);
+	ui->comboBox_modcod->addItem("8PSK 9/10", 0x800);
+	ui->comboBox_modcod->addItem("16PSK 2/3", 0x400);
+	ui->comboBox_modcod->addItem("16PSK 3/4", 0x200);
+	ui->comboBox_modcod->addItem("16PSK 4/5", 0x100);
+	ui->comboBox_modcod->addItem("16PSK 5/6", 0x80);
+	ui->comboBox_modcod->addItem("16PSK 8/9", 0x40);
+	ui->comboBox_modcod->addItem("16PSK 9/10", 0x20);
+	ui->comboBox_modcod->addItem("32PSK 3/4", 0x10);
+	ui->comboBox_modcod->addItem("32PSK 4/5", 0x08);
+	ui->comboBox_modcod->addItem("32PSK 5/6", 0x04);
+	ui->comboBox_modcod->addItem("32PSK 8/9", 0x02);
+	ui->comboBox_modcod->addItem("32PSK 9/10", 0x01);
 
 	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_BLINDSEARCH) {
 		ui->gridWidget_system->hide();
 		ui->gridWidget_blindscan->show();
-		ui->gridWidget_satellite->hide();
+		ui->gridWidget_satellite->show();
 	} else {
 		ui->gridWidget_system->show();
 		if (isVectorQAM(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys) || isVectorATSC(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys) || isVectorDVBT(mytuners.at(ui->comboBox_adapter->currentIndex())->delsys)) {
@@ -822,6 +855,7 @@ void MainWindow::reload_settings()
 		tmp.site_lat	= mysettings->value("site_lat").toDouble();
 		tmp.site_long	= mysettings->value("site_long").toDouble();
 		tmp.name		= mysettings->value("name").toString();
+		tmp.modcod		= ui->comboBox_modcod->currentData().toUInt();
 		tune_ops.append(tmp);
 	}
 
@@ -1038,5 +1072,15 @@ void MainWindow::focusInEvent(QFocusEvent * event)
 			mytuning.at(i)->raise();
 			mytuning.at(i)->show();
 		}
+	}
+}
+
+void MainWindow::on_comboBox_modcod_currentIndexChanged(int index)
+{
+	Q_UNUSED(index);
+	if (ui->comboBox_modcod->currentText() != "Auto") {
+		ui->gridWidget_system->show();
+	} else {
+		ui->gridWidget_system->hide();
 	}
 }

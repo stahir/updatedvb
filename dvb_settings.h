@@ -122,6 +122,7 @@ public:
 	int tone;
 	int committed;
 	int uncommitted;
+	unsigned int modcod;
 	double site_lat, site_long;
 	QString name;
 	

@@ -372,7 +372,7 @@
             <property name="spacing">
              <number>0</number>
             </property>
-            <item row="2" column="0">
+            <item row="1" column="0">
              <widget class="QLabel" name="label_4">
               <property name="maximumSize">
                <size>
@@ -407,7 +407,7 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
+            <item row="1" column="1">
              <widget class="QComboBox" name="comboBox_modulation">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -974,12 +974,12 @@
                </size>
               </property>
               <property name="text">
-               <string>Fec</string>
+               <string>MODCOD</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QComboBox" name="comboBox_fec">
+             <widget class="QComboBox" name="comboBox_modcod">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -1136,7 +1136,7 @@
   <tabstop>pushButton_spectrumscan</tabstop>
   <tabstop>comboBox_voltage</tabstop>
   <tabstop>lineEdit_symbolrate</tabstop>
-  <tabstop>comboBox_fec</tabstop>
+  <tabstop>comboBox_modcod</tabstop>
   <tabstop>comboBox_system</tabstop>
   <tabstop>comboBox_modulation</tabstop>
   <tabstop>comboBox_gotox</tabstop>

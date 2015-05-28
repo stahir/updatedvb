@@ -98,6 +98,8 @@ private slots:
 	void on_actionSave_Screenshot_triggered();
 	void on_comboBox_adapter_activated(int index);
 
+	void on_comboBox_modcod_currentIndexChanged(int index);
+
 private:
 	Ui::MainWindow *ui;
 	QVector< QPointer<tuning> > mytuning;

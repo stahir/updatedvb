@@ -595,7 +595,7 @@ int dvbtune::tune()
 	setbit(TUNER_TUNED);
 
 	int i = 0;
-	struct dtv_property p_tune[13];
+	struct dtv_property p_tune[14];
 
 	if (isSatellite(tp.system)) {
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
@@ -609,6 +609,7 @@ int dvbtune::tune()
 		p_tune[i].cmd = DTV_ROLLOFF;		p_tune[i++].u.data = tp.rolloff;
 		p_tune[i].cmd = DTV_BANDWIDTH_HZ;	p_tune[i++].u.data = 0;
 		p_tune[i].cmd = DTV_PILOT;			p_tune[i++].u.data = tp.pilot;
+		p_tune[i].cmd = DTV_ENABLE_MODCOD;	p_tune[i++].u.data = tune_ops.modcod;
 		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
 		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
 	} else if (isQAM(tp.system) || isATSC(tp.system)) {

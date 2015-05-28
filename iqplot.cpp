@@ -189,6 +189,7 @@ void iqplot::erase()
 		}
 	} else {
 		ui->qwtPlot->setMinimumWidth(384);
+		ui->iqplot_widget->resize(ui->iqplot_widget->minimumWidth(), ui->iqplot_widget->height());
 		scaleY->attach(ui->qwtPlot);
 		for (int i = 0; i < modcod_marker.size(); i++) {
 			modcod_marker.at(i)->detach();

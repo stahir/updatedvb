@@ -656,7 +656,7 @@ void tuning::keyPressEvent(QKeyEvent *event)
 void tuning::on_pushButton_bbframe_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.ready				= true;
+		mythread.ready			= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);

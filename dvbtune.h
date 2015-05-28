@@ -51,7 +51,7 @@ public:
 	unsigned int adapter;
 	unsigned int frontend;
 
-	tp_info				tp;
+	tp_info			tp;
 	QVector<tp_info>	tp_try;
 	tuning_options		tune_ops;
 	switch_settings		myswitch;
