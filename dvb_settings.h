@@ -148,6 +148,17 @@ public:
 	QVector<unsigned int> max;
 };
 
+class transmission_context_id
+{
+public:
+	transmission_context_id();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
 class audio_type
 {
 public:
@@ -215,6 +226,39 @@ class atsc_modulation
 {
 public:
 	atsc_modulation();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
+class qam_modulation
+{
+public:
+	qam_modulation();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
+class fec_outer
+{
+public:
+	fec_outer();
+	QString whatis(unsigned int val);
+
+	QVector<QString> text;
+	QVector<unsigned int> min;
+	QVector<unsigned int> max;
+};
+
+class fec_inner
+{
+public:
+	fec_inner();
 	QString whatis(unsigned int val);
 
 	QVector<QString> text;

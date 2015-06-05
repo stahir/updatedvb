@@ -301,7 +301,8 @@ void tuning_thread::parse_descriptor(tree_item *item)
 			tree_create_wait(item);
 		}
 		break;
-	case 0x43: //satellite_delivery_system_descriptor
+	case 0x43: // satellite_delivery_system_descriptor
+	{
 		unsigned int frequency;
 		unsigned int symbol_rate;
 		unsigned int temp;
@@ -342,6 +343,30 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		}
 		item->text = QString("Orbital Position: %L1%2").arg(QString::number(orbital_pos/10.0, 'f', 1)).arg(east_west_flag ? "e" : "w");
 		tree_create_wait(item);
+	}
+		break;
+	case 0x44: // cable_delivery_system_descriptor
+	{
+		item->text = QString("Frequency: %1").arg(dtag_convert(mytune->read32()));
+		tree_create_wait(item);
+
+		fec_outer fec_o;
+		item->text = QString("FEC Outer: %1").arg(fec_o.whatis(mytune->read16(0x000f)));
+		tree_create_wait(item);
+
+		qam_modulation qam;
+		item->text = QString("Modulation: %1").arg(qam.whatis(mytune->read8()));
+		tree_create_wait(item);
+
+		unsigned int temp = mytune->read32();
+
+		item->text = QString("Symbol Rate: %1").arg(dtag_convert(mytune->maskbits(temp, 0xfffff0)));
+		tree_create_wait(item);
+
+		fec_inner fec_i;
+		item->text = QString("FEC Inner: %1").arg(fec_i.whatis(mytune->maskbits(temp, 0x00000f)));
+		tree_create_wait(item);
+	}
 		break;
 	case 0x45: // VBI_data_descriptor
 	{
@@ -640,6 +665,42 @@ void tuning_thread::parse_descriptor(tree_item *item)
 		break;
 	case 0xA3: // component_name_descriptor
 		parse_etm(item, "Component Name");
+		break;
+	case 0xB7: // Frame_payload_format_descriptor
+	{
+		unsigned int count = mytune->read8();
+		for (unsigned int i = 0; i < count; i++) {
+			transmission_context_id tc_id;
+			item->text = QString("Transmission Context ID: %1").arg(tc_id.whatis(mytune->read8()));
+			tree_create_wait(item);
+
+			unsigned int tmp;
+			tmp = mytune->read8();
+			item->text = QString("Allow ptype omission: %1").arg(mytune->maskbits(tmp, 0x10) ? "true" : "false");
+			tree_create_wait(item);
+			item->text = QString("Use compressed ptype: %1").arg(mytune->maskbits(tmp, 0x08) ? "true" : "false");
+			tree_create_wait(item);
+			item->text = QString("Allow alpdu crc: %1").arg(mytune->maskbits(tmp, 0x04) ? "true" : "false");
+			tree_create_wait(item);
+			item->text = QString("Allow alpdu sequence number: %1").arg(mytune->maskbits(tmp, 0x02) ? "true" : "false");
+			tree_create_wait(item);
+			item->text = QString("Use explicit payload header map: %1").arg(mytune->maskbits(tmp, 0x01) ? "true" : "false");
+			tree_create_wait(item);
+
+			item->text = QString("Implicit Protocol Type: %1").arg(mytune->read8());
+			tree_create_wait(item);
+
+			tmp = mytune->read8();
+			item->text = QString("Implicit ppdu label size: %1").arg(mytune->maskbits(tmp, 0xf0));
+			tree_create_wait(item);
+			item->text = QString("Implicit payload label size: %1").arg(mytune->maskbits(tmp, 0x0f));
+			tree_create_wait(item);
+
+			tmp = mytune->read8();
+			item->text = QString("Type 0 alpdu label size: %1").arg(mytune->read8(0x0f));
+			tree_create_wait(item);
+		}
+	}
 		break;
 	default:
 		qDebug() << Q_FUNC_INFO << "Unknown Descriptor" << tohex(desc_tag,2) << ":" << desc_len << "bytes";

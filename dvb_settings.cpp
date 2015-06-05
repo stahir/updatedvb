@@ -402,6 +402,71 @@ atsc_modulation::atsc_modulation()
 	min.append(0x80);	max.append(0xFF);	text.append("[User Private]");
 }
 
+QString qam_modulation::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+qam_modulation::qam_modulation()
+{
+	min.append(0x00);	max.append(0x00);	text.append("not defined");
+	min.append(0x01);	max.append(0x01);	text.append("16-QAM");
+	min.append(0x02);	max.append(0x02);	text.append("32-QAM");
+	min.append(0x03);	max.append(0x03);	text.append("64-QAM");
+	min.append(0x04);	max.append(0x04);	text.append("128-QAM");
+	min.append(0x05);	max.append(0x05);	text.append("256-QAM");
+	min.append(0x06);	max.append(0xff);	text.append("reserved for future use");
+}
+
+QString fec_outer::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+fec_outer::fec_outer()
+{
+	min.append(0x00);	max.append(0x00);	text.append("not defined");
+	min.append(0x01);	max.append(0x01);	text.append("no outer FEC coding");
+	min.append(0x02);	max.append(0x02);	text.append("RS(204/188)");
+	min.append(0x03);	max.append(0x0f);	text.append("reserved for future use");
+}
+
+QString fec_inner::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "user defined";
+}
+
+fec_inner::fec_inner()
+{
+	min.append(0x00);	max.append(0x00);	text.append("not defined");
+	min.append(0x01);	max.append(0x01);	text.append("1/2");
+	min.append(0x02);	max.append(0x02);	text.append("2/3");
+	min.append(0x03);	max.append(0x03);	text.append("3/4");
+	min.append(0x04);	max.append(0x04);	text.append("5/6");
+	min.append(0x05);	max.append(0x05);	text.append("7/8");
+	min.append(0x06);	max.append(0x06);	text.append("8/9");
+	min.append(0x07);	max.append(0x07);	text.append("3/5");
+	min.append(0x08);	max.append(0x08);	text.append("4/5");
+	min.append(0x09);	max.append(0x09);	text.append("9/10");
+	min.append(0x0a);	max.append(0x0e);	text.append("reserved for future use");
+	min.append(0x0f);	max.append(0x0f);	text.append("no conventional coding");
+}
+
 QString mgt_table::whatis(unsigned int val)
 {
 	for (int i = 0; i < text.size(); i++) {
@@ -987,6 +1052,31 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0xFC]	= "User Defined";
 	dvb_descriptortag[0xFD]	= "User Defined";
 	dvb_descriptortag[0xFE]	= "User Defined";
+}
+
+QString transmission_context_id::whatis(unsigned int val)
+{
+	for (int i = 0; i < text.size(); i++) {
+		if (val >= min.at(i) && val <= max.at(i)) {
+			return text.at(i);
+		}
+	}
+	return "unknown";
+}
+
+transmission_context_id::transmission_context_id()
+{
+	min.append(0);		max.append(0);		text.append("Transparent star TDMA, access dedicated to one RCST");
+	min.append(1);		max.append(1);		text.append("Transparent star TDMA, slotted aloha");
+	min.append(2);		max.append(2);		text.append("Transparent star TDMA, CRDSA");
+	min.append(3);		max.append(7);		text.append("Reserved");
+	min.append(8);		max.append(8);		text.append("Transparent star continuous transmission");
+	min.append(9);		max.append(15);		text.append("Reserved");
+	min.append(16);		max.append(16);		text.append("Transparent mesh overlay TDMA, general purpose");
+	min.append(17);		max.append(31);		text.append("Reserved");
+	min.append(32);		max.append(32);		text.append("Regenerative mesh TDMA, general purpose");
+	min.append(33);		max.append(127);	text.append("Reserved");
+	min.append(128);	max.append(255);	text.append("User Defined");
 }
 
 QString private_data_specifier::whois(unsigned long val)
