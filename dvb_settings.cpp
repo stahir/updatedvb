@@ -996,8 +996,11 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0x05]	= "Registration";
 	dvb_descriptortag[0x06]	= "Data Stream Alignment";
 	dvb_descriptortag[0x09]	= "CA";
+	dvb_descriptortag[0x0B] = "System Clock";
 	dvb_descriptortag[0x0C]	= "Multiplex Buffer Utilization";
+	dvb_descriptortag[0x0E] = "Maximum Bitrate";
 	dvb_descriptortag[0x10]	= "Smoothing Buffer";
+	dvb_descriptortag[0x11] = "STD";
 	dvb_descriptortag[0x0A]	= "ISO-639 language";
 	dvb_descriptortag[0x0B]	= "System Clock";
 	dvb_descriptortag[0x0E]	= "Maximum Bitrate";
@@ -1012,14 +1015,17 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0x41] = "Service List";
 	dvb_descriptortag[0x42] = "Stuffing";
 	dvb_descriptortag[0x43] = "Satellite Delivery System";
+	dvb_descriptortag[0x44] = "Cable_Delivery System";
 	dvb_descriptortag[0x45]	= "VBI data";
 	dvb_descriptortag[0x48]	= "Service";
 	dvb_descriptortag[0x49]	= "Country Availibility";
 	dvb_descriptortag[0x4A]	= "Linkage";
 	dvb_descriptortag[0x4D]	= "Short Event";
+	dvb_descriptortag[0x4E] = "Extended Event";
 	dvb_descriptortag[0x50]	= "Component";
 	dvb_descriptortag[0x52]	= "Stream Identifier";
 	dvb_descriptortag[0x53]	= "CA Identifier";
+	dvb_descriptortag[0x55] = "Parental Rating";
 	dvb_descriptortag[0x56]	= "Teletext";
 	dvb_descriptortag[0x5F]	= "Private Data Specifier";
 	dvb_descriptortag[0x66]	= "Data Broadcast ID";
@@ -1035,6 +1041,7 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0x86]	= "Caption Service";
 	dvb_descriptortag[0x87]	= "Content Advisory";
 	dvb_descriptortag[0x88]	= "User Defined";
+	dvb_descriptortag[0x8A] = "Cue Identifier";
 	dvb_descriptortag[0x90]	= "User Defined";
 	dvb_descriptortag[0xA0]	= "Extended Channel Name";
 	dvb_descriptortag[0xA1]	= "Service Location";
@@ -1047,6 +1054,7 @@ dvb_settings::dvb_settings()
 	dvb_descriptortag[0xAA]	= "Redistribution Control";
 	dvb_descriptortag[0xAB]	= "Genre";
 	dvb_descriptortag[0xAD]	= "ATSC Private Information";
+	dvb_descriptortag[0xB7] = "Frame Payload Format";
 	dvb_descriptortag[0xC3]	= "User Defined";
 	dvb_descriptortag[0xF0]	= "User Defined";
 	dvb_descriptortag[0xFC]	= "User Defined";
