@@ -274,7 +274,10 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 			waterfall_curve->at(c)->attach(ui->qwtPlot);
 		}
 	} else {
-		clear_qwtplot();
+		curve[cindex]->detach();
+		for(int i = 0; i < marker.size(); i++) {
+			marker.at(i)->detach();
+		}
 
 		curve[cindex]->setTitle(mysettings->value("lnb" + ui->comboBox_lnb->currentData().toString() + "_name").toString() + " -" + dvbnames.voltage[cindex]);
 		curve[cindex]->setSamples(x, y);
