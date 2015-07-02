@@ -274,6 +274,8 @@ void MainWindow::qwt_draw(QVector<double> x, QVector<double> y, int min, int max
 			waterfall_curve->at(c)->attach(ui->qwtPlot);
 		}
 	} else {
+		clear_qwtplot();
+
 		curve[cindex]->setTitle(mysettings->value("lnb" + ui->comboBox_lnb->currentData().toString() + "_name").toString() + " -" + dvbnames.voltage[cindex]);
 		curve[cindex]->setSamples(x, y);
 	}
@@ -365,7 +367,9 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 		return;
 	}
 
-	clear_qwtplot();
+	if (ui->checkBox_waterfall->isChecked()) {
+		clear_qwtplot();
+	}
 
 	myscan->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 
