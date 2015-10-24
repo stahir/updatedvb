@@ -755,11 +755,17 @@ void dvbtune::get_bitrate()
 	}
 	
 	for (i = 0; i <= 0x2000; i++) {
-		if (pids_rate[i] > 0) {
+		switch(pids_rate[i]) {
+		case 0:
+			pids_rate[i] = (new_rate[i]*188*8)/ttime;
+			break;
+		case 1:
+			// If there were packets before, lets just show 1 vs not showing it on the list at all
+			break;
+		default:
 			pids_rate[i] += (new_rate[i]*188*8)/ttime;
 			pids_rate[i] /= 2;
-		} else {
-			pids_rate[i] = (new_rate[i]*188*8)/ttime;
+			break;
 		}
 	}
 }
