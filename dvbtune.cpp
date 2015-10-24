@@ -761,6 +761,9 @@ void dvbtune::get_bitrate()
 			break;
 		case 1:
 			// If there were packets before, lets just show 1 vs not showing it on the list at all
+			if ((new_rate[i]*188*8)/ttime > 1) {
+				pids_rate[i] = (new_rate[i]*188*8)/ttime;
+			}
 			break;
 		default:
 			pids_rate[i] += (new_rate[i]*188*8)/ttime;
