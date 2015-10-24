@@ -456,11 +456,12 @@ void tuning::setup_demux(QString type)
 		}
 	}
 
-	if (!mytune->pids.isEmpty() && !mytune->pids.contains(0x00)) { // VLC needs the PAT
-		mytune->pids.append(0x00);
-	} else {
+	if (mytune->pids.isEmpty()) {
 		mytune->pids.append(0x2000);
+	} else if (!mytune->pids.contains(0x00)) { // VLC needs the PAT
+		mytune->pids.append(0x00);
 	}
+
 	if (type == "BBFrame") {
 		mytune->demux_bbframe();
 	} else {
