@@ -479,9 +479,9 @@ void dvbtune::check_frontend()
 			tp.lvl = 0;
 		}
 	}
-	tp.snr_scale	= p_status.props[10].u.st.stat[0].scale;
+	tp.snr_scale = p_status.props[10].u.st.stat[0].scale;
 	if (tp.snr_scale == FE_SCALE_DECIBEL) {
-		tp.snr		= p_status.props[10].u.st.stat[0].svalue * 0.0001;
+		tp.snr = p_status.props[10].u.st.stat[0].svalue * 0.0001;
 	} else {
 		unsigned int snr = 0;
 		if (ioctl_FE_READ_SNR(&snr)) {

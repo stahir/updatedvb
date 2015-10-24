@@ -26,6 +26,15 @@ demux_file::~demux_file()
 void demux_file::init()
 {
 	connect(mytune->mydvr, SIGNAL(data_size(int)), this, SLOT(demux_status(int)));
+
+	this->setWindowTitle("Save TS to file...");
+}
+
+void demux_file::keyPressEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key_Escape) {
+		this->close();
+	}
 }
 
 void demux_file::on_pushButton_start_clicked()

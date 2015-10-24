@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QStatusBar>
 #include <QFileDialog>
+#include <QKeyEvent>
 #include "dvbtune.h"
 
 namespace Ui {
@@ -38,6 +39,7 @@ private:
 
 protected:
 	void closeEvent(QCloseEvent *event);
+	void keyPressEvent(QKeyEvent *event);
 };
 
 #endif // DEMUX_FILE_H

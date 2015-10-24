@@ -523,7 +523,7 @@ void tuning::delete_demux_file()
 void tuning::on_pushButton_file_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.ready				= true;
+		mythread.ready			= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
