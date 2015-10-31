@@ -23,6 +23,8 @@
 #include <QDebug>
 #include <QPointer>
 #include <QTreeWidget>
+#include <QThread>
+#include <QPointer>
 #include <linux/dvb/frontend.h>
 
 #define MAX_LNBS 16
@@ -70,6 +72,18 @@ public:
 	int uncommitted;
 
 	switch_settings();
+};
+
+class waitout : public QThread
+{
+public:
+	waitout();
+	void lock();
+	void unlock();
+	void wait();
+	void wait(bool *loop);
+private:
+	bool ready;
 };
 
 class ac3_desc

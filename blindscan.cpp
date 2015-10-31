@@ -30,13 +30,11 @@ void blindscan::init()
 
 blindscan::~blindscan()
 {
-	mythread.ready	= true;
-	mythread.loop	= false;
+	mythread.loop = false;
 	mythread.quit();
 	mythread.wait(1000);
 	while (mythread.isRunning()) {
-		mythread.ready	= true;
-		mythread.loop	= false;
+		mythread.loop = false;
 		QThread::msleep(100);
 	}
 
@@ -111,15 +109,12 @@ int blindscan::tree_create_child(int parent, QString text)
 
 void blindscan::update_signal()
 {
-	if (mythread.ready) {
-		return;
-	}
 	if (!(mythread.mytune->tp.status & FE_HAS_LOCK)) {
-		mythread.ready = true;
+		mythread.mutex.unlock();
 		return;
 	}
 	if (!(mythread.mytune->tp.status & (0xFF ^ FE_TIMEDOUT))) {
-		mythread.ready = true;
+		mythread.mutex.unlock();
 		return;
 	}
 
@@ -181,7 +176,7 @@ void blindscan::update_signal()
 		tree_create_child(parent_1, text);
 	}
 
-	mythread.ready = true;
+	mythread.mutex.unlock();
 }
 
 void blindscan::on_pushButton_tune_clicked()

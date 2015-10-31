@@ -31,6 +31,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QKeyEvent>
+#include <QSemaphore>
 #include "demux_file.h"
 #include "demux_dvr.h"
 #include "dvbtune.h"

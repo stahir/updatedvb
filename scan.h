@@ -35,7 +35,7 @@ signals:
 
 public:
 	bool loop;
-	bool ready;
+	waitout mutex;
 	dvbtune *mytune;
 	unsigned int step;
 	int min, max, min_old, max_old;
@@ -45,7 +45,6 @@ public:
 
 	scan();
 	~scan();
-	void setup();
 	void sweep();
 	void rescale();
 private:

@@ -26,6 +26,35 @@ switch_settings::switch_settings()
 	uncommitted	= -1;
 }
 
+waitout::waitout()
+{
+	ready = true;
+}
+
+void waitout::lock()
+{
+	ready = false;
+}
+
+void waitout::unlock()
+{
+	ready = true;
+}
+
+void waitout::wait()
+{
+	while (!ready) {
+		msleep(10);
+	}
+}
+
+void waitout::wait(bool *loop)
+{
+	while (!ready && *loop) {
+		msleep(10);
+	}
+}
+
 data_service::data_service()
 {
 	text.fill("reserved for future use", 0xFF);

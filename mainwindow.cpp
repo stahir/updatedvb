@@ -384,9 +384,8 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 
 	myscan->mytune->tune_ops	= tune_ops.at(ui->comboBox_lnb->currentData().toInt());
 	myscan->mytune->tp.system	= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
-	myscan->loop				= ui->checkBox_loop->isChecked();
-	myscan->loop_delay			= mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_loop_delay").toInt();
-	myscan->setup();
+	myscan->loop			= ui->checkBox_loop->isChecked();
+	myscan->loop_delay		= mysettings->value("adapter" + QString::number(ui->comboBox_adapter->currentData().toInt()) + "_loop_delay").toInt();
 	myscan->start();
 }
 
@@ -958,7 +957,7 @@ void MainWindow::markers_draw()
 	ui->qwtPlot->updateLegend();
 	ui->qwtPlot->replot();
 
-	myscan->ready = true;
+	myscan->mutex.unlock();
 }
 
 void MainWindow::set_colors()

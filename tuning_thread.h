@@ -62,10 +62,11 @@ public:
 	bool loop;
 	bool parsetp_loop;
 	bool parsetp_running;
-	bool ready;
 	QVector<QString> thread_function;
 	QVector<int> pid_parent;
 	QVector<dvb_pids> fpids;
+
+	waitout mutex;
 	
 signals:
 	void list_create();

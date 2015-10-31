@@ -22,7 +22,6 @@ blindscan_thread::blindscan_thread()
 {
 	mytune	= NULL;
 	loop	= false;
-	ready	= false;
 }
 
 blindscan_thread::~blindscan_thread()
@@ -74,14 +73,11 @@ void blindscan_thread::smartscan()
 		mytune->tp.voltage	= mytune->tp_try.at(i).voltage;
 		mytune->tp.system	= mytune->tp_try.at(i).system;
 		mytune->tp.symbolrate	= 1000;
-		ready = false;
+		mutex.lock();
 		mytune->tune();
-		while (!ready) {
-			msleep(10);
-		}
+		mutex.wait(&loop);
 		emit update_progress(progress);
 	}
-	ready = true;
 	qDebug() << "Total time: " << t.elapsed();
 }
 
@@ -95,11 +91,9 @@ void blindscan_thread::blindscan()
 	mytune->tp.frequency	= mytune->tune_ops.f_start;
 	mytune->tp.symbolrate	= 1000;
 	while (mytune->tp.frequency < mytune->tune_ops.f_stop && loop) {
-		ready = false;
+		mutex.lock();
 		mytune->tune();
-		while (!ready) {
-			msleep(10);
-		}
+		mutex.wait(&loop);
 		if ( mytune->tp.status & FE_HAS_LOCK ) {
 			switch(mytune->tp.rolloff) {
 			case 1:
@@ -121,6 +115,5 @@ void blindscan_thread::blindscan()
 		int progress = ((mytune->tp.frequency-mytune->tune_ops.f_start)/size)*100;
 		emit update_progress(progress);
 	}
-	ready = true;
 	qDebug() << "Total time: " << t.elapsed();
 }

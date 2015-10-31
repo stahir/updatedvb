@@ -36,7 +36,7 @@ public:
 
 	dvbtune *mytune;
 	bool loop;
-	bool ready;
+	waitout mutex;
 	QVector<QString> thread_function;
 signals:
 	void update_progress(int i);

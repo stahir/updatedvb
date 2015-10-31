@@ -26,7 +26,6 @@ scan::scan()
 	max_old = -1;
 	loop	= false;
 	loop_delay	= 0;
-	ready	= true;
 	step	= 5;
 	mytune	= NULL;
 	f_start	= 0;
@@ -43,10 +42,6 @@ void scan::run()
 	QTime t;
 	t.start();
 	do {
-		while (!ready) {
-			msleep(10);
-		}
-		ready = false;
 		mytune->tp_try.clear();
 		min_old = -1;
 		max_old = -1;
@@ -67,7 +62,9 @@ void scan::run()
 			sweep();
 			break;
 		}
+		mutex.lock();
 		emit markers_draw();
+		mutex.wait(&loop);
 
 		while (t.elapsed() < loop_delay*1000 && loop) {
 			msleep(100);
@@ -248,9 +245,4 @@ void scan::sweep()
 
 	free(fe_scan.type);
 	free(fe_scan.freq);
-}
-
-void scan::setup()
-{
-	ready = true;
 }

@@ -56,18 +56,16 @@ tuning::tuning(QWidget *parent) :
 		list_item.last()->setHidden(true);
 	}
 
-//	ui->pushButton_appletv->hide();
+	ui->pushButton_appletv->hide();
 }
 
 tuning::~tuning()
 {
-	mythread.ready				= true;
-	mythread.loop				= false;
+	mythread.loop			= false;
 	mythread.parsetp_loop		= false;
 	mytune->demux_packets_loop	= false;
 	while (mythread.parsetp_running) {
-		mythread.ready				= true;
-		mythread.loop				= false;
+		mythread.loop			= false;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
@@ -101,8 +99,7 @@ tuning::~tuning()
 	mythread.quit();
 	mythread.wait(1000);
 	while (mythread.isRunning()) {
-		mythread.ready			= true;
-		mythread.loop			= false;
+		mythread.loop = false;
 		QThread::msleep(10);
 	}
 
@@ -390,7 +387,8 @@ void tuning::tree_create(tree_item *item)
 						)
 					) {
 				item->parent = i;
-				mythread.ready = true;
+
+				mythread.mutex.unlock();
 				return;
 			}
 		}
@@ -426,7 +424,8 @@ void tuning::tree_create(tree_item *item)
 	if (item->return_parent) {
 		item->parent = item->current;
 	}
-	mythread.ready = true;
+
+	mythread.mutex.unlock();
 }
 
 void tuning::update_results()
@@ -478,7 +477,6 @@ void tuning::on_pushButton_play_clicked()
 	}
 
 	while (mythread.parsetp_running) {
-		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
@@ -502,7 +500,6 @@ void tuning::on_pushButton_demux_clicked()
 		is_running = false;
 	} else {
 		while (mythread.parsetp_running) {
-			mythread.ready				= true;
 			mythread.parsetp_loop		= false;
 			mytune->demux_packets_loop	= false;
 			QThread::msleep(10);
@@ -524,7 +521,6 @@ void tuning::delete_demux_file()
 void tuning::on_pushButton_file_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.ready			= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
@@ -559,7 +555,6 @@ void tuning::on_pushButton_unexpand_clicked()
 void tuning::on_pushButton_stream_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
@@ -577,7 +572,6 @@ void tuning::on_pushButton_stream_clicked()
 void tuning::on_pushButton_appletv_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.ready				= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);
@@ -657,7 +651,6 @@ void tuning::keyPressEvent(QKeyEvent *event)
 void tuning::on_pushButton_bbframe_clicked()
 {
 	while (mythread.parsetp_running) {
-		mythread.ready			= true;
 		mythread.parsetp_loop		= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(10);

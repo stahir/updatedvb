@@ -22,7 +22,6 @@ tuning_thread::tuning_thread()
 {
 	mytune	= NULL;
 	loop	= false;
-	ready	= false;
 	parsetp_loop	= false;
 	parsetp_running	= false;
 	pid_parent.fill(-1, 0x2000);
@@ -31,7 +30,7 @@ tuning_thread::tuning_thread()
 tuning_thread::~tuning_thread()
 {
 	while (parsetp_running) {
-		parsetp_loop				= false;
+		parsetp_loop			= false;
 		mytune->demux_packets_loop	= false;
 		QThread::msleep(100);
 	}
@@ -57,11 +56,9 @@ void tuning_thread::tree_create_wait(tree_item *item)
 		return;
 	}
 	
-	ready = false;
+	mutex.lock();
 	emit tree_create(item);
-	while (!ready) {
-		msleep(10);
-	}
+	mutex.wait(&loop);
 }
 
 void tuning_thread::parse_etm(tree_item *item, QString desc)
