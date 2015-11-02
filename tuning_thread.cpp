@@ -52,7 +52,7 @@ unsigned int tuning_thread::dtag_convert(unsigned int temp)
 
 void tuning_thread::tree_create_wait(tree_item *item)
 {
-	if (!loop) {
+	if (!loop || !parsetp_loop) {
 		return;
 	}
 	
@@ -64,7 +64,7 @@ void tuning_thread::tree_create_wait(tree_item *item)
 void tuning_thread::parse_etm(tree_item *item, QString desc)
 {
 	tree_item orig;
-	orig.parent			= item->parent;
+	orig.parent		= item->parent;
 	orig.return_parent	= item->return_parent;
 	item->parent		= item->current;
 
@@ -72,7 +72,7 @@ void tuning_thread::parse_etm(tree_item *item, QString desc)
 	for (unsigned int i = 0; i < num_str; i++) {
 		item->return_parent	= true;
 		item->parent		= orig.parent;
-		item->text			= QString("Language: %1").arg(mytune->readstr(3));
+		item->text		= QString("Language: %1").arg(mytune->readstr(3));
 		tree_create_wait(item);
 		item->return_parent	= false;
 
