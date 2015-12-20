@@ -405,7 +405,7 @@ void tuning::tree_create(tree_item *item)
 		tree_items.last().tree = new QTreeWidgetItem();
 		tree_items.last().tree->setText(0, item->text);
 		if (tree_items.at(item->parent).tree->childCount() == 0) { // Can't expand an item with no children
-			tree_items.at(item->parent).tree->setExpanded(item->expanded);
+			tree_items.at(item->parent).tree->setExpanded(item->expanded=false);
 		} else {
 			tree_items.at(item->parent).tree->setExpanded(tree_items.at(item->parent).tree->isExpanded());
 		}
