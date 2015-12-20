@@ -233,6 +233,12 @@ void tuning::parsetp_done()
 
 void tuning::update_signal()
 {
+	// large font for Quality, dB
+	QFont dBfont;
+	dBfont.setPointSize(20);
+	dBfont.setBold(true);
+	ui->label_signalQ->setFont(dBfont);
+
 	if (mytune->tp.status & FE_HAS_LOCK) {
 		if (parsetp_started) {
 			unlock_t.restart();
