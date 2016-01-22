@@ -377,7 +377,7 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 	myscan->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 
 	if (ui->checkBox_fast->isChecked()) {
-		myscan->points = 50;
+		myscan->points = 100;
 	} else {
 		myscan->points = 500;
 	}
