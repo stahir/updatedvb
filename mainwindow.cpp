@@ -377,9 +377,9 @@ void MainWindow::on_pushButton_spectrumscan_clicked()
 	myscan->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
 
 	if (ui->checkBox_fast->isChecked()) {
-		myscan->step = 5;
+		myscan->points = 50;
 	} else {
-		myscan->step = 1;
+		myscan->points = 500;
 	}
 
 	myscan->mytune->tune_ops	= tune_ops.at(ui->comboBox_lnb->currentData().toInt());

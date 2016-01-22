@@ -484,6 +484,7 @@ void tuning::on_pushButton_play_clicked()
 
 	mytune->close_dvr();
 	setup_demux();
+
 	QString cmd = mysettings->value("cmd_play").toString();
 	cmd.replace("{}", QString::number(mytune->adapter));
 	myProcess.start(cmd);

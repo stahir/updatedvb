@@ -37,6 +37,7 @@ public:
 	bool loop;
 	waitout mutex;
 	dvbtune *mytune;
+	unsigned int points;
 	unsigned int step;
 	int min, max, min_old, max_old;
 	QVector<double> x;

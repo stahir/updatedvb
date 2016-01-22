@@ -26,7 +26,7 @@ scan::scan()
 	max_old = -1;
 	loop	= false;
 	loop_delay	= 0;
-	step	= 5;
+	points	= 50;
 	mytune	= NULL;
 	f_start	= 0;
 	f_stop	= 0;
@@ -92,7 +92,11 @@ void scan::rescale() {
 	int slope;
 	if (isSatellite(mytune->tp.system)) {
 		max += dev * 0.10;
-		slope = 10 / step;
+		if (step / 1000 > 0) {
+			slope = 10 / (step / 1000);
+		} else {
+			slope = 1;
+		}
 	} else {
 		max += dev * 0.40; // non-satellite needs a little extra room because of the channel number
 		slope = 1;
@@ -178,18 +182,17 @@ void scan::sweep()
 	emit update_status("Scanning...", STATUS_NOEXP);
 
 	short int rf_levels_h[65535];
+	step = ((f_stop - f_start) * 1000) / points;
 
-	if (isSatellite(mytune->tp.system) || step == 1) {
-		if (!isSatellite(mytune->tp.system)) {
-			step *= 1000;
-		}
-
+	if (isSatellite(mytune->tp.system)) {
+		qDebug() << "step:" << step << "points:" << points;
 		fe_scan.type		= new __u32;
 		fe_scan.rf_level	= rf_levels_h;
-		fe_scan.num_freq	= ((f_stop - f_start) / step) + 1;
+		fe_scan.num_freq	= points;
 		fe_scan.freq		= (__u32*) malloc(fe_scan.num_freq * sizeof(__u32));
-		for (int i = 0; i < fe_scan.num_freq; i++) {
-			*(fe_scan.freq + i) = (f_start + (i * step)) * 1000;
+		for (unsigned int i = 0; i < points ; i++) {
+			*(fe_scan.freq + i) = (f_start * 1000) + (i * step);
+			qDebug() << "freq:" << *(fe_scan.freq + i);
 		}
 
 		mytune->spectrum_scan(&fe_scan);
