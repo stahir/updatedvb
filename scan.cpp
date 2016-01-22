@@ -192,7 +192,6 @@ void scan::sweep()
 		fe_scan.freq		= (__u32*) malloc(fe_scan.num_freq * sizeof(__u32));
 		for (unsigned int i = 0; i < points ; i++) {
 			*(fe_scan.freq + i) = (f_start * 1000) + (i * step);
-			qDebug() << "freq:" << *(fe_scan.freq + i);
 		}
 
 		mytune->spectrum_scan(&fe_scan);
