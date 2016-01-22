@@ -233,6 +233,12 @@ void tuning::parsetp_done()
 
 void tuning::update_signal()
 {
+	// large font for Quality, dB
+	QFont dBfont;
+	dBfont.setPointSize(20);
+	dBfont.setBold(true);
+	ui->label_signalQ->setFont(dBfont);
+
 	if (mytune->tp.status & FE_HAS_LOCK) {
 		if (parsetp_started) {
 			unlock_t.restart();
@@ -405,7 +411,7 @@ void tuning::tree_create(tree_item *item)
 		tree_items.last().tree = new QTreeWidgetItem();
 		tree_items.last().tree->setText(0, item->text);
 		if (tree_items.at(item->parent).tree->childCount() == 0) { // Can't expand an item with no children
-			tree_items.at(item->parent).tree->setExpanded(item->expanded);
+			tree_items.at(item->parent).tree->setExpanded(item->expanded=false);
 		} else {
 			tree_items.at(item->parent).tree->setExpanded(tree_items.at(item->parent).tree->isExpanded());
 		}
