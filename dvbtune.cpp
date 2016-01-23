@@ -43,6 +43,8 @@ dvbtune::dvbtune()
 	fd_timeout.tv_usec	= 0;
 	mydvr			= new dvr_thread;
 	mydvr->mytune	= this;
+	closefd_timer   = new QTimer(this);
+	connect(closefd_timer, SIGNAL(timeout()), this, SLOT(closefd()));
 }
 
 dvbtune::~dvbtune()
@@ -198,6 +200,10 @@ QString dvbtune::readstr16(unsigned int len)
 
 void dvbtune::closefd()
 {
+	if (closefd_timer->isActive()) {
+		closefd_timer->stop();
+	}
+
 	close_demux();
 	close_dvr();
 
@@ -283,6 +289,8 @@ void dvbtune::step_motor(int direction, int steps)
 	// 0xFF = 1 step
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, (__u8)(0x68 + direction), (__u8)(0xFF - (steps-1)), 0x00, 0x00 }, 4 };
 	
+	ioctl_FE_SET_VOLTAGE(tp.voltage);
+
 	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		ioctl_FE_SET_TONE(SEC_TONE_OFF);
@@ -290,7 +298,7 @@ void dvbtune::step_motor(int direction, int steps)
 	ioctl_FE_DISEQC_SEND_MASTER_CMD(diseqc_cmd);
 
 	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
-		closefd();
+		closefd_timer->start(1000);
 	}
 }
 
@@ -327,6 +335,8 @@ void dvbtune::usals_drive(double sat_long)
 
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6e, (__u8)angle_1, (__u8)angle_2, 0x00 }, 5 };
 
+	ioctl_FE_SET_VOLTAGE(tp.voltage);
+
 	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		ioctl_FE_SET_TONE(SEC_TONE_OFF);
@@ -343,7 +353,7 @@ void dvbtune::usals_drive(double sat_long)
 	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move";
 
 	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
-		closefd();
+		closefd_timer->start(howlong);
 	}
 }
 
@@ -351,6 +361,8 @@ void dvbtune::gotox_drive(unsigned int position)
 {
 	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6B, (__u8)position, 0x00, 0x00 }, 4 };
 	
+	ioctl_FE_SET_VOLTAGE(tp.voltage);
+
 	if (myswitch.tone == (int)!SEC_TONE_ON) { // SEC_TONE_ON == 0
 		myswitch.tone = -1;
 		ioctl_FE_SET_TONE(SEC_TONE_OFF);
@@ -358,7 +370,7 @@ void dvbtune::gotox_drive(unsigned int position)
 	ioctl_FE_DISEQC_SEND_MASTER_CMD(diseqc_cmd);
 
 	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
-		closefd();
+		closefd_timer->start(30000);
 	}
 }
 

@@ -23,6 +23,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QTime>
+#include <QTimer>
 #include <sys/ioctl.h>
 #include <linux/dvb/frontend.h>
 #include <linux/dvb/dmx.h>
@@ -73,6 +74,8 @@ public:
 	QVector<short int> iq_x;
 	QVector<short int> iq_y;	
 	
+	QTimer *closefd_timer;
+
 	dvr_thread *mydvr;
 
 	int crc32();
@@ -92,7 +95,6 @@ public:
 	void setup_switch();
 	void spectrum_scan(dvb_fe_spectrum_scan *scan);
 	bool openfd();
-	void closefd();
 	bool open_dvr();
 	void close_dvr();
 	void getops();
@@ -156,6 +158,8 @@ private:
 	double degree(double number);
 	
 	dvb_settings dvbnames;
+public slots:
+	void closefd();
 };
 
 #endif // DVBTUNE_H
