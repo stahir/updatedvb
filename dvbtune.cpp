@@ -200,6 +200,10 @@ QString dvbtune::readstr16(unsigned int len)
 
 void dvbtune::closefd()
 {
+	if ((status & TUNER_TUNED) || (status & TUNER_SCAN)) {
+		return;
+	}
+
 	if (closefd_timer->isActive()) {
 		closefd_timer->stop();
 	}
@@ -297,9 +301,7 @@ void dvbtune::step_motor(int direction, int steps)
 	}
 	ioctl_FE_DISEQC_SEND_MASTER_CMD(diseqc_cmd);
 
-	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
-		closefd_timer->start(1000);
-	}
+	closefd_timer->start(1000);
 }
 
 void dvbtune::usals_drive(double sat_long)
@@ -347,14 +349,12 @@ void dvbtune::usals_drive(double sat_long)
 	if (!old_position) {
 		howlong = 45000;
 	} else {
-		howlong = abs((int)(old_position - degree(sat_long))) * 500;
+		howlong = abs((int)(old_position - degree(sat_long))) * 1000;
 	}
 	old_position = degree(sat_long);
 	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move";
 
-	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
-		closefd_timer->start(howlong);
-	}
+	closefd_timer->start(howlong);
 }
 
 void dvbtune::gotox_drive(unsigned int position)
@@ -369,9 +369,7 @@ void dvbtune::gotox_drive(unsigned int position)
 	}
 	ioctl_FE_DISEQC_SEND_MASTER_CMD(diseqc_cmd);
 
-	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
-		closefd_timer->start(30000);
-	}
+	closefd_timer->start(30000);
 }
 
 void dvbtune::gotox_save(unsigned int position)
@@ -469,17 +467,17 @@ void dvbtune::check_frontend()
 
 	tp.frequency	= (int)p_status.props[0].u.data / 1000;
 	tp.frequency	= abs(tp.frequency + tune_ops.f_lof);	
-	tp.system		= p_status.props[1].u.data;
+	tp.system	= p_status.props[1].u.data;
 	tp.symbolrate	= p_status.props[2].u.data/1000;
 	tp.modulation	= p_status.props[3].u.data;
-	tp.fec			= p_status.props[4].u.data;
+	tp.fec		= p_status.props[4].u.data;
 	tp.inversion	= p_status.props[5].u.data;
-	tp.rolloff		= p_status.props[6].u.data;
-	tp.pilot		= p_status.props[7].u.data;
-	tp.matype		= p_status.props[8].u.data;
+	tp.rolloff	= p_status.props[6].u.data;
+	tp.pilot	= p_status.props[7].u.data;
+	tp.matype	= p_status.props[8].u.data;
 	tp.lvl_scale	= p_status.props[9].u.st.stat[0].scale;
 	if (tp.lvl_scale == FE_SCALE_DECIBEL) {
-		tp.lvl		= p_status.props[9].u.st.stat[0].svalue * 0.0001;
+		tp.lvl	= p_status.props[9].u.st.stat[0].svalue * 0.0001;
 	} else {
 		int lvl = 0;
 		if (ioctl_FE_READ_SIGNAL_STRENGTH(&lvl)) {
