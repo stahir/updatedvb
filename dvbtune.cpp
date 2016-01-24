@@ -431,9 +431,9 @@ void dvbtune::setup_switch()
 		ioctl_FE_SET_TONE(!tune_ops.tone);
 	}
 
-	myswitch.voltage		= tp.voltage;
-	myswitch.tone			= tune_ops.tone;
-	myswitch.committed		= tune_ops.committed;
+	myswitch.voltage	= tp.voltage;
+	myswitch.tone		= tune_ops.tone;
+	myswitch.committed	= tune_ops.committed;
 	myswitch.uncommitted	= tune_ops.uncommitted;
 }
 
@@ -505,7 +505,7 @@ void dvbtune::check_frontend()
 	}
 	tp.ber_scale	= p_status.props[11].u.st.stat[0].scale;
 	if (p_status.props[11].u.st.stat[0].scale == FE_SCALE_COUNTER) {
-		tp.ber		= p_status.props[11].u.st.stat[0].uvalue;
+		tp.ber	= p_status.props[11].u.st.stat[0].uvalue;
 	} else {
 		tp.ber = 0;
 		ioctl_FE_READ_BER(&tp.ber);
@@ -609,37 +609,37 @@ int dvbtune::tune()
 
 	if (isSatellite(tp.system)) {
 		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = abs(tp.frequency - abs(tune_ops.f_lof)) * 1000;
-		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;p_tune[i++].u.data = tp.system;
+		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
 		p_tune[i].cmd = DTV_MODULATION;		p_tune[i++].u.data = tp.modulation;
 		p_tune[i].cmd = DTV_VOLTAGE;		p_tune[i++].u.data = tp.voltage;
 		p_tune[i].cmd = DTV_SYMBOL_RATE;	p_tune[i++].u.data = tp.symbolrate * 1000;
-		p_tune[i].cmd = DTV_TONE;			p_tune[i++].u.data = !tune_ops.tone;
+		p_tune[i].cmd = DTV_TONE;		p_tune[i++].u.data = !tune_ops.tone;
 		p_tune[i].cmd = DTV_INNER_FEC;		p_tune[i++].u.data = tp.fec;
 		p_tune[i].cmd = DTV_INVERSION;		p_tune[i++].u.data = tp.inversion;
 		p_tune[i].cmd = DTV_ROLLOFF;		p_tune[i++].u.data = tp.rolloff;
 		p_tune[i].cmd = DTV_BANDWIDTH_HZ;	p_tune[i++].u.data = 0;
-		p_tune[i].cmd = DTV_PILOT;			p_tune[i++].u.data = tp.pilot;
+		p_tune[i].cmd = DTV_PILOT;		p_tune[i++].u.data = tp.pilot;
 		p_tune[i].cmd = DTV_ENABLE_MODCOD;	p_tune[i++].u.data = tune_ops.modcod;
 		p_tune[i].cmd = DTV_DVBS2_MIS_ID;	p_tune[i++].u.data = tune_ops.mis;
 		qDebug() << "tune() Frequency: " << tp.frequency << dvbnames.voltage[tp.voltage] << tp.symbolrate;
 	} else if (isQAM(tp.system) || isATSC(tp.system)) {
 		tp.frequency = closest_freq(tp.frequency, tp.system);
-		p_tune[i].cmd = DTV_FREQUENCY;	p_tune[i++].u.data = tp.frequency * 1000;
-		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;p_tune[i++].u.data = tp.system;
+		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = tp.frequency * 1000;
+		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
 		p_tune[i].cmd = DTV_MODULATION;		p_tune[i++].u.data = tp.modulation;
 		qDebug() << "tune() Frequency: " << tp.frequency;
 	} else if (isDVBT(tp.system)) {
 		tp.frequency = closest_freq(tp.frequency, tp.system);
-		p_tune[i].cmd = DTV_FREQUENCY;			p_tune[i++].u.data = tp.frequency * 1000;
+		p_tune[i].cmd = DTV_FREQUENCY;		p_tune[i++].u.data = tp.frequency * 1000;
 		p_tune[i].cmd = DTV_DELIVERY_SYSTEM;	p_tune[i++].u.data = tp.system;
-		p_tune[i].cmd = DTV_MODULATION;			p_tune[i++].u.data = tp.modulation;
-		p_tune[i].cmd = DTV_INVERSION;			p_tune[i++].u.data = INVERSION_AUTO;
-		p_tune[i].cmd = DTV_BANDWIDTH_HZ;		p_tune[i++].u.data = 8000000;
-		p_tune[i].cmd = DTV_CODE_RATE_HP;		p_tune[i++].u.data = FEC_AUTO;
-		p_tune[i].cmd = DTV_CODE_RATE_LP;		p_tune[i++].u.data = FEC_AUTO;
-		p_tune[i].cmd = DTV_GUARD_INTERVAL;		p_tune[i++].u.data = GUARD_INTERVAL_AUTO;
+		p_tune[i].cmd = DTV_MODULATION;		p_tune[i++].u.data = tp.modulation;
+		p_tune[i].cmd = DTV_INVERSION;		p_tune[i++].u.data = INVERSION_AUTO;
+		p_tune[i].cmd = DTV_BANDWIDTH_HZ;	p_tune[i++].u.data = 8000000;
+		p_tune[i].cmd = DTV_CODE_RATE_HP;	p_tune[i++].u.data = FEC_AUTO;
+		p_tune[i].cmd = DTV_CODE_RATE_LP;	p_tune[i++].u.data = FEC_AUTO;
+		p_tune[i].cmd = DTV_GUARD_INTERVAL;	p_tune[i++].u.data = GUARD_INTERVAL_AUTO;
 		p_tune[i].cmd = DTV_TRANSMISSION_MODE;	p_tune[i++].u.data = TRANSMISSION_MODE_AUTO;
-		p_tune[i].cmd = DTV_HIERARCHY;			p_tune[i++].u.data = HIERARCHY_AUTO;
+		p_tune[i].cmd = DTV_HIERARCHY;		p_tune[i++].u.data = HIERARCHY_AUTO;
 		qDebug() << "tune() Frequency: " << tp.frequency;
 	} else {
 		qDebug() << "Invalid system";
@@ -837,10 +837,10 @@ void dvbtune::demux_bbframe()
 {
 	struct dmx_bb_filter_params bbFilterParams;
 	memset(&bbFilterParams, 0, sizeof (struct dmx_bb_filter_params));
-	bbFilterParams.isi		= DMX_ISI_ALL;
+	bbFilterParams.isi	= DMX_ISI_ALL;
 	bbFilterParams.input	= DMX_IN_FRONTEND;
 	bbFilterParams.output	= DMX_OUT_TS_TAP;
-	bbFilterParams.type		= DMX_BB_FRAME;
+	bbFilterParams.type	= DMX_BB_FRAME;
 	bbFilterParams.flags	= DMX_IMMEDIATE_START;
 	ioctl_DMX_SET_BB_FILTER(&bbFilterParams);
 
@@ -857,10 +857,10 @@ void dvbtune::demux_video()
 	for(int a = 0; a < pids.size(); a++)
 	{
 		pesFilterParams.pid = pids[a];
-		pesFilterParams.input = DMX_IN_FRONTEND;
-		pesFilterParams.output = DMX_OUT_TS_TAP;
-		pesFilterParams.pes_type = DMX_PES_OTHER;
-		pesFilterParams.flags = DMX_IMMEDIATE_START;
+		pesFilterParams.input		= DMX_IN_FRONTEND;
+		pesFilterParams.output		= DMX_OUT_TS_TAP;
+		pesFilterParams.pes_type	= DMX_PES_OTHER;
+		pesFilterParams.flags		= DMX_IMMEDIATE_START;
 		ioctl_DMX_SET_PES_FILTER(a, &pesFilterParams);
 	}
 	emit adapter_status(adapter);
@@ -1062,10 +1062,10 @@ void dvbtune::spectrum_scan(dvb_fe_spectrum_scan *scan)
 
 void dvbtune::iqplot()
 {
-    struct dvb_fe_constellation_samples const_samples;
-    struct dvb_fe_constellation_sample samples[DTV_MAX_CONSTELLATION_SAMPLES];
-    const_samples.num = DTV_MAX_CONSTELLATION_SAMPLES;
-    const_samples.samples = samples;
+	struct dvb_fe_constellation_samples const_samples;
+	struct dvb_fe_constellation_sample samples[DTV_MAX_CONSTELLATION_SAMPLES];
+	const_samples.num = DTV_MAX_CONSTELLATION_SAMPLES;
+	const_samples.samples = samples;
 	const_samples.options = iq_options;
 	ioctl_FE_GET_CONSTELLATION_SAMPLES(&const_samples);
 
