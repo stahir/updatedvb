@@ -663,6 +663,11 @@
             </column>
             <column>
              <property name="text">
+              <string>Orbital Pos</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
               <string>Counter</string>
              </property>
             </column>

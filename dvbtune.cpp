@@ -346,21 +346,22 @@ void dvbtune::usals_drive(double sat_long)
 	}
 	ioctl_FE_DISEQC_SEND_MASTER_CMD(diseqc_cmd);
 
+	sat_long = degree(sat_long);
 	int howlong;
 	if (!old_position) {
 		howlong = 45000;
 	} else {
-		howlong = abs((int)(old_position - degree(sat_long))) * motor_delay;
+		howlong = abs(old_position - sat_long) * motor_delay;
 	}
-	old_position = degree(sat_long);
-	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move";
+	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move from" << old_position << "to" << sat_long;
 
+	old_position = sat_long;
 	closefd_timer->start(howlong);
 }
 
-void dvbtune::gotox_drive(unsigned int position)
+void dvbtune::gotox_drive(unsigned int loc, float pos)
 {
-	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6B, (__u8)position, 0x00, 0x00 }, 4 };
+	struct dvb_diseqc_master_cmd diseqc_cmd = { { 0xe0, 0x31, 0x6B, (__u8)loc, 0x00, 0x00 }, 4 };
 	
 	ioctl_FE_SET_VOLTAGE(tp.voltage);
 
@@ -370,7 +371,16 @@ void dvbtune::gotox_drive(unsigned int position)
 	}
 	ioctl_FE_DISEQC_SEND_MASTER_CMD(diseqc_cmd);
 
-	closefd_timer->start(30000);
+	int howlong;
+	if (!old_position) {
+		howlong = 45000;
+	} else {
+		howlong = abs(old_position - pos) * motor_delay;
+	}
+	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move from" << old_position << "to" << pos;
+
+	old_position = pos;
+	closefd_timer->start(howlong);
 }
 
 void dvbtune::gotox_save(unsigned int position)

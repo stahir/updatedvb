@@ -131,7 +131,7 @@ public:
 	QString readstr(unsigned int len);
 	QString readstr16(unsigned int len);
 	void usals_drive(double sat_long);
-	void gotox_drive(unsigned int position);
+	void gotox_drive(unsigned int loc, float pos);
 	void gotox_save(unsigned int position);
 	void step_motor(int direction, int steps);
 	void iqplot();

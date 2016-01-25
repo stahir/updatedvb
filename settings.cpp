@@ -114,9 +114,10 @@ void settings::load_settings()
 	on_checkBox_asc1_clicked();
 	for (int i = 1; i < 100; i++) {
 		ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
-		ui->tableWidget_diseqc_v12->setItem(i-1, 1, new QTableWidgetItem(""));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 1, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_pos_"+QString::number(i)).toString()));
 		ui->tableWidget_diseqc_v12->setItem(i-1, 2, new QTableWidgetItem(""));
 		ui->tableWidget_diseqc_v12->setItem(i-1, 3, new QTableWidgetItem(""));
+		ui->tableWidget_diseqc_v12->setItem(i-1, 4, new QTableWidgetItem(""));
 	}
 
 	ui->lineEdit_lnb_name->setText(mysettings->value("lnb"+QString::number(lnb)+"_name").toString());
@@ -172,6 +173,7 @@ void settings::save_settings()
 
 	for (int i = 1; i < 100; i++) {
 		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i-1, 0)->text());
+		mysettings->setValue("adapter"+QString::number(adp)+"_diseqc_v12_pos_"+QString::number(i), ui->tableWidget_diseqc_v12->item(i-1, 1)->text());
 	}
 
 	mysettings->setValue("lnb"+QString::number(lnb)+"_name", ui->lineEdit_lnb_name->text());
@@ -334,6 +336,9 @@ void settings::on_checkBox_diseqc_v12_clicked()
 {
 	if (ui->checkBox_diseqc_v12->isChecked()) {
 		ui->tableWidget_diseqc_v12->show();
+		ui->tableWidget_diseqc_v12->setColumnCount(2);
+		ui->tableWidget_diseqc_v12->setColumnWidth(0, 175);
+		ui->tableWidget_diseqc_v12->setColumnWidth(1, 90);
 		ui->checkBox_asc1->show();
 		on_checkBox_asc1_clicked();
 	} else {
@@ -354,14 +359,15 @@ void settings::on_checkBox_asc1_clicked()
 {
 	if (ui->checkBox_asc1->isChecked() && ui->checkBox_diseqc_v12->isChecked()) {
 		ui->gridWidget_asc1->show();
-		ui->tableWidget_diseqc_v12->setColumnCount(4);
+		ui->tableWidget_diseqc_v12->setColumnCount(5);
 		ui->tableWidget_diseqc_v12->setColumnWidth(0, 175);
-		ui->tableWidget_diseqc_v12->setColumnWidth(1, 50);
+		ui->tableWidget_diseqc_v12->setColumnWidth(1, 90);
 		ui->tableWidget_diseqc_v12->setColumnWidth(2, 50);
 		ui->tableWidget_diseqc_v12->setColumnWidth(3, 50);
+		ui->tableWidget_diseqc_v12->setColumnWidth(4, 50);
 	} else {
 		ui->gridWidget_asc1->hide();
-		ui->tableWidget_diseqc_v12->setColumnCount(1);
+		ui->tableWidget_diseqc_v12->setColumnCount(2);
 		ui->tableWidget_diseqc_v12->setRowCount(256);
 	}
 }
