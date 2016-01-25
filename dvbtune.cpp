@@ -38,6 +38,7 @@ dvbtune::dvbtune()
 	fmin		= 0;
 	fmax		= 0;
 	fstep		= 0;
+	motor_delay	= 0;
 	servo		= false;
 	fd_timeout.tv_sec	= 1;
 	fd_timeout.tv_usec	= 0;
@@ -349,7 +350,7 @@ void dvbtune::usals_drive(double sat_long)
 	if (!old_position) {
 		howlong = 45000;
 	} else {
-		howlong = abs((int)(old_position - degree(sat_long))) * 1000;
+		howlong = abs((int)(old_position - degree(sat_long))) * motor_delay;
 	}
 	old_position = degree(sat_long);
 	qDebug() << "Motor should take aprox" << howlong/1000 << "sec to move";
@@ -439,6 +440,8 @@ void dvbtune::setup_switch()
 
 void dvbtune::check_frontend()
 {
+	qDebug() << Q_FUNC_INFO;
+
 	fe_status_t festatus;
 	ioctl_FE_READ_STATUS(&festatus);
 	tp.status = festatus;

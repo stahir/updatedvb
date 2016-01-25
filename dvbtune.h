@@ -153,6 +153,8 @@ public:
 	QVector<QString> thread_function;
 	fe_status_t festatus;
 
+	unsigned int motor_delay;
+
 private:
 	double radian(double number);
 	double degree(double number);

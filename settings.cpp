@@ -147,6 +147,13 @@ void settings::load_settings()
 	}
 
 	ui->comboBox_default_lnb->setCurrentIndex(mysettings->value("adapter"+QString::number(adp)+"_default_lnb").toInt());
+
+	if (mysettings->value("motor_delay").toUInt() != 0) {
+		ui->lineEdit_motor_delay->setText(mysettings->value("motor_delay").toString());
+	} else {
+		ui->lineEdit_motor_delay->setText("500");
+	}
+
 }
 
 void settings::save_settings()
@@ -211,6 +218,8 @@ void settings::save_settings()
 	} else {
 		ui->comboBox_adapter->setItemText(ui->comboBox_adapter->currentIndex(), QString("%1").arg(adp));
 	}
+
+	mysettings->setValue("motor_delay", ui->lineEdit_motor_delay->text());
 
 	update_status("Saved", 2);
 }
@@ -312,6 +321,13 @@ void settings::on_checkBox_diseqc_v13_clicked()
 		ui->label_long->hide();
 		ui->lineEdit_long->hide();
 	}
+	if (ui->checkBox_diseqc_v12->isChecked() || ui->checkBox_diseqc_v13->isChecked()) {
+		ui->label_motor_delay->show();
+		ui->lineEdit_motor_delay->show();
+	} else {
+		ui->label_motor_delay->hide();
+		ui->lineEdit_motor_delay->hide();
+	}
 }
 
 void settings::on_checkBox_diseqc_v12_clicked()
@@ -324,6 +340,13 @@ void settings::on_checkBox_diseqc_v12_clicked()
 		ui->tableWidget_diseqc_v12->hide();
 		ui->checkBox_asc1->hide();
 		on_checkBox_asc1_clicked();
+	}
+	if (ui->checkBox_diseqc_v12->isChecked() || ui->checkBox_diseqc_v13->isChecked()) {
+		ui->label_motor_delay->show();
+		ui->lineEdit_motor_delay->show();
+	} else {
+		ui->label_motor_delay->hide();
+		ui->lineEdit_motor_delay->hide();
 	}
 }
 

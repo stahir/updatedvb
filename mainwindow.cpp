@@ -404,12 +404,12 @@ void MainWindow::on_pushButton_blindscan_clicked()
 	if (ui->gridWidget_system->isVisible()) {
 		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
 		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= dvbnames.modulation_name.indexOf(ui->comboBox_modulation->currentText());
-		tp.system		= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
+		tp.system	= dvbnames.system_name.indexOf(ui->comboBox_system->currentText());
 		tp.modulation	= dvbnames.modulation_name.indexOf(ui->comboBox_modulation->currentText());
 	} else {
 		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.system		= SYS_DVBS;
 		mytuners.at(ui->comboBox_adapter->currentIndex())->tp.modulation	= QPSK;
-		tp.system		= SYS_DVBS;
+		tp.system	= SYS_DVBS;
 		tp.modulation	= QPSK;
 	}
 
@@ -830,6 +830,7 @@ void MainWindow::getadapters()
 		mytuners.last()->adapter	= adaps.at(i);
 		mytuners.last()->frontend	= ui->comboBox_frontend->currentData().toInt();
 		mytuners.last()->tune_ops	= tune_ops[ui->comboBox_lnb->currentData().toInt()];
+		mytuners.last()->motor_delay	= mysettings->value("motor_delay").toUInt();
 		mytuners.last()->getops();
 
 		ss_filename.append(QString());
