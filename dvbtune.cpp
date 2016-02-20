@@ -450,8 +450,6 @@ void dvbtune::setup_switch()
 
 void dvbtune::check_frontend()
 {
-	qDebug() << Q_FUNC_INFO;
-
 	fe_status_t festatus;
 	ioctl_FE_READ_STATUS(&festatus);
 	tp.status = festatus;
@@ -806,7 +804,6 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 
 	stop_demux();
 
-	int len = 0;
 	char buf[TNY_BUFSIZE];
 
 	setbit(TUNER_RDING);
@@ -823,9 +820,8 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 		sctfilter.flags = DMX_IMMEDIATE_START | DMX_CHECK_CRC | DMX_ONESHOT;
 		ioctl_DMX_SET_FILTER(&sctfilter);
 
-		len = 0;
 		memset(buf, 0, TNY_BUFSIZE);
-		len = read(dmx_fd.first(), buf, TNY_BUFSIZE);
+		int len = read(dmx_fd.first(), buf, TNY_BUFSIZE);
 		if (len > 0) {
 			buffer.clear();
 			buffer.append(buf, len);

@@ -990,11 +990,10 @@ void tuning_thread::parse_psip_rrt()
 
 	parse_etm(item, "Rating Region Name");
 
-	int dimensions_parent;
 	int values_parent;
 	unsigned int dimensions_defined = mytune->read8();
 	for (unsigned int i = 0; i < dimensions_defined; i++) {
-		dimensions_parent = item->parent;
+		int dimensions_parent = item->parent;
 
 		mytune->index++;
 		parse_etm(item, "Dimension Name");
