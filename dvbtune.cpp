@@ -674,7 +674,7 @@ int dvbtune::tune()
 
 		if (festatus & FE_TIMEDOUT) {
 			emit update_status("", STATUS_CLEAR);
-			emit update_status("Tuning Failed, searched for: " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 2);
+			emit update_status("Tuning Timedout, searched for: " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 2);
 			check_frontend();
 			return -1;
 		}
