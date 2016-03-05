@@ -62,7 +62,7 @@ void dvbstream_thread::process_data()
 	if (data.at(0).contains("GET / HTTP")) {
 		QString ua = user_agent();
 		// VLC/MPV/MPlayer clients
-		if (ua.contains("VLC") || ua.contains("mpv") || ua.contains("MPlayer")) {
+		if (ua.contains("VLC") || ua.contains("mpv") || ua.contains("MPlayer") || ua.contains("Enigma2")) {
 			socket->write("HTTP/1.0 200 OK\r\n");
 			socket->write("Content-type: application/octet-stream\r\n");
 			socket->write("Cache-Control : no-cache\r\n");
