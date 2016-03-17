@@ -39,6 +39,8 @@ dvbtune::dvbtune()
 	fmax		= 0;
 	fstep		= 0;
 	motor_delay	= 0;
+	caps		= 0;
+	extended_caps	= 0;
 	servo		= false;
 	fd_timeout.tv_sec	= 1;
 	fd_timeout.tv_usec	= 0;
@@ -281,6 +283,12 @@ void dvbtune::getops()
 	fmin	= fe_info.frequency_min;
 	fmax	= fe_info.frequency_max;
 	fstep	= fe_info.frequency_stepsize;
+
+	if (caps & FE_HAS_EXTENDED_CAPS) {
+		struct dvb_frontend_extended_info fe_extended_info;
+		ioctl_FE_GET_EXTENDED_INFO(&fe_extended_info);
+		extended_caps = fe_extended_info.extended_caps;
+	}
 
 	if (!(status & TUNER_TUNED) && !(status & TUNER_SCAN)) {
 		closefd();
@@ -1494,6 +1502,32 @@ bool dvbtune::ioctl_FE_GET_INFO(dvb_frontend_info *fe_info)
 
 	setbit(TUNER_IOCTL);
 	if (ioctl(frontend_fd, FE_GET_INFO, fe_info) < 0) {
+		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
+		unsetbit(TUNER_IOCTL);
+		return false;
+	}
+	unsetbit(TUNER_IOCTL);
+
+	while (status & TUNER_IOCTL_QUEUE) { // Give other functions a chance to send ioctl's
+		msleep(100);
+	}
+
+	return true;
+}
+
+bool dvbtune::ioctl_FE_GET_EXTENDED_INFO(dvb_frontend_extended_info *fe_extended_info)
+{
+	if (!openfd()) {
+		return false;
+	}
+	while (status & TUNER_IOCTL) {
+		setbit(TUNER_IOCTL_QUEUE);
+		msleep(10);
+	}
+	unsetbit(TUNER_IOCTL_QUEUE);
+
+	setbit(TUNER_IOCTL);
+	if (ioctl(frontend_fd, FE_GET_EXTENDED_INFO, fe_extended_info) < 0) {
 		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
 		unsetbit(TUNER_IOCTL);
 		return false;

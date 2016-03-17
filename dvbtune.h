@@ -107,6 +107,7 @@ public:
 	bool ioctl_FE_READ_STATUS(fe_status_t *fe_status);
 	bool ioctl_FE_GET_PROPERTY(dtv_properties *p_status);
 	bool ioctl_FE_GET_INFO(dvb_frontend_info *fe_info);
+	bool ioctl_FE_GET_EXTENDED_INFO(dvb_frontend_extended_info *fe_extended_info);
 	bool ioctl_FE_READ_SIGNAL_STRENGTH(int *lvl);
 	bool ioctl_FE_READ_SNR(unsigned int *snr);
 	bool ioctl_FE_READ_BER(unsigned int *ber);
@@ -145,6 +146,7 @@ public:
 
 	QVector<int> delsys;
 	u_int64_t caps;
+	u_int64_t extended_caps;
 	QString name;
 	int fmin;
 	int fmax;

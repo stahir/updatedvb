@@ -694,7 +694,7 @@ void MainWindow::setup_tuning_options()
 
 	update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
 
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_SPECTRUMSCAN) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->extended_caps & FE_CAN_SPECTRUMSCAN) {
 		ui->gridWidget_spectrumscan->show();
 	} else {
 		ui->gridWidget_spectrumscan->hide();
@@ -755,40 +755,38 @@ void MainWindow::setup_tuning_options()
 		add_comboBox_modulation("QPSK");
 	}
 
-       ui->comboBox_modcod->clear();
-       ui->comboBox_modcod->addItem("Auto", 0x0fffffff);
-       ui->comboBox_modcod->addItem("QPSK 1/4", 0x01);
-       ui->comboBox_modcod->addItem("QPSK 1/3", 0x02);
-       ui->comboBox_modcod->addItem("QPSK 2/5", 0x04);
-       ui->comboBox_modcod->addItem("QPSK 1/2", 0x08);
-       ui->comboBox_modcod->addItem("QPSK 3/5", 0x10);
-       ui->comboBox_modcod->addItem("QPSK 2/3", 0x20);
-       ui->comboBox_modcod->addItem("QPSK 3/4", 0x40);
-       ui->comboBox_modcod->addItem("QPSK 4/5", 0x80);
-       ui->comboBox_modcod->addItem("QPSK 5/6", 0x100);
-       ui->comboBox_modcod->addItem("QPSK 8/9", 0x200);
-       ui->comboBox_modcod->addItem("QPSK 9/10", 0x400);
-       ui->comboBox_modcod->addItem("8PSK 3/5", 0x800);
-       ui->comboBox_modcod->addItem("8PSK 2/3", 0x1000);
-       ui->comboBox_modcod->addItem("8PSK 3/4", 0x2000);
-       ui->comboBox_modcod->addItem("8PSK 5/6", 0x4000);
-       ui->comboBox_modcod->addItem("8PSK 8/9", 0x8000);
-       ui->comboBox_modcod->addItem("8PSK 9/10", 0x10000);
-       ui->comboBox_modcod->addItem("16PSK 2/3", 0x20000);
-       ui->comboBox_modcod->addItem("16PSK 3/4", 0x40000);
-       ui->comboBox_modcod->addItem("16PSK 4/5", 0x80000);
-       ui->comboBox_modcod->addItem("16PSK 5/6", 0x100000);
-       ui->comboBox_modcod->addItem("16PSK 8/9", 0x200000);
-       ui->comboBox_modcod->addItem("16PSK 9/10", 0x400000);
-       ui->comboBox_modcod->addItem("32PSK 3/4", 0x800000);
-       ui->comboBox_modcod->addItem("32PSK 4/5", 0x1000000);
-       ui->comboBox_modcod->addItem("32PSK 5/6", 0x2000000);
-       ui->comboBox_modcod->addItem("32PSK 8/9", 0x4000000);
-       ui->comboBox_modcod->addItem("32PSK 9/10", 0x8000000);
+	ui->comboBox_modcod->clear();
+	ui->comboBox_modcod->addItem("Auto", 0x0fffffff);
+	ui->comboBox_modcod->addItem("QPSK 1/4", 0x01);
+	ui->comboBox_modcod->addItem("QPSK 1/3", 0x02);
+	ui->comboBox_modcod->addItem("QPSK 2/5", 0x04);
+	ui->comboBox_modcod->addItem("QPSK 1/2", 0x08);
+	ui->comboBox_modcod->addItem("QPSK 3/5", 0x10);
+	ui->comboBox_modcod->addItem("QPSK 2/3", 0x20);
+	ui->comboBox_modcod->addItem("QPSK 3/4", 0x40);
+	ui->comboBox_modcod->addItem("QPSK 4/5", 0x80);
+	ui->comboBox_modcod->addItem("QPSK 5/6", 0x100);
+	ui->comboBox_modcod->addItem("QPSK 8/9", 0x200);
+	ui->comboBox_modcod->addItem("QPSK 9/10", 0x400);
+	ui->comboBox_modcod->addItem("8PSK 3/5", 0x800);
+	ui->comboBox_modcod->addItem("8PSK 2/3", 0x1000);
+	ui->comboBox_modcod->addItem("8PSK 3/4", 0x2000);
+	ui->comboBox_modcod->addItem("8PSK 5/6", 0x4000);
+	ui->comboBox_modcod->addItem("8PSK 8/9", 0x8000);
+	ui->comboBox_modcod->addItem("8PSK 9/10", 0x10000);
+	ui->comboBox_modcod->addItem("16PSK 2/3", 0x20000);
+	ui->comboBox_modcod->addItem("16PSK 3/4", 0x40000);
+	ui->comboBox_modcod->addItem("16PSK 4/5", 0x80000);
+	ui->comboBox_modcod->addItem("16PSK 5/6", 0x100000);
+	ui->comboBox_modcod->addItem("16PSK 8/9", 0x200000);
+	ui->comboBox_modcod->addItem("16PSK 9/10", 0x400000);
+	ui->comboBox_modcod->addItem("32PSK 3/4", 0x800000);
+	ui->comboBox_modcod->addItem("32PSK 4/5", 0x1000000);
+	ui->comboBox_modcod->addItem("32PSK 5/6", 0x2000000);
+	ui->comboBox_modcod->addItem("32PSK 8/9", 0x4000000);
+	ui->comboBox_modcod->addItem("32PSK 9/10", 0x8000000);
 
-
-
-	if (mytuners.at(ui->comboBox_adapter->currentIndex())->caps & FE_CAN_BLINDSEARCH) {
+	if (mytuners.at(ui->comboBox_adapter->currentIndex())->extended_caps & FE_CAN_BLINDSEARCH) {
 		ui->gridWidget_system->hide();
 		ui->gridWidget_blindscan->show();
 		ui->gridWidget_satellite->show();
@@ -798,6 +796,7 @@ void MainWindow::setup_tuning_options()
 			ui->gridWidget_blindscan->show();
 			ui->gridWidget_satellite->hide();
 		} else {
+			ui->gridWidget_blindscan->hide();
 			ui->gridWidget_satellite->show();
 		}
 	}

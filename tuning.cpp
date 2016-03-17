@@ -268,7 +268,7 @@ void tuning::update_signal()
 			return;
 		}
 	}
-	if (mytune->caps & FE_CAN_IQ) {
+	if (mytune->extended_caps & FE_CAN_IQ) {
 		if (myiqplot.isNull()) {
 			ui->pushButton_iqplot->setEnabled(true);
 		}
