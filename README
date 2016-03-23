@@ -24,7 +24,7 @@
 
 	sudo apt-get install git build-essential subversion libgl1-mesa-dev mesa-common-dev
 
-# As well as Qt 5.4
+# As well as Qt 5.6
 #
 # 64bit
 
@@ -42,8 +42,8 @@
 	
 	svn checkout https://svn.code.sf.net/p/qwt/code/branches/qwt-6.1
 	cd qwt-6.1
-	/opt/Qt/5.4/gcc/bin/qmake qwt.pro #(32 bit)
-	/opt/Qt/5.4/gcc_64/bin/qmake qwt.pro #(64 bit)
+	/opt/Qt/5.6/gcc/bin/qmake qwt.pro #(32 bit)
+	/opt/Qt/5.6/gcc_64/bin/qmake qwt.pro #(64 bit)
 	make
 	sudo make install
 
