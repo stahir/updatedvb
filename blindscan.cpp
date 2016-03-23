@@ -117,6 +117,12 @@ void blindscan::update_signal()
 		mythread.mutex.unlock();
 		return;
 	}
+	for (int i = 0; i < mytp_info.count(); i++) {
+		if (mytp_info.at(i).frequency == mythread.mytune->tp.frequency) {
+			mythread.mutex.unlock();
+			return;
+		}
+	}
 
 	int parent_1;
 
