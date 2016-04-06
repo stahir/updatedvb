@@ -873,7 +873,7 @@ void MainWindow::reload_settings()
 
 	int gotox_i = ui->comboBox_gotox->currentIndex();
 	ui->comboBox_gotox->clear();
-	ui->comboBox_gotox->addItem("");
+	ui->comboBox_gotox->addItem("0", 0);
 	for (int i = 1; i < 256; i++) {
 		float pos = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_diseqc_v12_pos_"+QString::number(i)).toFloat();
 		QString text = mysettings->value("adapter"+QString::number(ui->comboBox_adapter->currentData().toInt())+"_diseqc_v12_name_"+QString::number(i)).toString();
