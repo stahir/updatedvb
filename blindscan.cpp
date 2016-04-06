@@ -38,6 +38,7 @@ blindscan::~blindscan()
 		QThread::msleep(100);
 	}
 
+	mytune->status = TUNER_AVAIL;
 	mytune->loop = false;
 	mytune->quit();
 	mytune->wait(1000);

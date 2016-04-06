@@ -43,6 +43,7 @@ signals:
 private:
 	void blindscan();
 	void smartscan();
+	QSettings *mysettings;
 };
 
 #endif // BLINDSCAN_THREAD_H

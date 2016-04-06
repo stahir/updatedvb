@@ -145,6 +145,18 @@ void settings::load_settings()
 
 	if (mytuners.size() > ui->comboBox_adapter->currentIndex()) {
 		update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
+		if (mytuners.at(ui->comboBox_adapter->currentIndex())->extended_caps & FE_CAN_BLINDSEARCH) {
+			ui->label_blindscan_step->show();
+			ui->lineEdit_blindscan_step->show();
+			if (mysettings->value("adapter"+QString::number(adp)+"_blindscan_step").toString() != "") {
+				ui->lineEdit_blindscan_step->setText(mysettings->value("adapter"+QString::number(adp)+"_blindscan_step").toString());
+			} else {
+				ui->lineEdit_blindscan_step->setText("18");
+			}
+		} else {
+			ui->label_blindscan_step->hide();
+			ui->lineEdit_blindscan_step->hide();
+		}
 	}
 
 	ui->comboBox_default_lnb->setCurrentIndex(mysettings->value("adapter"+QString::number(adp)+"_default_lnb").toInt());
@@ -191,6 +203,8 @@ void settings::save_settings()
 	mysettings->setValue("lnb"+QString::number(lnb)+"_freqstop", ui->lineEdit_f_stop->text().toInt());
 
 	mysettings->setValue("cmd_play", ui->lineEdit_play->text());
+
+	mysettings->setValue("adapter"+QString::number(adp)+"_blindscan_step", ui->lineEdit_blindscan_step->text());
 
 	mysettings->setValue("site_lat", ui->lineEdit_lat->text());
 	mysettings->setValue("site_long", ui->lineEdit_long->text());

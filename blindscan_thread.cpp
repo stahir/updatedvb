@@ -22,10 +22,12 @@ blindscan_thread::blindscan_thread()
 {
 	mytune	= NULL;
 	loop	= false;
+	mysettings = new QSettings("UDL", "updateDVB");
 }
 
 blindscan_thread::~blindscan_thread()
 {
+	delete mysettings;
 }
 
 void blindscan_thread::run()
@@ -83,6 +85,11 @@ void blindscan_thread::smartscan()
 
 void blindscan_thread::blindscan()
 {
+	int step = mysettings->value("adapter"+QString::number(mytune->adapter)+"_blindscan_step").toInt();
+	if (!step) {
+		step = 18;
+	}
+	tp_info base_tp;
 	QTime t;
 	t.start();
 
@@ -90,10 +97,16 @@ void blindscan_thread::blindscan()
 	float rolloff;
 	mytune->tp.frequency	= mytune->tune_ops.f_start;
 	mytune->tp.symbolrate	= 1000;
+	base_tp = mytune->tp;
 	while (mytune->tp.frequency < mytune->tune_ops.f_stop && loop) {
 		mutex.lock();
 		mytune->tune();
 		mutex.wait(&loop);
+
+		if (base_tp.frequency == mytune->tp.frequency) {
+			step += 1;
+		}
+
 		if ( mytune->tp.status & FE_HAS_LOCK ) {
 			switch(mytune->tp.rolloff) {
 			case 1:
@@ -107,10 +120,11 @@ void blindscan_thread::blindscan()
 				rolloff = 1.35;
 				break;
 			}
-			mytune->tp.frequency += ((mytune->tp.symbolrate/1000) * rolloff)/2 + 9;
-			mytune->tp.symbolrate = 1000;
+			base_tp.frequency += ((mytune->tp.symbolrate/1000) * rolloff)/2 + step/2;
+			mytune->tp = base_tp;
 		} else {
-			mytune->tp.frequency += 18;
+			base_tp.frequency += step;
+			mytune->tp = base_tp;
 		}
 		int progress = ((mytune->tp.frequency-mytune->tune_ops.f_start)/size)*100;
 		emit update_progress(progress);
