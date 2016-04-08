@@ -610,6 +610,7 @@ void MainWindow::on_actionSettings_triggered()
 {
 	settings settings_dialog;
 	settings_dialog.mytuners = mytuners;
+	settings_dialog.startup();
 	settings_dialog.setModal(true);
 	settings_dialog.exec();
 

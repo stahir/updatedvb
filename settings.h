@@ -41,6 +41,7 @@ class settings : public QDialog
 public:
 	explicit settings(QWidget *parent = 0);
 	~settings();
+	void startup();
 	void load_settings();
 	void save_settings();
 	QVector<dvbtune*> mytuners;

@@ -32,7 +32,17 @@ settings::settings(QWidget *parent) :
 	ui->verticalLayout->addWidget(mystatusbar);
 
 	connect(&status_mapper, SIGNAL(mapped(QString)), this, SLOT(update_status(QString)));
+}
 
+settings::~settings()
+{
+	delete mysettings;
+	delete mystatusbar;
+	delete ui;
+}
+
+void settings::startup()
+{
 	noload = true;
 	QVector<int> adaps;
 	QDir dvb_dir("/dev/dvb");
@@ -68,13 +78,6 @@ settings::settings(QWidget *parent) :
 	ui->progressBar->hide();
 	load_settings();
 	nosave = false;
-}
-
-settings::~settings()
-{
-	delete mysettings;
-	delete mystatusbar;
-	delete ui;
 }
 
 void settings::load_settings()
