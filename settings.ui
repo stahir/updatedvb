@@ -246,6 +246,11 @@
             </item>
             <item>
              <property name="text">
+              <string>C-Band: Extended</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Ku Linear</string>
              </property>
             </item>
@@ -262,6 +267,16 @@
             <item>
              <property name="text">
               <string>Universal High</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Universal Low: Extended</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Universal High: Extended</string>
              </property>
             </item>
             <item>

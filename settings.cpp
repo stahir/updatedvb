@@ -275,7 +275,12 @@ void settings::on_comboBox_type_currentIndexChanged(int index)
 		ui->lineEdit_f_start->setText("3700");
 		ui->lineEdit_f_stop->setText("4200");
 	}
-		if (ui->comboBox_type->currentText() == "Ku Linear") {
+	if (ui->comboBox_type->currentText() == "C-Band: Extended") {
+		ui->lineEdit_f_lof->setText("-5150");
+		ui->lineEdit_f_start->setText("3200");
+		ui->lineEdit_f_stop->setText("4200");
+	}
+	if (ui->comboBox_type->currentText() == "Ku Linear") {
 		ui->lineEdit_f_lof->setText("10750");
 		ui->lineEdit_f_start->setText("11700");
 		ui->lineEdit_f_stop->setText("12200");
@@ -294,6 +299,16 @@ void settings::on_comboBox_type_currentIndexChanged(int index)
 		ui->lineEdit_f_lof->setText("10600");
 		ui->lineEdit_f_start->setText("11550");
 		ui->lineEdit_f_stop->setText("12050");
+	}
+	if (ui->comboBox_type->currentText() == "Universal Low: Extended") {
+		ui->lineEdit_f_lof->setText("9750");
+		ui->lineEdit_f_start->setText("10700");
+		ui->lineEdit_f_stop->setText("11700");
+	}
+	if (ui->comboBox_type->currentText() == "Universal High: Extended") {
+		ui->lineEdit_f_lof->setText("10600");
+		ui->lineEdit_f_start->setText("11700");
+		ui->lineEdit_f_stop->setText("12750");
 	}
 	if (ui->comboBox_type->currentText() == "ATSC") {
 		ui->lineEdit_f_lof->setText("0");
