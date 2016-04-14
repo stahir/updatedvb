@@ -402,6 +402,9 @@ void tuning::tree_create(tree_item *item)
 
 	item->current = tree_items.size();
 	tree_items.append(*item);
+	if (item->parent < 0 || item->parent >= tree_items.size()) { // Shouldnt have to check this, but I cant reproduce the error to find it
+		item->parent = -1;
+	}
 	if (item->parent == -1) { // Root
 		tree_items.last().tree = new QTreeWidgetItem(ui->treeWidget);
 		tree_items.last().tree->setText(0, item->text);
