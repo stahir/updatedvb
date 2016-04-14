@@ -115,7 +115,7 @@ void settings::load_settings()
 	}
 
 	on_checkBox_asc1_clicked();
-	for (int i = 1; i < 100; i++) {
+	for (int i = 1; i < 256; i++) {
 		ui->tableWidget_diseqc_v12->setItem(i-1, 0, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_name_"+QString::number(i)).toString()));
 		ui->tableWidget_diseqc_v12->setItem(i-1, 1, new QTableWidgetItem(mysettings->value("adapter"+QString::number(adp)+"_diseqc_v12_pos_"+QString::number(i)).toString()));
 		ui->tableWidget_diseqc_v12->setItem(i-1, 2, new QTableWidgetItem(""));
