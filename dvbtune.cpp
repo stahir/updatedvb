@@ -724,7 +724,7 @@ void dvbtune::get_bitrate()
 		pids_rate.fill(0, 0x2000+1);
 	}
 
-	int len;
+	int len = 0;
 	char buf[LIL_BUFSIZE];
 	buffer.clear();
 
