@@ -119,6 +119,9 @@ public:
 	bool ioctl_DMX_SET_BB_FILTER(dmx_bb_filter_params *bbFilterParams);
 	bool ioctl_DMX_SET_PES_FILTER(int index, dmx_pes_filter_params *pesFilterParams);
 	bool ioctl_DMX_STOP();
+	bool ioctl_FE_SET_DFMT(enum fe_data_format format);
+	enum fe_data_format data_format;
+	void set_data_format(enum fe_data_format format);
 
 	__u64 maskbits(__u64 value, __u64 mask = 0xFFFFFFFFFFFFFFFF);
 	__u64 read64(__u64 mask = 0xFFFFFFFFFFFFFFFF);

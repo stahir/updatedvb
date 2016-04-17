@@ -455,7 +455,7 @@ void tuning::update_results()
 	update_status("Parsing transponder...", STATUS_NOEXP);
 }
 
-void tuning::setup_demux(QString type)
+void tuning::setup_demux()
 {
 	mytune->pids.clear();
 	for(int a = 0; a < list_pid.size(); a++) {
@@ -470,10 +470,10 @@ void tuning::setup_demux(QString type)
 		mytune->pids.append(0x00);
 	}
 
-	if (type == "BBFrame") {
-		mytune->demux_bbframe();
-	} else {
+	if (mytune->data_format == FE_DFMT_TS_PACKET) {
 		mytune->demux_video();
+	} else {
+		mytune->demux_bbframe();
 	}
 }
 
@@ -668,7 +668,8 @@ void tuning::on_pushButton_bbframe_clicked()
 
 	ui->pushButton_bbframe->setEnabled(false);
 
-	setup_demux("BBFrame");
+	mytune->set_data_format(FE_DFMT_BB_FRAME);
+	setup_demux();
 
 	mydemux_file = new demux_file;
 	connect(mydemux_file, SIGNAL(destroyed()), this, SLOT(delete_demux_file()));

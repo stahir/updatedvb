@@ -52,7 +52,7 @@ public:
 	~tuning();
 
 	void init();
-	void setup_demux(QString type = "TS");
+	void setup_demux();
 	dvbtune *mytune;
 	bool shutdown;
 

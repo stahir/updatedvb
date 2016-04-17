@@ -282,6 +282,16 @@
             </property>
            </spacer>
           </item>
+          <item row="14" column="1">
+           <widget class="QLabel" name="label_signalQ">
+            <property name="toolTipDuration">
+             <number>999999999</number>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="13" column="1">
            <widget class="QLabel" name="label_signalS">
             <property name="toolTipDuration">
@@ -392,7 +402,7 @@
             </property>
            </widget>
           </item>
-          <item row="20" column="0">
+          <item row="21" column="0">
            <widget class="QPushButton" name="pushButton_save_tree">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -411,22 +421,10 @@
             </property>
            </widget>
           </item>
-          <item row="21" column="0">
-           <widget class="QPushButton" name="pushButton_bbframe">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>21</height>
-             </size>
-            </property>
+          <item row="8" column="1">
+           <widget class="QLabel" name="label_frame_len">
             <property name="text">
-             <string>Save BBFrame</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -434,13 +432,6 @@
            <widget class="QLabel" name="label_17">
             <property name="text">
              <string>Frame Length</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="1">
-           <widget class="QLabel" name="label_frame_len">
-            <property name="text">
-             <string/>
             </property>
            </widget>
           </item>
@@ -458,6 +449,13 @@
             </property>
            </widget>
           </item>
+          <item row="10" column="1">
+           <widget class="QLabel" name="label_tsgs">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="5" column="1">
            <widget class="QLabel" name="label_inversion">
             <property name="text">
@@ -465,18 +463,8 @@
             </property>
            </widget>
           </item>
-          <item row="14" column="1">
-           <widget class="QLabel" name="label_signalQ">
-            <property name="toolTipDuration">
-             <number>999999999</number>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="1">
-           <widget class="QLabel" name="label_tsgs">
+          <item row="12" column="1">
+           <widget class="QLabel" name="label_sismis">
             <property name="text">
              <string/>
             </property>
@@ -489,8 +477,8 @@
             </property>
            </widget>
           </item>
-          <item row="12" column="1">
-           <widget class="QLabel" name="label_sismis">
+          <item row="9" column="1">
+           <widget class="QLabel" name="label_mis">
             <property name="text">
              <string/>
             </property>
@@ -503,7 +491,7 @@
             </property>
            </widget>
           </item>
-          <item row="23" column="0">
+          <item row="24" column="0">
            <widget class="QPushButton" name="pushButton_stream">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -528,13 +516,6 @@
             </property>
             <property name="shortcut">
              <string>Ctrl+S</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="1">
-           <widget class="QLabel" name="label_mis">
-            <property name="text">
-             <string/>
             </property>
            </widget>
           </item>
@@ -568,6 +549,20 @@
             </property>
            </widget>
           </item>
+          <item row="14" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Signal Q</string>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="1">
+           <widget class="QLabel" name="label_ber">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="18" column="0">
            <widget class="QPushButton" name="pushButton_demux">
             <property name="sizePolicy">
@@ -593,21 +588,21 @@
             </property>
            </widget>
           </item>
-          <item row="14" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Signal Q</string>
-            </property>
-           </widget>
-          </item>
-          <item row="15" column="1">
-           <widget class="QLabel" name="label_ber">
+          <item row="4" column="1">
+           <widget class="QLabel" name="label_fec">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="24" column="0">
+          <item row="6" column="1">
+           <widget class="QLabel" name="label_rolloff">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="25" column="0">
            <widget class="QPushButton" name="pushButton_iqplot">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -629,20 +624,6 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLabel" name="label_fec">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLabel" name="label_rolloff">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="15" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
@@ -657,7 +638,7 @@
             </property>
            </widget>
           </item>
-          <item row="22" column="0">
+          <item row="23" column="0">
            <widget class="QPushButton" name="pushButton_appletv">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -673,6 +654,25 @@
             </property>
             <property name="text">
              <string>AppleTV</string>
+            </property>
+           </widget>
+          </item>
+          <item row="20" column="0">
+           <widget class="QPushButton" name="pushButton_bbframe">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Save BB</string>
             </property>
            </widget>
           </item>
@@ -709,7 +709,7 @@
          <string>PID</string>
         </property>
         <property name="textAlignment">
-         <set>AlignLeft|AlignBottom</set>
+         <set>AlignLeading|AlignBottom</set>
         </property>
        </column>
       </widget>

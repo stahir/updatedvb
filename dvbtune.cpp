@@ -850,8 +850,19 @@ int dvbtune::demux_packets(QVector<dvb_pids> mypids)
 	return 1;
 }
 
+void dvbtune::set_data_format(fe_data_format format)
+{
+	if (data_format != format) {
+		ioctl_FE_SET_DFMT(format);
+	}
+}
+
 void dvbtune::demux_bbframe()
 {
+	set_data_format(FE_DFMT_BB_FRAME);
+
+	stop_demux();
+
 	struct dmx_bb_filter_params bbFilterParams;
 	memset(&bbFilterParams, 0, sizeof (struct dmx_bb_filter_params));
 	bbFilterParams.isi	= DMX_ISI_ALL;
@@ -860,17 +871,17 @@ void dvbtune::demux_bbframe()
 	bbFilterParams.type	= DMX_BB_FRAME;
 	bbFilterParams.flags	= DMX_IMMEDIATE_START;
 	ioctl_DMX_SET_BB_FILTER(&bbFilterParams);
-
 	emit adapter_status(adapter);
 }
 
 void dvbtune::demux_video()
 {
+	set_data_format(FE_DFMT_TS_PACKET);
+
 	stop_demux();
 
 	struct dmx_pes_filter_params pesFilterParams;
 	memset(&pesFilterParams, 0, sizeof(pesFilterParams));
-
 	for(int a = 0; a < pids.size(); a++)
 	{
 		pesFilterParams.pid = pids[a];
@@ -904,7 +915,11 @@ void dvbtune::demux_stream(bool start)
 void dvbtune::demux_file(bool start)
 {
 	if (start) {
-		demux_video();
+		if (data_format == FE_DFMT_TS_PACKET) {
+			demux_video();
+		} else {
+			demux_bbframe();
+		}
 
 		mydvr->file_name = out_name;
 		mydvr->thread_function.append("demux_file");
@@ -1805,6 +1820,34 @@ bool dvbtune::ioctl_DMX_STOP()
 	}
 
 	unsetbit(TUNER_DEMUX);
+
+	return true;
+}
+
+bool dvbtune::ioctl_FE_SET_DFMT(enum fe_data_format format)
+{
+	if (!openfd()) {
+		return false;
+	}
+	while (status & TUNER_IOCTL) {
+		setbit(TUNER_IOCTL_QUEUE);
+		msleep(10);
+	}
+	unsetbit(TUNER_IOCTL_QUEUE);
+
+	data_format = format;
+
+	setbit(TUNER_IOCTL);
+	if (ioctl(frontend_fd, FE_SET_DFMT, format) < 0) {
+		qDebug() << Q_FUNC_INFO << "ERROR! device:" << frontend_name;
+		unsetbit(TUNER_IOCTL);
+		return false;
+	}
+	unsetbit(TUNER_IOCTL);
+
+	while (status & TUNER_IOCTL_QUEUE) { // Give other functions a chance to send ioctl's
+		msleep(100);
+	}
 
 	return true;
 }

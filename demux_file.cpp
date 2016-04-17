@@ -19,6 +19,8 @@ demux_file::~demux_file()
 {
 	on_pushButton_stop_clicked();
 
+	mytune->set_data_format(FE_DFMT_TS_PACKET);
+
 	delete mystatus;
 	delete ui;
 }
