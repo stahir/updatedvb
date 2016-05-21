@@ -28,8 +28,10 @@ tuning::tuning(QWidget *parent) :
 	QPalette black_palette;
 	black_palette = ui->listWidget->palette();
 	black_palette.setColor(QPalette::Base, Qt::black);
+    ui->widgetLayout_pidlist->setMinimumSize(230,0);
 	ui->listWidget->setPalette(black_palette);
 	ui->listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    ui->listWidget->setMinimumSize(230,0);
 
 	mystatusbar = new QStatusBar;
 	mystatusbar->setVisible(true);
@@ -349,10 +351,10 @@ void tuning::list_create()
 {
 	for (int i = 0; i < list_pid.size(); i++) {
 		if (mytune->pids_rate.at(i) > 0) {
-			list_pid[i] = mytune->pids_rate.at(i);
+            list_pid[i] = mytune->pids_rate.at(i);
 			list_item.at(i)->setHidden(false);
-			list_item.at(i)->setText(QString("0x%1 - %2 kbit/s").arg(i,4,16,QChar('0')).arg(mytune->pids_rate.at(i),5,10,QChar(' ')));
-			list_item.at(i)->setTextColor(QColor(Qt::gray));
+            list_item.at(i)->setText(QString("0x%1 (%2) - %3 kbit/s").arg(i,4,16,QChar('0')).arg(i,4,10,QChar('0')).arg(mytune->pids_rate.at(i),5,10,QChar(' ')));
+            list_item.at(i)->setTextColor(QColor(Qt::gray));
 			if (i == 0x1fff || i == 0x2000) {
 				list_item.at(i)->setTextColor(QColor(Qt::green));
 			}
