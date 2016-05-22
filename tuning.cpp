@@ -284,7 +284,7 @@ void tuning::update_signal()
         ui->progressBar_2->setMaximum(0);
         ui->progressBar_2->setFormat("%v dBm");
         ui->progressBar_2->setTextVisible(true);
-        ui->progressBar->setValue(mytune->tp.lvl);
+        ui->progressBar_2->setValue(mytune->tp.lvl);
 	} else {
 		ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
 	}
