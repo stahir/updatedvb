@@ -302,7 +302,10 @@ void tuning::update_signal()
             ui->progressBar->setStyleSheet(danger);
         else
             ui->progressBar->setStyleSheet(safe);
-        ui->progressBar->setMaximum(33);
+        if (isSatellite(mytune->tp.system))
+            ui->progressBar->setMaximum(weak + 10); // add 10 dB for satellite TPs
+        else
+            ui->progressBar->setMaximum(weak + 20); // add 20 dB for everything else
         ui->progressBar->setFormat("%v dB");
         ui->progressBar->setTextVisible(true);
         ui->progressBar->setValue(round(mytune->tp.snr));
