@@ -280,11 +280,32 @@ void tuning::update_signal()
 
 	if (mytune->tp.lvl_scale == FE_SCALE_DECIBEL) {
 		ui->label_signalS->setText(QString::number(mytune->tp.lvl, 'f', 1) + "dBm");
+        ui->progressBar_2->setMinimum(-100);
+        ui->progressBar_2->setMaximum(0);
+        ui->progressBar_2->setFormat("%v dBm");
+        ui->progressBar_2->setTextVisible(true);
+        ui->progressBar->setValue(mytune->tp.lvl);
 	} else {
 		ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
 	}
 	if (mytune->tp.snr_scale == FE_SCALE_DECIBEL) {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "dB");
+
+        /* if signal quality is near the lock threshold, use a red progressBar,
+        otherwise use blue with a linear gradient */
+
+        QString danger = "QProgressBar::chunk {background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,stop: 0 #FF0350,stop: 0.4999 #FF0020,stop: 0.5 #FF0019,stop: 1 #FF0000 );border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;border: .px solid black;}";
+        QString safe= "QProgressBar::chunk {background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,stop: 0 #78d,stop: 0.4999 #46a,stop: 0.5 #45a,stop: 1 #238 );border-bottom-right-radius: 7px;border-bottom-left-radius: 7px;border: 1px solid black;}";
+
+        double weak = mytune->min_snr().toFloat();
+        if(ui->progressBar->value()< weak)
+            ui->progressBar->setStyleSheet(danger);
+        else
+            ui->progressBar->setStyleSheet(safe);
+        ui->progressBar->setMaximum(33);
+        ui->progressBar->setFormat("%v dB");
+        ui->progressBar->setTextVisible(true);
+        ui->progressBar->setValue(round(mytune->tp.snr));
 		ui->label_signalQ->setToolTip("min snr: " + mytune->min_snr() + "dB");
 	} else {
 		ui->label_signalQ->setText(QString::number(mytune->tp.snr, 'f', 1) + "%");
