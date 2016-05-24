@@ -278,6 +278,8 @@ void tuning::update_signal()
 		ui->pushButton_iqplot->setEnabled(false);
 	}
 
+    QString safe= "QProgressBar::chunk {background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,stop: 0 #78d,stop: 0.4999 #46a,stop: 0.5 #45a,stop: 1 #238 );border-bottom-right-radius: 7px;border-bottom-left-radius: 7px;border: 1px solid black;}";
+    ui->progressBar_2->setStyleSheet(safe);
 	if (mytune->tp.lvl_scale == FE_SCALE_DECIBEL) {
 		ui->label_signalS->setText(QString::number(mytune->tp.lvl, 'f', 1) + "dBm");
         ui->progressBar_2->setMinimum(-100);
@@ -286,7 +288,7 @@ void tuning::update_signal()
 
         ui->progressBar_2->setValue(mytune->tp.lvl);
 	} else {
-		ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
+        ui->label_signalS->setText(QString::number(mytune->tp.lvl) + "%");
         ui->progressBar_2->setMinimum(0);
         ui->progressBar_2->setMaximum(100);
         ui->progressBar_2->setFormat("%p%");
