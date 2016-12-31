@@ -496,7 +496,7 @@ void dvbtune::check_frontend()
 	tp.matype	= p_status.props[8].u.data;
 	tp.lvl_scale	= p_status.props[9].u.st.stat[0].scale;
 	if (tp.lvl_scale == FE_SCALE_DECIBEL) {
-		tp.lvl	= p_status.props[9].u.st.stat[0].svalue * 0.0001;
+		tp.lvl	= p_status.props[9].u.st.stat[0].svalue * 0.001;
 	} else {
 		int lvl = 0;
 		if (ioctl_FE_READ_SIGNAL_STRENGTH(&lvl)) {
@@ -510,7 +510,7 @@ void dvbtune::check_frontend()
 	}
 	tp.snr_scale = p_status.props[10].u.st.stat[0].scale;
 	if (tp.snr_scale == FE_SCALE_DECIBEL) {
-		tp.snr = p_status.props[10].u.st.stat[0].svalue * 0.0001;
+		tp.snr = p_status.props[10].u.st.stat[0].svalue * 0.001;
 	} else {
 		unsigned int snr = 0;
 		if (ioctl_FE_READ_SNR(&snr)) {
