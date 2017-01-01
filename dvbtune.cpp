@@ -672,10 +672,10 @@ int dvbtune::tune()
 
 	ioctl_FE_SET_PROPERTY(&cmdseq_tune);
 
-	// Keep trying for upto 2 second
+	// Keep trying for up to 5 seconds
 	QTime t;
 	t.start();
-	while (t.elapsed() < 2000) {
+	while (t.elapsed() < 5000) {
 		ioctl_FE_READ_STATUS(&festatus);
 
 		if (festatus & FE_TIMEDOUT) {
@@ -688,6 +688,7 @@ int dvbtune::tune()
 		if (festatus & FE_HAS_LOCK) {
 			emit update_status("", STATUS_CLEAR);
 			emit update_status("Tuning Locked, searched for: " + QString::number(t.elapsed()/1000.0, 'f', 1) + "s", 1);
+			qDebug() << "Locked...";
 			check_frontend();
 			emit update_results();
 			return 1;	
