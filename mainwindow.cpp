@@ -39,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	curve.append(new QwtPlotCurve("N"));
 
 	legend = new QwtLegend;
+	ui->qwtPlot->setLineWidth(4);
+	ui->qwtPlot->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 	ui->qwtPlot->insertLegend(legend, QwtPlot::RightLegend);
 	ui->qwtPlot->setAxisTitle(QwtPlot::xBottom, "Frequency");
 	ui->qwtPlot->setAxisTitle(QwtPlot::yLeft, "Amplitude");
