@@ -913,6 +913,7 @@ dvb_settings::dvb_settings()
 	stream_type[0x11] = "MPEG-2 HD digital television service";
 	stream_type[0x14] = "DSM-CC sections containing non-streaming, synchronized data per A/90 [17]";
 	stream_type[0x1B] = "AVC video stream as defined in ITU-T Rec. H.264";
+	stream_type[0x24] = "HEVC video stream as defined in ITU-T Rec. H.265";
 	stream_type[0x56] = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 reserved";
 	stream_type[0x80] = "User private";
 	stream_type[0x81] = "User private | AC3 Audio";
