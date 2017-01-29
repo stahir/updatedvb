@@ -524,7 +524,9 @@ void dvbtune::check_frontend()
 	}
 	tp.ber_scale	= p_status.props[11].u.st.stat[0].scale;
 	if (p_status.props[11].u.st.stat[0].scale == FE_SCALE_COUNTER) {
-		tp.ber	= p_status.props[11].u.st.stat[0].uvalue;
+		tp.ber = 0;
+		ioctl_FE_READ_BER(&tp.ber); // use dvbv3 ioctl for ber 
+		//tp.ber	= p_status.props[11].u.st.stat[0].uvalue; //TODO fix dvbv5 ber across devices
 	} else {
 		tp.ber = 0;
 		ioctl_FE_READ_BER(&tp.ber);
