@@ -399,6 +399,7 @@ void MainWindow::on_pushButton_blindscan_clicked()
 
 	myblindscan.append(new blindscan);
 	myblindscan.last()->mytune = mytuners.at(ui->comboBox_adapter->currentIndex());
+	myblindscan.last()->mytune->tp.symbolrate = ui->lineEdit_symbolrate->text().toInt();
 	myblindscan.last()->init();
 	myblindscan.last()->show();
 
@@ -801,7 +802,7 @@ void MainWindow::setup_tuning_options()
 			ui->gridWidget_blindscan->show();
 			ui->gridWidget_satellite->hide();
 		} else {
-			ui->gridWidget_blindscan->hide();
+			ui->gridWidget_blindscan->show();
 			ui->gridWidget_satellite->show();
 		}
 	}
