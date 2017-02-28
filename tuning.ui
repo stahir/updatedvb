@@ -235,7 +235,7 @@
             </property>
            </widget>
           </item>
-          <item row="17" column="0">
+          <item row="19" column="0">
            <widget class="QPushButton" name="pushButton_play">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -269,7 +269,7 @@
             </property>
            </widget>
           </item>
-          <item row="16" column="0">
+          <item row="18" column="0">
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -282,7 +282,14 @@
             </property>
            </spacer>
           </item>
-          <item row="14" column="1">
+          <item row="5" column="1">
+           <widget class="QLabel" name="label_inversion">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="15" column="1">
            <widget class="QLabel" name="label_signalQ">
             <property name="toolTipDuration">
              <number>999999999</number>
@@ -302,14 +309,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="label_modulation">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="19" column="0">
+          <item row="21" column="0">
            <widget class="QPushButton" name="pushButton_file">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -331,6 +331,13 @@
             </property>
             <property name="text">
              <string>Save TS</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_modulation">
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -362,6 +369,13 @@
             </property>
            </widget>
           </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Lock</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_5">
             <property name="maximumSize">
@@ -388,21 +402,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Lock</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>Pilot</string>
-            </property>
-           </widget>
-          </item>
-          <item row="21" column="0">
+          <item row="23" column="0">
            <widget class="QPushButton" name="pushButton_save_tree">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -418,6 +418,13 @@
             </property>
             <property name="text">
              <string>Save Tree</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Pilot</string>
             </property>
            </widget>
           </item>
@@ -456,13 +463,6 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLabel" name="label_inversion">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="12" column="1">
            <widget class="QLabel" name="label_sismis">
             <property name="text">
@@ -491,7 +491,14 @@
             </property>
            </widget>
           </item>
-          <item row="24" column="0">
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>Rolloff</string>
+            </property>
+           </widget>
+          </item>
+          <item row="26" column="0">
            <widget class="QPushButton" name="pushButton_stream">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -519,10 +526,10 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_9">
+          <item row="13" column="0">
+           <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>Rolloff</string>
+             <string>Signal S</string>
             </property>
            </widget>
           </item>
@@ -542,28 +549,21 @@
             </property>
            </widget>
           </item>
-          <item row="13" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Signal S</string>
-            </property>
-           </widget>
-          </item>
-          <item row="14" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Signal Q</string>
-            </property>
-           </widget>
-          </item>
-          <item row="15" column="1">
+          <item row="17" column="1">
            <widget class="QLabel" name="label_ber">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="18" column="0">
+          <item row="15" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Signal Q</string>
+            </property>
+           </widget>
+          </item>
+          <item row="20" column="0">
            <widget class="QPushButton" name="pushButton_demux">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -602,7 +602,14 @@
             </property>
            </widget>
           </item>
-          <item row="25" column="0">
+          <item row="17" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>BER</string>
+            </property>
+           </widget>
+          </item>
+          <item row="27" column="0">
            <widget class="QPushButton" name="pushButton_iqplot">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -624,13 +631,6 @@
             </property>
            </widget>
           </item>
-          <item row="15" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>BER</string>
-            </property>
-           </widget>
-          </item>
           <item row="9" column="0">
            <widget class="QLabel" name="label_12">
             <property name="text">
@@ -638,7 +638,7 @@
             </property>
            </widget>
           </item>
-          <item row="23" column="0">
+          <item row="25" column="0">
            <widget class="QPushButton" name="pushButton_appletv">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -657,7 +657,7 @@
             </property>
            </widget>
           </item>
-          <item row="20" column="0">
+          <item row="22" column="0">
            <widget class="QPushButton" name="pushButton_bbframe">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -673,6 +673,20 @@
             </property>
             <property name="text">
              <string>Save BB</string>
+            </property>
+           </widget>
+          </item>
+          <item row="16" column="0">
+           <widget class="QProgressBar" name="progressBar">
+            <property name="value">
+             <number>24</number>
+            </property>
+           </widget>
+          </item>
+          <item row="14" column="0">
+           <widget class="QProgressBar" name="progressBar_2">
+            <property name="value">
+             <number>24</number>
             </property>
            </widget>
           </item>

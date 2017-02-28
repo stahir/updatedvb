@@ -20,6 +20,8 @@ iqplot::iqplot(QWidget *parent) :
 		curve[i]->setSymbol(scatter_symbol[i]);
 	}
 
+	ui->qwtPlot->setLineWidth(4);
+	ui->qwtPlot->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 	ui->qwtPlot->setAxisScale(QwtPlot::xBottom, -128, 128);
 	ui->qwtPlot->setAxisScale(QwtPlot::yLeft, -128, 128);
 	ui->qwtPlot->enableAxis(QwtPlot::xBottom ,0);

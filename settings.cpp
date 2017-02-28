@@ -148,7 +148,7 @@ void settings::load_settings()
 
 	if (mytuners.size() > ui->comboBox_adapter->currentIndex()) {
 		update_status(mytuners.at(ui->comboBox_adapter->currentIndex())->name, STATUS_NOEXP);
-		if (mytuners.at(ui->comboBox_adapter->currentIndex())->extended_caps & FE_CAN_BLINDSEARCH) {
+        if (mytuners.at(ui->comboBox_adapter->currentIndex())->extended_caps) {
 			ui->label_blindscan_step->show();
 			ui->lineEdit_blindscan_step->show();
 			if (mysettings->value("adapter"+QString::number(adp)+"_blindscan_step").toString() != "") {

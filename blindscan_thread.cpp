@@ -74,7 +74,7 @@ void blindscan_thread::smartscan()
 		mytune->tp.frequency	= mytune->tp_try.at(i).frequency;
 		mytune->tp.voltage	= mytune->tp_try.at(i).voltage;
 		mytune->tp.system	= mytune->tp_try.at(i).system;
-		mytune->tp.symbolrate	= 1000;
+		//mytune->tp.symbolrate	= 1000;
 		mutex.lock();
 		mytune->tune();
 		mutex.wait(&loop);
@@ -96,7 +96,7 @@ void blindscan_thread::blindscan()
 	float size = abs(mytune->tune_ops.f_start-mytune->tune_ops.f_stop) - 18;
 	float rolloff;
 	mytune->tp.frequency	= mytune->tune_ops.f_start;
-	mytune->tp.symbolrate	= 1000;
+	//mytune->tp.symbolrate	= 1000;
 	base_tp = mytune->tp;
 	while (mytune->tp.frequency < mytune->tune_ops.f_stop && loop) {
 		mutex.lock();
