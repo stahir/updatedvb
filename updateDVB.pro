@@ -54,9 +54,8 @@ FORMS    += mainwindow.ui \
     iqplot.ui \
     demux_file.ui
 
-INCLUDEPATH += /usr/local/qwt-6.1.3-svn/include
 INCLUDEPATH += /usr/include/qwt
-LIBS += -Wl,-rpath,/usr/local/qwt-6.1.3-svn/lib -L /usr/local/qwt-6.1.3-svn/lib -l:libqwt.so
+LIBS += -Wl,-rpath,/usr/lib -L /usr/lib -l:libqwt-qt5.so
 QMAKE_CXXFLAGS += -std=c++0x
 
 OTHER_FILES +=

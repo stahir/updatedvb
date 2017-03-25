@@ -22,7 +22,7 @@
 #
 # Then download and install any dependancies you need
 
-	sudo apt-get install git build-essential subversion libgl1-mesa-dev mesa-common-dev
+	sudo apt-get install git build-essential subversion libgl1-mesa-dev mesa-common-dev libqwt-qt5-dev
 
 # As well as Qt 5.6
 #
@@ -37,15 +37,6 @@
 	wget http://download.qt.io/official_releases/online_installers/qt-unified-linux-x86-online.run
         chmod +x qt-unified-linux-x86-online.run
         sudo ./qt-unified-linux-x86-online.run
-
-# Then for qwt
-	
-	svn checkout https://svn.code.sf.net/p/qwt/code/branches/qwt-6.1
-	cd qwt-6.1
-	/opt/Qt/5.6/gcc/bin/qmake qwt.pro #(32 bit)
-	/opt/Qt/5.6/gcc_64/bin/qmake qwt.pro #(64 bit)
-	make
-	sudo make install
 
 # To download the updateDVB source
 
